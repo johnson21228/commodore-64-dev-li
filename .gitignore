@@ -1,0 +1,27 @@
+.DS_Store
+__MACOSX/
+*.pyc
+__pycache__/
+
+# Generated packs
+dist/*.zip
+
+# Generated history artifacts
+outputs/history/repo_history_for_llm_*.md
+
+# Overlay cruft
+overlay/
+files/
+apply_*_overlay.py
+*_overlay.zip
+
+# Generated Workbench repo inventory snapshots
+artifacts/workbench_repo_inventory_*.md
+# Workbench local/bulk working areas
+work/inputs/
+work/runs/
+work/scratch/
+private-artifacts/
+local-archives/
+*.sqlite
+*.db
