@@ -1,18 +1,22 @@
 REPO_NAME := $(notdir $(CURDIR))
 PACK_PATH := dist/$(REPO_NAME).pack.zip
 
-.PHONY: verify verify-li verify-c64 history clean-li pack read-first
+.PHONY: verify verify-li verify-c64 verify-learning-lab history clean-li pack read-first
 
 verify:
 	python3 tools/check_template_integrity.py
 	python3 tools/verify_li_governance.py
 	python3 tools/verify_c64_workbench.py
+	python3 tools/verify_c64_learning_lab.py
 
 verify-li:
 	python3 tools/verify_li_governance.py
 
 verify-c64:
 	python3 tools/verify_c64_workbench.py
+
+verify-learning-lab:
+	python3 tools/verify_c64_learning_lab.py
 
 history:
 	python3 tools/export_repo_history_for_llm.py

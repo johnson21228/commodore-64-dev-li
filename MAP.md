@@ -46,6 +46,50 @@ docs/c64/workbench_loop_for_c64_development.md
 docs/c64/application_brainstorm_chatbot.md
 ```
 
+
+## C64 Learning Lab
+
+The primary project direction is now:
+
+```text
+C64 Learning Lab
+```
+
+Learning Lab read-first files:
+
+```text
+li/domain/c64_learning_lab_principles.md
+li/domain/lab_artifact_contract.md
+docs/c64/learning_lab_project_setup.md
+docs/c64/lab_sequence.md
+docs/c64/emulator_review_workflow.md
+docs/c64/c64_machine_concepts.md
+source/c64/community_sources.md
+```
+
+First lab skeletons:
+
+```text
+labs/001_hello_screen/
+labs/002_screen_memory/
+labs/003_color_memory/
+```
+
+Learning Lab prompts:
+
+```text
+prompts/c64_define_learning_lab_li.md
+prompts/c64_build_next_learning_lab.md
+prompts/c64_capture_learning_lab_evidence.md
+prompts/c64_research_project_idea_corpus.md
+```
+
+Learning Lab verification lives at:
+
+```text
+tools/verify_c64_learning_lab.py
+```
+
 ## C64 prompts
 
 ```text

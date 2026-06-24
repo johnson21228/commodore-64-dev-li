@@ -31,3 +31,18 @@ The first useful outcome is a reproducible "hello C64" path that can build a sma
 ## First application direction
 
 The first application direction is `C64 MEMORY PAL`: a C64 Hello Console that can grow into an ELIZA-style rule-based chatbot. A modern LLM may be used as an external host or reasoning assistant later, but the Workbench must not claim that a C64 is running an LLM natively.
+
+
+## Project direction: C64 Learning Lab
+
+The primary project direction is now `C64 Learning Lab`.
+
+The lab loop is:
+
+```text
+concept truth -> tiny runnable program -> emulator evidence -> verifier -> Capture Back
+```
+
+The first milestone is the emulator-first learning loop: define the lab contract, create the first lab sequence, add the first three lab skeletons, document emulator review, and verify lab completeness.
+
+The chatbot direction remains as `C64 MEMORY PAL`, but it is best treated as a later synthesis lab after screen output, keyboard input, PETSCII layout, state, and memory limits have been explored.

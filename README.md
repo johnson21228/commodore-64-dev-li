@@ -4,6 +4,31 @@ A Workbench for learning, designing, building, and preserving continuity around 
 
 This repo was created from the Workbench LI template and keeps the template governance intact. Its domain layer adds a C64 development spine: cross-development on a modern Mac, emulator-first validation, optional real-hardware handoff, and careful capture of toolchain decisions.
 
+## C64 Learning Lab
+
+The primary project direction is `C64 Learning Lab`: a sequence of small, runnable experiments that teach Commodore 64 machine concepts one at a time.
+
+The Learning Lab loop is:
+
+```text
+C64 concept truth -> tiny runnable program -> emulator evidence -> verifier -> Capture Back
+```
+
+Start with:
+
+```text
+docs/c64/learning_lab_project_setup.md
+docs/c64/lab_sequence.md
+li/domain/c64_learning_lab_principles.md
+li/domain/lab_artifact_contract.md
+```
+
+Verify the lab layer with:
+
+```bash
+make verify-learning-lab
+```
+
 ## What this Workbench is for
 
 Use this Workbench to develop small Commodore 64 programs, demos, games, experiments, and learning notes with durable AI-assisted continuity.
