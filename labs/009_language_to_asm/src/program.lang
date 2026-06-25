@@ -1,0 +1,6 @@
+set border blue
+set background black
+clear screen
+put "LANGUAGE TO ASM" at row 10 col 5 color yellow
+put "GENERATED 6502" at row 12 col 7 color light green
+wait forever

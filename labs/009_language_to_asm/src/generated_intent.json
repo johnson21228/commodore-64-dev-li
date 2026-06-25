@@ -1,0 +1,83 @@
+[
+  {
+    "op": "set_border",
+    "line": 1,
+    "source": "set border blue",
+    "color": "blue",
+    "value": 6,
+    "register": "$d020"
+  },
+  {
+    "op": "set_background",
+    "line": 2,
+    "source": "set background black",
+    "color": "black",
+    "value": 0,
+    "register": "$d021"
+  },
+  {
+    "op": "clear_screen",
+    "line": 3,
+    "source": "clear screen"
+  },
+  {
+    "op": "put_text",
+    "line": 4,
+    "source": "put \"LANGUAGE TO ASM\" at row 10 col 5 color yellow",
+    "text": "LANGUAGE TO ASM",
+    "row": 10,
+    "col": 5,
+    "offset": 405,
+    "color": "yellow",
+    "color_value": 7,
+    "screen_codes": [
+      12,
+      1,
+      14,
+      7,
+      21,
+      1,
+      7,
+      5,
+      32,
+      20,
+      15,
+      32,
+      1,
+      19,
+      13
+    ]
+  },
+  {
+    "op": "put_text",
+    "line": 5,
+    "source": "put \"GENERATED 6502\" at row 12 col 7 color light green",
+    "text": "GENERATED 6502",
+    "row": 12,
+    "col": 7,
+    "offset": 487,
+    "color": "light green",
+    "color_value": 13,
+    "screen_codes": [
+      7,
+      5,
+      14,
+      5,
+      18,
+      1,
+      20,
+      5,
+      4,
+      32,
+      54,
+      53,
+      48,
+      50
+    ]
+  },
+  {
+    "op": "wait_forever",
+    "line": 6,
+    "source": "wait forever"
+  }
+]

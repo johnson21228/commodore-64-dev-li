@@ -7,7 +7,7 @@ REQUIRED = {
     "li/domain/c64_learning_lab_principles.md": ["C64 Learning Lab", "runnable"],
     "li/domain/lab_artifact_contract.md": ["README.md", "expected.md"],
     "docs/c64/learning_lab_project_setup.md": ["Learning Lab", "emulator"],
-    "docs/c64/lab_sequence.md": ["Lab 001", "Lab 008"],
+    "docs/c64/lab_sequence.md": ["Lab 001", "Lab 008", "Lab 009"],
     "docs/c64/first_curriculum_batch.md": ["Lab 004", "Lab 008"],
     "captures/CAPTURE_BACK_C64_HELLO_WORLD_APP.md": ["Hello World"],
     "captures/CAPTURE_BACK_C64_SCREEN_MEMORY_APP.md": ["Screen Memory"],
@@ -55,7 +55,7 @@ for folder, target in LABS:
         errors.append(f"labs/{folder}/Makefile missing target name {target}")
 
 makefile = (ROOT / "Makefile").read_text(errors="ignore") if (ROOT / "Makefile").exists() else ""
-for n in range(1, 9):
+for n in range(1, 10):
     token = f"lab{n:03d}"
     if token not in makefile or f"{token}-run" not in makefile:
         errors.append(f"Makefile missing {token}/{token}-run shortcut")

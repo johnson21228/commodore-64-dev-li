@@ -1,13 +1,14 @@
 REPO_NAME := $(notdir $(CURDIR))
 PACK_PATH := dist/$(REPO_NAME).pack.zip
 
-.PHONY: verify verify-li verify-c64 verify-learning-lab history clean-li clean-labs pack read-first 	lab001 lab001-run lab002 lab002-run lab003 lab003-run lab004 lab004-run 	lab005 lab005-run lab006 lab006-run lab007 lab007-run lab008 lab008-run
+.PHONY: verify verify-li verify-c64 verify-learning-lab verify-language-to-asm history clean-li clean-labs pack read-first 	lab001 lab001-run lab002 lab002-run lab003 lab003-run lab004 lab004-run 	lab005 lab005-run lab006 lab006-run lab007 lab007-run lab008 lab008-run lab009 lab009-run
 
 verify:
 	python3 tools/check_template_integrity.py
 	python3 tools/verify_li_governance.py
 	python3 tools/verify_c64_workbench.py
 	python3 tools/verify_c64_learning_lab.py
+	python3 tools/verify_c64_language_to_asm.py
 
 verify-li:
 	python3 tools/verify_li_governance.py
@@ -17,6 +18,9 @@ verify-c64:
 
 verify-learning-lab:
 	python3 tools/verify_c64_learning_lab.py
+
+verify-language-to-asm:
+	python3 tools/verify_c64_language_to_asm.py
 
 history:
 	python3 tools/export_repo_history_for_llm.py
@@ -81,6 +85,12 @@ lab008:
 
 lab008-run: lab008
 	@if command -v x64sc >/dev/null 2>&1; then x64sc labs/008_memory_pal/dist/memory_pal.prg; else echo "x64sc not found. Install VICE or open labs/008_memory_pal/dist/memory_pal.prg manually."; exit 1; fi
+
+lab009:
+	$(MAKE) -C labs/009_language_to_asm build
+
+lab009-run: lab009
+	@if command -v x64sc >/dev/null 2>&1; then x64sc labs/009_language_to_asm/dist/language_to_asm.prg; else echo "x64sc not found. Install VICE or open labs/009_language_to_asm/dist/language_to_asm.prg manually."; exit 1; fi
 
 read-first:
 	@cat LLM_READ_FIRST.md

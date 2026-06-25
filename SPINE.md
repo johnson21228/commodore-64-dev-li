@@ -104,3 +104,16 @@ one ChatGPT conversation -> two roles -> terminal Capture Back -> local repo -> 
 It adapts the product-builder Stage 0 workflow pattern to the Commodore 64 Learning Lab so a friend can understand why the repo is a durable learning system, not only a set of C64 code examples.
 
 - Card 014 captures the Hernan-facing C64 Workbench Stage 0 Loop image and companion copy.
+
+
+## C64 Language-to-Assembly Layer
+
+The next synthesis direction is a controlled language layer that generates C64 assembly directly.
+
+It uses this custody chain:
+
+```text
+language command text -> parsed intent JSON -> generated assembly -> .prg build -> emulator evidence -> Capture Back
+```
+
+This is not unconstrained natural-language compilation. The repo-owned parser/generator accepts only a small command language and fails closed for unknown commands. Lab 009 proves the first path from `program.lang` to generated ca65-compatible assembly.

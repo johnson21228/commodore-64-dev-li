@@ -190,3 +190,34 @@ Generated artifacts are evidence only. Build outputs, emulator screenshots, `.pr
 
 - `docs/visuals/c64_workbench_stage0_learning_loop_for_hernan.md` — Shareable Hernan-facing copy and image for the C64 Stage 0 Workbench loop.
 - `assets/visuals/c64_workbench_stage0_learning_loop/c64_workbench_stage0_learning_loop_for_hernan.jpeg` — Durable shareable image asset.
+
+
+## C64 Language-to-Assembly Layer
+
+Read-first files:
+
+```text
+li/domain/language_to_assembly_contract.md
+docs/c64/language_to_assembly_layer.md
+prompts/c64_build_language_to_asm_lab.md
+```
+
+First lab:
+
+```text
+labs/009_language_to_asm/
+```
+
+Generated custody artifacts:
+
+```text
+labs/009_language_to_asm/src/program.lang
+labs/009_language_to_asm/src/generated_intent.json
+labs/009_language_to_asm/src/generated.s
+```
+
+Verification lives at:
+
+```text
+tools/verify_c64_language_to_asm.py
+```

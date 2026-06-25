@@ -13,16 +13,17 @@ Lab 005: Keyboard Input     - read keys and update program state
 Lab 006: Sprite Basics      - define, point, position, and enable sprite 0
 Lab 007: SID Tone           - write sound registers for a tone
 Lab 008: Memory Pal         - tiny rule-based C64 helper app
+Lab 009: Language to Assembly - controlled language -> intent JSON -> generated assembly
 ```
 
 ## Next candidates
 
 ```text
-Lab 009: Moving Sprite
-Lab 010: Simple Game Loop
-Lab 011: Character Set Experiment
-Lab 012: Disk Save/Load Note
-Lab 013: Serial/Host Gateway Sketch
+Lab 010: Moving Sprite
+Lab 011: Simple Game Loop
+Lab 012: Character Set Experiment
+Lab 013: Disk Save/Load Note
+Lab 014: Serial/Host Gateway Sketch
 ```
 
 ## Pattern
