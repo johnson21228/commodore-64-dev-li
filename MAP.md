@@ -168,3 +168,14 @@ Generated artifacts are evidence only. Build outputs, emulator screenshots, `.pr
 - `cards/007_c64_color_memory_app_card.md` — continuity card for the Lab 003 app.
 - `captures/CAPTURE_BACK_C64_COLOR_MEMORY_APP.md` — Capture Back for the Lab 003 color-memory code example.
 - `labs/003_color_memory/` — runnable direct screen/color memory code example.
+
+
+## C64 Learning Lab first curriculum batch
+
+- `docs/c64/first_curriculum_batch.md` — overview of Labs 004–008.
+- `labs/004_petscii_ui/` — PETSCII/text UI lab.
+- `labs/005_keyboard_input/` — keyboard input lab.
+- `labs/006_sprite_basics/` — sprite register pipeline lab.
+- `labs/007_sid_tone/` — SID sound register lab.
+- `labs/008_memory_pal/` — first tiny product-shaped C64 helper app.
+- `captures/CAPTURE_BACK_C64_FIRST_CURRICULUM_BATCH.md` — capture for this batch.

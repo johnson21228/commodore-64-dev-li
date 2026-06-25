@@ -25,3 +25,6 @@ private-artifacts/
 local-archives/
 *.sqlite
 *.db
+
+labs/*/dist/
+labs/*/src/*.o

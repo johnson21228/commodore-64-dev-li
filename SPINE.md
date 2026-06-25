@@ -76,3 +76,19 @@ source code -> $0400 screen RAM + $D800 color RAM -> colored visible character c
 ```
 
 The required proof is colored `A`, `B`, and `C` characters, demonstrating that character code and foreground color live at paired offsets in separate memory regions.
+
+
+## C64 Learning Lab first curriculum batch
+
+The current lab spine now runs from basic output through a small product-shaped helper:
+
+```text
+001 Hello Screen
+002 Screen Memory
+003 Color Memory
+004 PETSCII UI
+005 Keyboard Input
+006 Sprite Basics
+007 SID Tone
+008 Memory Pal
+```

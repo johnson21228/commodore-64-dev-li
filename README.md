@@ -121,3 +121,19 @@ make lab003-run
 ```
 
 Lab 003 demonstrates that `$0400` screen RAM controls visible character codes while `$D800` color RAM controls foreground colors at matching cell offsets.
+
+
+## C64 Learning Lab first curriculum
+
+```text
+Lab 001: Hello Screen
+Lab 002: Screen Memory
+Lab 003: Color Memory
+Lab 004: PETSCII UI
+Lab 005: Keyboard Input
+Lab 006: Sprite Basics
+Lab 007: SID Tone
+Lab 008: Memory Pal
+```
+
+Use `make labNNN` to build and `make labNNN-run` to run when VICE is installed.
