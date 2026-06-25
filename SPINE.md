@@ -92,3 +92,15 @@ The current lab spine now runs from basic output through a small product-shaped 
 007 SID Tone
 008 Memory Pal
 ```
+
+## C64 Workbench Stage 0 learning loop visual
+
+The shareable C64 Workbench infographic explains the current practical loop for newcomers:
+
+```text
+one ChatGPT conversation -> two roles -> terminal Capture Back -> local repo -> cc65 -> VICE -> evidence -> pack
+```
+
+It adapts the product-builder Stage 0 workflow pattern to the Commodore 64 Learning Lab so a friend can understand why the repo is a durable learning system, not only a set of C64 code examples.
+
+- Card 014 captures the Hernan-facing C64 Workbench Stage 0 Loop image and companion copy.

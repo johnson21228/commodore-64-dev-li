@@ -137,3 +137,18 @@ Lab 008: Memory Pal
 ```
 
 Use `make labNNN` to build and `make labNNN-run` to run when VICE is installed.
+
+## Shareable workflow infographic
+
+A newcomer-friendly C64 Workbench workflow visual lives at:
+
+```text
+docs/visuals/c64_workbench_stage0_learning_loop.png
+```
+
+It explains the Stage 0 learning loop: one ChatGPT conversation, Workbench + II roles, terminal Capture Back, local repo custody, cc65 builds, VICE emulator evidence, and packed re-entry state.
+
+
+### C64 Workbench Stage 0 shareable
+
+The repo includes a Hernan-facing infographic and companion copy at `docs/visuals/c64_workbench_stage0_learning_loop_for_hernan.md`. It explains the Workbench loop as conversation → repo → verify → build → emulator evidence → Capture Back → next lab.

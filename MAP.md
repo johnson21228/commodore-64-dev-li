@@ -179,3 +179,14 @@ Generated artifacts are evidence only. Build outputs, emulator screenshots, `.pr
 - `labs/007_sid_tone/` — SID sound register lab.
 - `labs/008_memory_pal/` — first tiny product-shaped C64 helper app.
 - `captures/CAPTURE_BACK_C64_FIRST_CURRICULUM_BATCH.md` — capture for this batch.
+
+## C64 Workbench Stage 0 Learning Loop Infographic
+
+- `docs/visuals/c64_workbench_stage0_learning_loop.png` — shareable C64 Workbench workflow infographic for newcomer handoff.
+- `docs/visuals/c64_workbench_stage0_learning_loop.md` — explanation of the visual.
+- `assets/visuals/c64_workbench_stage0_learning_loop/` — stored visual asset copy.
+- `prompts/visuals/generate_c64_workbench_stage0_learning_loop_infographic.md` — regeneration prompt.
+- `captures/CAPTURE_BACK_C64_WORKBENCH_STAGE0_LEARNING_LOOP_IG.md` — Capture Back for the visual asset.
+
+- `docs/visuals/c64_workbench_stage0_learning_loop_for_hernan.md` — Shareable Hernan-facing copy and image for the C64 Stage 0 Workbench loop.
+- `assets/visuals/c64_workbench_stage0_learning_loop/c64_workbench_stage0_learning_loop_for_hernan.jpeg` — Durable shareable image asset.
