@@ -46,3 +46,33 @@ concept truth -> tiny runnable program -> emulator evidence -> verifier -> Captu
 The first milestone is the emulator-first learning loop: define the lab contract, create the first lab sequence, add the first three lab skeletons, document emulator review, and verify lab completeness.
 
 The chatbot direction remains as `C64 MEMORY PAL`, but it is best treated as a later synthesis lab after screen output, keyboard input, PETSCII layout, state, and memory limits have been explored.
+
+
+## First runnable lab
+
+Lab 001 is the Hello World proof app. It must build a `.prg`, run in VICE or on hardware, and produce observed evidence before it is called complete.
+
+
+## C64 Learning Lab: Lab 002 Screen Memory
+
+Lab 002 is the first direct memory-mapped machine example.
+
+It promotes this learning chain:
+
+```text
+source code -> $0400 screen RAM -> visible C64 character cell -> emulator evidence -> Capture Back
+```
+
+The required proof is a red `A` in the top-left cell, demonstrating that `SCREEN[0]` maps to the first visible character cell.
+
+## C64 Learning Lab: Lab 003 Color Memory
+
+Lab 003 adds the paired color-memory concept to Lab 002's screen-memory concept.
+
+It promotes this learning chain:
+
+```text
+source code -> $0400 screen RAM + $D800 color RAM -> colored visible character cells -> emulator evidence -> Capture Back
+```
+
+The required proof is colored `A`, `B`, and `C` characters, demonstrating that character code and foreground color live at paired offsets in separate memory regions.

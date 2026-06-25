@@ -64,6 +64,7 @@ docs/c64/learning_lab_project_setup.md
 docs/c64/lab_sequence.md
 docs/c64/emulator_review_workflow.md
 docs/c64/c64_machine_concepts.md
+docs/c64/hello_world_app.md
 source/c64/community_sources.md
 ```
 
@@ -151,3 +152,19 @@ make read-first
 ## Generated artifact boundary
 
 Generated artifacts are evidence only. Build outputs, emulator screenshots, `.prg` files, disk images, and logs should be placed under `work/` or `artifacts/` only when intentionally curated. They do not govern the repo.
+
+## C64 Learning Lab 002: Screen Memory
+
+- `docs/c64/screen_memory_app.md` — Lab 002 runnable screen-memory app notes.
+- `prompts/c64_run_screen_memory_lab.md` — prompt for building/running Lab 002 and capturing emulator evidence.
+- `cards/006_c64_screen_memory_app_card.md` — continuity card for the Lab 002 app.
+- `captures/CAPTURE_BACK_C64_SCREEN_MEMORY_APP.md` — Capture Back for the Lab 002 screen-memory code example.
+- `labs/002_screen_memory/` — runnable direct screen-memory code example.
+
+## C64 Learning Lab 003: Color Memory
+
+- `docs/c64/color_memory_app.md` — Lab 003 runnable color-memory app notes.
+- `prompts/c64_run_color_memory_lab.md` — prompt for building/running Lab 003 and capturing emulator evidence.
+- `cards/007_c64_color_memory_app_card.md` — continuity card for the Lab 003 app.
+- `captures/CAPTURE_BACK_C64_COLOR_MEMORY_APP.md` — Capture Back for the Lab 003 color-memory code example.
+- `labs/003_color_memory/` — runnable direct screen/color memory code example.

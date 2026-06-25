@@ -1,12 +1,14 @@
-# Expected Behavior: Lab 002: Screen Memory
+# Expected Result: Lab 002 Screen Memory
 
-The lab is successful when:
+A valid run shows that direct memory writes to `$0400` affect the visible C64 text screen.
 
-```text
-1. The source builds into a .prg.
-2. The .prg launches in VICE.
-3. The observed behavior matches the lab README.
-4. The observation is captured back as evidence.
-```
+The app should:
 
-Do not claim real hardware success unless tested on real hardware.
+1. build to `dist/screen_memory.prg`;
+2. set a blue border and black background;
+3. clear the 40x25 text screen by writing spaces into screen RAM;
+4. write visible text by storing C64 screen codes into `$0400` onward;
+5. show a red `A` in the top-left character cell by writing to `SCREEN[0]`;
+6. remain visible until the emulator is closed or reset.
+
+This lab is complete when the `.prg` builds locally and emulator evidence confirms the `SCREEN[0]` observation.

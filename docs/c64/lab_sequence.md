@@ -158,3 +158,15 @@ LLM bridge architecture
 ## Rule for adding labs
 
 Add labs in a way that preserves the learning ladder. Every lab should make one C64 machine concept visible.
+
+
+## Runnable Lab 002 checkpoint
+
+Lab 002 Screen Memory is now runnable. It writes directly to `$0400`, shows Lab 002 explanatory text, and marks `SCREEN[0]` with a red `A` as the visible proof.
+
+Root shortcuts:
+
+```bash
+make lab002
+make lab002-run
+```

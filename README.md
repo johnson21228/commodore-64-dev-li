@@ -29,6 +29,15 @@ Verify the lab layer with:
 make verify-learning-lab
 ```
 
+Build and run the first Hello World lab with:
+
+```bash
+make lab001
+make lab001-run
+make lab002
+make lab002-run
+```
+
 ## What this Workbench is for
 
 Use this Workbench to develop small Commodore 64 programs, demos, games, experiments, and learning notes with durable AI-assisted continuity.
@@ -96,3 +105,19 @@ make pack
 ```
 
 The generated pack appears under `dist/` and excludes generated pack archives and local scratch material according to the template's Work Area Contract.
+
+## Current runnable labs
+
+- Lab 001: Hello Screen — proves the cc65 to VICE `.prg` loop.
+- Lab 002: Screen Memory — writes directly to C64 screen RAM at `$0400`.
+
+### Lab 003: Color Memory
+
+Build and run the first color RAM lab:
+
+```bash
+make lab003
+make lab003-run
+```
+
+Lab 003 demonstrates that `$0400` screen RAM controls visible character codes while `$D800` color RAM controls foreground colors at matching cell offsets.

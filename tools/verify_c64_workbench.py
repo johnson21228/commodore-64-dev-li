@@ -28,9 +28,15 @@ REQUIRED = [
     "cards/002_brainstorm_c64_first_application_chatbot_card.md",
     "cards/003_capture_c64_thread_state_card.md",
     "cards/004_define_c64_learning_lab_card.md",
+    "cards/005_c64_hello_world_app_card.md",
+    "cards/006_c64_screen_memory_app_card.md",
+    "cards/007_c64_color_memory_app_card.md",
     "captures/CAPTURE_BACK_C64_APPLICATION_BRAINSTORM_CHATBOT.md",
     "captures/CAPTURE_BACK_C64_WORKBENCH_THREAD_STATE.md",
     "captures/CAPTURE_BACK_C64_LEARNING_LAB_PROJECT_SETUP.md",
+    "captures/CAPTURE_BACK_C64_HELLO_WORLD_APP.md",
+    "captures/CAPTURE_BACK_C64_SCREEN_MEMORY_APP.md",
+    "captures/CAPTURE_BACK_C64_COLOR_MEMORY_APP.md",
     "examples/hello-cc65/hello.c",
     "examples/hello-cc65/Makefile",
     "tools/verify_c64_learning_lab.py",
@@ -45,6 +51,7 @@ TOKENS = {
     "docs/c64/application_brainstorm_chatbot.md": ["C64 MEMORY PAL", "ELIZA-style", "C64 as chatbot terminal"],
     "prompts/c64_brainstorm_first_application.md": ["native rule-based C64 chatbot", "modern host chatbot"],
     "docs/c64/learning_lab_project_setup.md": ["C64 Learning Lab", "Bracket Builder analogy", "Take60 analogy"],
+    "docs/c64/color_memory_app.md": ["$D800", "COLOR[0]", "make lab003"],
 }
 
 
@@ -75,7 +82,7 @@ def main() -> int:
             print(f"Makefile missing required C64 verification token: {token}")
             return 1
 
-    print("OK: Commodore 64 Workbench domain, chatbot, thread-state, and Learning Lab layers are present.")
+    print("OK: Commodore 64 Workbench domain, chatbot, thread-state, Learning Lab, and Color Memory layers are present.")
     return 0
 
 if __name__ == "__main__":

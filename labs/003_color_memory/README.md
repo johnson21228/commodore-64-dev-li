@@ -1,41 +1,46 @@
 # Lab 003: Color Memory
 
-## Status
+## Purpose
 
-Planned starter lab. The exact build command may require local cc65/VICE setup.
+This lab shows that C64 screen characters and their foreground colors live in paired but separate memory regions.
 
-## Machine concept
+```text
+SCREEN RAM: $0400
+COLOR  RAM: $D800
+```
 
-This lab teaches how to write to C64 color RAM at $D800.
+`SCREEN[0]` controls the top-left character. `COLOR[0]` controls that character's foreground color.
 
-## Artifact
+## Build
 
-Expected build output:
+From the repo root:
+
+```bash
+make lab003
+```
+
+Or from this lab folder:
+
+```bash
+make build
+```
+
+## Run
+
+From the repo root:
+
+```bash
+make lab003-run
+```
+
+This expects VICE's `x64sc` command to be installed and available on `PATH`.
+
+## Expected artifact
 
 ```text
 dist/color_memory.prg
 ```
 
-## Build
-
-From this lab folder:
-
-```bash
-make
-```
-
-## Run
-
-Example VICE command, adjusted for local installation:
-
-```bash
-x64sc dist/color_memory.prg
-```
-
 ## Expected observation
 
-When run in the emulator, a character changes foreground color.
-
-## Evidence
-
-Capture the build command, launch command, and a short observation note or screenshot before claiming the lab complete.
+The emulator should show the Lab 003 explanatory text and colored `A`, `B`, and `C` characters. The lesson is that writing to `$0400` changes visible characters, while writing to `$D800` changes the foreground colors for the same offsets.
