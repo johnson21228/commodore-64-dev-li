@@ -9,7 +9,7 @@
     {
       "op": "comment",
       "line": 1,
-      "source": "# Lab 010 goal-language source."
+      "source": "# Lab 010 goal language: describe the app before implementation language."
     },
     {
       "op": "goal",
@@ -56,8 +56,8 @@
     {
       "op": "animation_goal",
       "line": 9,
-      "source": "animation mouth faces direction_from_vector dx dy",
-      "model": "pacman_mouth_faces_vector"
+      "source": "animation mouth faces dx/dy movement vector",
+      "model": "pacman_mouth_faces_dxdy_vector"
     },
     {
       "op": "motion",
@@ -70,28 +70,13 @@
       "line": 11,
       "source": "bounce screen edges with incidence angle equals outgoing angle",
       "model": "reflect_edges_equal_angle"
-    },
-    {
-      "op": "mouth_direction_support",
-      "line": 12,
-      "source": "support mouth directions E NE N NW W SW S SE",
-      "directions": [
-        "E",
-        "NE",
-        "N",
-        "NW",
-        "W",
-        "SW",
-        "S",
-        "SE"
-      ]
     }
   ],
   "program": [
     {
       "op": "comment",
       "line": 1,
-      "source": "# Lab 010 controlled program-language source."
+      "source": "# Lab 010 implementation language: controlled primitives, not C."
     },
     {
       "op": "implements_goal",
@@ -132,11 +117,11 @@
     {
       "op": "use_pacman_sprite",
       "line": 7,
-      "source": "use yellow pacman sprite at x 120 y 100",
+      "source": "use yellow pacman sprite at x 40 y 60",
       "color": "yellow",
       "color_value": 7,
-      "x": 120,
-      "y": 100
+      "x": 40,
+      "y": 60
     },
     {
       "op": "animate_mouth",
@@ -148,8 +133,8 @@
     {
       "op": "face_mouth_with_vector",
       "line": 9,
-      "source": "face mouth with dx dy vector",
-      "model": "select_sprite_frame_from_dx_dy_vector",
+      "source": "face mouth with dx/dy vector",
+      "model": "cached_direction_index_pointer_table",
       "directions": [
         "E",
         "NE",
@@ -192,10 +177,10 @@
     }
   ],
   "optimization_posture": "runtime_speed_first",
+  "runtime_optimization": "arcade_optimized_dirty_pointer_cache",
   "output_contract": "assembly_only_no_main_c",
   "app_model": "yellow_pacman_sprite_linear_bounce_vector_facing_crunching_mouth",
-  "movement_truth": "signed dx_vel/dy_vel vector",
-  "mouth_orientation": "direction_from_vector(dx_vel, dy_vel)",
+  "mouth_orientation": "cached direction_index derived from direction_from_vector(dx_vel, dy_vel)",
   "supported_mouth_directions": [
     "E",
     "NE",
@@ -206,12 +191,14 @@
     "S",
     "SE"
   ],
+  "initial_mouth_direction": "SE",
   "forbidden_orientation_model": "left/right-only mouth selection",
   "assembly_strategy": {
-    "sprite": "hardware sprite 0 uses one closed frame plus eight vector-facing open-mouth frames copied to VIC-visible sprite blocks",
+    "sprite": "hardware sprite 0 uses a neutral closed frame plus eight vector-facing open-mouth frames copied to $2000..$2200 and pointed from $07f8",
     "motion": "add signed byte dx/dy per frame",
-    "bounce": "axis reflection: invert dx on vertical edge, invert dy on horizontal edge",
-    "animation": "toggle open/closed state every 8 frames and select open frame from dx/dy vector",
+    "bounce": "axis reflection: invert dx on vertical edge, invert dy on horizontal edge; refresh direction_index only when a bounce changes dx/dy",
+    "animation": "toggle open/closed every 8 frames and set mouth_dirty",
+    "mouth_pointer": "mouth_dirty gates writes to SPRITE_POINTER_0; mouth_pointer_table_01,x selects closed/open-vector frames",
     "screen_clear": "exact 1000-byte y loop"
   }
 }

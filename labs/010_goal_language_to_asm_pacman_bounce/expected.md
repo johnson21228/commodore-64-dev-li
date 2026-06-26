@@ -1,14 +1,20 @@
 # Expected Result
 
-Lab 010 generates assembly-only C64 evidence for a yellow Pac-Man style sprite.
+Lab 010 should generate assembly evidence for a Pac-Man style sprite that bounces around the screen.
 
-Expected behavior:
+Expected invariant:
 
-- generated assembly is the app; no `src/main.c`
-- sprite moves by signed `dx_vel` and `dy_vel`
-- sprite bounces by reflecting the hit axis of the movement vector
-- mouth toggles open/closed every eight frames
-- open mouth faces the current vector direction
-- cardinal directions are present: `E`, `N`, `W`, `S`
-- diagonal directions are present: `NE`, `NW`, `SW`, `SE`
-- the verifier rejects a duplicate standalone Pac-mouth Lab 010
+- the sprite moves by a signed `dx/dy` vector
+- it bounces by changing `dx` and/or `dy`
+- the mouth alternates open and closed
+- open-mouth frames face the current vector direction
+- cardinal and diagonal direction names are represented: `E`, `NE`, `N`, `NW`, `W`, `SW`, `S`, `SE`
+- the lab does not reduce mouth direction to only left/right
+
+Expected optimization:
+
+- direction is cached in `direction_index`
+- direction is recomputed only after a bounce changes velocity
+- mouth pointer writes are gated by `mouth_dirty`
+- sprite frame selection uses `mouth_pointer_table_01,x`
+- generated assembly has exactly one `sta SPRITE_POINTER_0` write site

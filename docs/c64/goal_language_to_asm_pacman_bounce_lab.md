@@ -1,19 +1,34 @@
 # C64 Lab 010: Goal-Language Pac-Man Bounce
 
-Lab 010 is the authoritative Pac-Man lab:
+Lab 010 keeps the goal-language-to-assembly path, but strengthens the Pac-Man behavior contract and the generated assembly runtime.
+
+The authoritative lab is:
 
 `labs/010_goal_language_to_asm_pacman_bounce/`
 
-The lab keeps the original goal-language-to-assembly custody chain, but updates Pac-Man behavior so mouth orientation observes the full movement vector.
+The motion truth is the signed movement vector:
 
-Required invariant:
+- `dx`
+- `dy`
 
-- `dx_vel` and `dy_vel` are the movement truth
-- boundary bounces reflect the hit axis of the vector
-- mouth animation toggles open/closed
-- open mouth orientation is selected by `direction_from_vector(dx_vel, dy_vel)`
-- supported directions are `E`, `NE`, `N`, `NW`, `W`, `SW`, `S`, and `SE`
-- a left/right-only mouth selector is stale and insufficient
-- no `src/main.c` participates in Lab 010
+The mouth animation is not merely left/right. The open-mouth frame must be chosen from the movement vector so the mouth can face:
 
-This merges the experimental Pac-mouth motion work into the existing Pac-Man bounce lab instead of keeping a second Lab 010.
+- `E`
+- `NE`
+- `N`
+- `NW`
+- `W`
+- `SW`
+- `S`
+- `SE`
+
+The optimized assembly path is arcade-style:
+
+- `direction_index` stores the current compass direction
+- `refresh_direction_index_01` runs only after a bounce changes `dx_vel` or `dy_vel`
+- `mouth_dirty` tracks whether the sprite pointer might need a new value
+- `apply_mouth_pointer_if_dirty_01` exits immediately on clean frames
+- `mouth_pointer_table_01,x` maps closed/open-vector frame indexes to VIC sprite pointers
+- there is one generated `sta SPRITE_POINTER_0` write site
+
+This keeps Lab 010 as the real Pac-Man bounce lab and avoids both the old left/right-only shortcut and an every-frame mouth branch chain.

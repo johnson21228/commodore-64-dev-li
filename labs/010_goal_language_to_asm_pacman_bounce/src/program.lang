@@ -1,12 +1,12 @@
-# Lab 010 controlled program-language source.
+# Lab 010 implementation language: controlled primitives, not C.
 implements goal "PACMAN BOUNCE"
 optimize for speed
 set border black
 set background black
 clear screen color black
-use yellow pacman sprite at x 120 y 100
+use yellow pacman sprite at x 40 y 60
 animate mouth crunch every 8 frames
-face mouth with dx dy vector
+face mouth with dx/dy vector
 move sprite velocity dx 2 dy 1
 bounds x 24 232 y 50 229
 bounce reflect at screen edge

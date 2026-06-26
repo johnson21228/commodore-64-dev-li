@@ -2,11 +2,15 @@
 ; Goal source: labs/010_goal_language_to_asm_pacman_bounce/src/goal.lang
 ; Program source: labs/010_goal_language_to_asm_pacman_bounce/src/program.lang
 ; Goal: PACMAN BOUNCE
-; Priority: runtime speed first; teaching clarity is secondary.
-; Output: assembly app source. No main.c is generated or consumed.
-; Motion: signed dx_vel/dy_vel vector; edge bounce reflects only the hit axis.
-; Mouth: direction_from_vector(dx_vel, dy_vel) selects E NE N NW W SW S SE.
-; Guardrail: left/right-only mouth selection is forbidden.
+; No main.c is generated or consumed.
+; Motion: linear path; edge bounce reflects by inverting only the hit axis velocity.
+; Reflection: left/right edge -> dx = -dx; top/bottom edge -> dy = -dy.
+; Arcade optimized mouth path:
+; - direction_index caches direction_from_vector(dx_vel, dy_vel).
+; - refresh_direction_index_01 runs only after a bounce changes dx_vel/dy_vel.
+; - mouth_dirty gates writes to SPRITE_POINTER_0 at $07f8.
+; - mouth_pointer_table_01 maps closed/open-vector frames without an open-frame branch chain.
+; Open mouth frames: E, NE, N, NW, W, SW, S, SE.
 .import __EXEHDR__
 .export _main
 
@@ -16,27 +20,38 @@ SPACE_CHAR = $20
 SPRITE_POINTER_0 = $07f8
 SPRITE_DATA = $2000
 SPRITE_DATA_CLOSED = $2000
-SPRITE_DATA_POINTER_CLOSED = $80
 SPRITE_DATA_OPEN_E = $2040
-SPRITE_DATA_POINTER_OPEN_E = $81
 SPRITE_DATA_OPEN_NE = $2080
-SPRITE_DATA_POINTER_OPEN_NE = $82
 SPRITE_DATA_OPEN_N = $20c0
-SPRITE_DATA_POINTER_OPEN_N = $83
 SPRITE_DATA_OPEN_NW = $2100
-SPRITE_DATA_POINTER_OPEN_NW = $84
 SPRITE_DATA_OPEN_W = $2140
-SPRITE_DATA_POINTER_OPEN_W = $85
 SPRITE_DATA_OPEN_SW = $2180
-SPRITE_DATA_POINTER_OPEN_SW = $86
 SPRITE_DATA_OPEN_S = $21c0
-SPRITE_DATA_POINTER_OPEN_S = $87
 SPRITE_DATA_OPEN_SE = $2200
+SPRITE_DATA_POINTER_CLOSED = $80
+SPRITE_DATA_POINTER_OPEN_E = $81
+SPRITE_DATA_POINTER_OPEN_NE = $82
+SPRITE_DATA_POINTER_OPEN_N = $83
+SPRITE_DATA_POINTER_OPEN_NW = $84
+SPRITE_DATA_POINTER_OPEN_W = $85
+SPRITE_DATA_POINTER_OPEN_SW = $86
+SPRITE_DATA_POINTER_OPEN_S = $87
 SPRITE_DATA_POINTER_OPEN_SE = $88
+DIR_E = $00
+DIR_NE = $01
+DIR_N = $02
+DIR_NW = $03
+DIR_W = $04
+DIR_SW = $05
+DIR_S = $06
+DIR_SE = $07
+FRAME_CLOSED = $00
+FRAME_OPEN_BASE = $01
 VIC_SPRITE0_X = $d000
 VIC_SPRITE0_Y = $d001
 SPRITE_X_MSB = $d010
 SPRITE_ENABLE = $d015
+VIC_CONTROL_1 = $d011
 RASTER = $d012
 SPRITE0_COLOR = $d027
 BORDER_COLOR = $d020
@@ -49,6 +64,7 @@ DX_POS = $02
 DX_NEG = $fe
 DY_POS = $01
 DY_NEG = $ff
+INITIAL_DIRECTION_INDEX = $07
 
 .segment "STARTUP"
 _main:
@@ -73,7 +89,7 @@ fast_clear_loop_01:
     dey
     bne fast_clear_loop_01
 
-    ; copy generated closed and eight vector-facing open-mouth frames
+    ; copy generated closed plus eight vector-facing open-mouth frames once
     ldx #$3f
 copy_pacman_sprite_01:
     lda pacman_sprite_closed_data,x
@@ -105,18 +121,24 @@ copy_pacman_sprite_01:
     lda #$00
     sta SPRITE_X_MSB
 
-    lda #$78
+    lda #$28
     sta x_pos
-    lda #$64
+    lda #$3c
     sta y_pos
     lda #$02
     sta dx_vel
     lda #$01
     sta dy_vel
+    lda #INITIAL_DIRECTION_INDEX
+    sta direction_index
+    lda #$ff
+    sta current_mouth_frame
+    lda #$01
+    sta mouth_dirty
     lda #$00
     sta mouth_timer
     sta mouth_state
-    jsr update_mouth_pointer_01
+    jsr apply_mouth_pointer_if_dirty_01
     jsr update_sprite_01
 
 main_loop_01:
@@ -134,6 +156,7 @@ hit_left_edge_01:
     sta x_pos
     lda #DX_POS
     sta dx_vel
+    jsr refresh_direction_index_01
     jmp update_y_01
 check_right_edge_01:
     cmp #MAX_X
@@ -143,6 +166,7 @@ hit_right_edge_01:
     sta x_pos
     lda #DX_NEG
     sta dx_vel
+    jsr refresh_direction_index_01
 
 update_y_01:
     ; y = y + dy; reflect at top/bottom boundaries
@@ -157,6 +181,7 @@ hit_top_edge_01:
     sta y_pos
     lda #DY_POS
     sta dy_vel
+    jsr refresh_direction_index_01
     jmp draw_sprite_01
 check_bottom_edge_01:
     cmp #MAX_Y
@@ -166,10 +191,11 @@ hit_bottom_edge_01:
     sta y_pos
     lda #DY_NEG
     sta dy_vel
+    jsr refresh_direction_index_01
 
 draw_sprite_01:
     jsr animate_mouth_01
-    jsr update_mouth_pointer_01
+    jsr apply_mouth_pointer_if_dirty_01
     jsr update_sprite_01
     jmp main_loop_01
 
@@ -181,63 +207,86 @@ animate_mouth_01:
     lda mouth_state
     eor #$01
     sta mouth_state
+    lda #$01
+    sta mouth_dirty
 mouth_done_01:
     rts
 
-update_mouth_pointer_01:
-    ; closed mouth is neutral; open mouth faces direction_from_vector(dx_vel, dy_vel)
-    lda mouth_state
-    bne mouth_closed_01
+refresh_direction_index_01:
+    ; Recompute direction index only after bounce changed dx_vel/dy_vel.
+    lda dx_vel
+    bmi direction_dx_negative_01
+    beq direction_dx_zero_01
+direction_dx_positive_01:
     lda dy_vel
-    beq mouth_vector_horizontal_01
-    bmi mouth_vector_north_01
-mouth_vector_south_01:
-    lda dx_vel
-    beq mouth_open_s_01
-    bmi mouth_open_sw_01
-    jmp mouth_open_se_01
-mouth_vector_north_01:
-    lda dx_vel
-    beq mouth_open_n_01
-    bmi mouth_open_nw_01
-    jmp mouth_open_ne_01
-mouth_vector_horizontal_01:
-    lda dx_vel
-    bmi mouth_open_w_01
-mouth_open_e_01:
-    lda #SPRITE_DATA_POINTER_OPEN_E
-    sta SPRITE_POINTER_0
+    bmi direction_candidate_ne_01
+    beq direction_candidate_e_01
+    jmp direction_candidate_se_01
+direction_dx_negative_01:
+    lda dy_vel
+    bmi direction_candidate_nw_01
+    beq direction_candidate_w_01
+    jmp direction_candidate_sw_01
+direction_dx_zero_01:
+    lda dy_vel
+    bmi direction_candidate_n_01
+    beq direction_candidate_e_01
+    jmp direction_candidate_s_01
+direction_candidate_e_01:
+    ldx #DIR_E
+    jmp maybe_store_direction_index_01
+direction_candidate_ne_01:
+    ldx #DIR_NE
+    jmp maybe_store_direction_index_01
+direction_candidate_n_01:
+    ldx #DIR_N
+    jmp maybe_store_direction_index_01
+direction_candidate_nw_01:
+    ldx #DIR_NW
+    jmp maybe_store_direction_index_01
+direction_candidate_w_01:
+    ldx #DIR_W
+    jmp maybe_store_direction_index_01
+direction_candidate_sw_01:
+    ldx #DIR_SW
+    jmp maybe_store_direction_index_01
+direction_candidate_s_01:
+    ldx #DIR_S
+    jmp maybe_store_direction_index_01
+direction_candidate_se_01:
+    ldx #DIR_SE
+maybe_store_direction_index_01:
+    cpx direction_index
+    beq direction_index_done_01
+    stx direction_index
+    lda #$01
+    sta mouth_dirty
+direction_index_done_01:
     rts
-mouth_open_ne_01:
-    lda #SPRITE_DATA_POINTER_OPEN_NE
-    sta SPRITE_POINTER_0
+
+apply_mouth_pointer_if_dirty_01:
+    ; Fast path: most frames do not touch the sprite pointer.
+    lda mouth_dirty
+    bne mouth_pointer_dirty_01
+mouth_pointer_clean_01:
     rts
-mouth_open_n_01:
-    lda #SPRITE_DATA_POINTER_OPEN_N
-    sta SPRITE_POINTER_0
-    rts
-mouth_open_nw_01:
-    lda #SPRITE_DATA_POINTER_OPEN_NW
-    sta SPRITE_POINTER_0
-    rts
-mouth_open_w_01:
-    lda #SPRITE_DATA_POINTER_OPEN_W
-    sta SPRITE_POINTER_0
-    rts
-mouth_open_sw_01:
-    lda #SPRITE_DATA_POINTER_OPEN_SW
-    sta SPRITE_POINTER_0
-    rts
-mouth_open_s_01:
-    lda #SPRITE_DATA_POINTER_OPEN_S
-    sta SPRITE_POINTER_0
-    rts
-mouth_open_se_01:
-    lda #SPRITE_DATA_POINTER_OPEN_SE
-    sta SPRITE_POINTER_0
-    rts
-mouth_closed_01:
-    lda #SPRITE_DATA_POINTER_CLOSED
+mouth_pointer_dirty_01:
+    lda #$00
+    sta mouth_dirty
+    lda mouth_state
+    beq mouth_pointer_open_01
+    ldx #FRAME_CLOSED
+    jmp maybe_apply_mouth_frame_01
+mouth_pointer_open_01:
+    lda direction_index
+    clc
+    adc #FRAME_OPEN_BASE
+    tax
+maybe_apply_mouth_frame_01:
+    cpx current_mouth_frame
+    beq mouth_pointer_clean_01
+    stx current_mouth_frame
+    lda mouth_pointer_table_01,x
     sta SPRITE_POINTER_0
     rts
 
@@ -260,9 +309,9 @@ wait_raster_leave_01:
     rts
 
 x_pos:
-    .byte $78
+    .byte $28
 y_pos:
-    .byte $64
+    .byte $3c
 dx_vel:
     .byte $02
 dy_vel:
@@ -271,88 +320,98 @@ mouth_timer:
     .byte $00
 mouth_state:
     .byte $00
+direction_index:
+    .byte INITIAL_DIRECTION_INDEX
+current_mouth_frame:
+    .byte $ff
+mouth_dirty:
+    .byte $01
+mouth_pointer_table_01:
+    .byte SPRITE_DATA_POINTER_CLOSED
+    .byte SPRITE_DATA_POINTER_OPEN_E, SPRITE_DATA_POINTER_OPEN_NE, SPRITE_DATA_POINTER_OPEN_N, SPRITE_DATA_POINTER_OPEN_NW
+    .byte SPRITE_DATA_POINTER_OPEN_W, SPRITE_DATA_POINTER_OPEN_SW, SPRITE_DATA_POINTER_OPEN_S, SPRITE_DATA_POINTER_OPEN_SE
 
 pacman_sprite_closed_data:
     .byte $00, $00, $00, $00, $ff, $00, $03, $ff
     .byte $c0, $07, $ff, $e0, $0f, $ff, $f0, $1f
     .byte $ff, $f8, $3f, $ff, $fc, $3f, $ff, $fc
-    .byte $3f, $ff, $fc, $3f, $ff, $fc, $7f, $ff
-    .byte $fe, $3f, $ff, $fc, $3f, $ff, $fc, $3f
+    .byte $7f, $ff, $fe, $7f, $ff, $fe, $7f, $ff
+    .byte $fe, $7f, $ff, $fe, $7f, $ff, $fe, $3f
     .byte $ff, $fc, $3f, $ff, $fc, $1f, $ff, $f8
     .byte $0f, $ff, $f0, $07, $ff, $e0, $03, $ff
     .byte $c0, $00, $ff, $00, $00, $00, $00, $00
 pacman_sprite_open_e_data:
     .byte $00, $00, $00, $00, $ff, $00, $03, $ff
     .byte $c0, $07, $ff, $e0, $0f, $ff, $f0, $1f
-    .byte $ff, $f8, $3f, $ff, $f0, $3f, $ff, $c0
-    .byte $3f, $ff, $00, $3f, $fc, $00, $7f, $f8
-    .byte $00, $3f, $fc, $00, $3f, $ff, $00, $3f
-    .byte $ff, $c0, $3f, $ff, $f0, $1f, $ff, $f8
+    .byte $ff, $e0, $3f, $ff, $c0, $3f, $ff, $00
+    .byte $7f, $fe, $00, $7f, $fe, $00, $7f, $fe
+    .byte $00, $7f, $fe, $00, $7f, $fe, $00, $3f
+    .byte $ff, $00, $3f, $ff, $c0, $1f, $ff, $e0
     .byte $0f, $ff, $f0, $07, $ff, $e0, $03, $ff
     .byte $c0, $00, $ff, $00, $00, $00, $00, $00
 pacman_sprite_open_ne_data:
-    .byte $00, $00, $00, $00, $fe, $00, $03, $fe
-    .byte $00, $07, $fc, $00, $0f, $fc, $00, $1f
-    .byte $fc, $00, $3f, $f8, $00, $3f, $f8, $04
-    .byte $3f, $f8, $3c, $3f, $f1, $fc, $7f, $ff
-    .byte $fe, $3f, $ff, $fc, $3f, $ff, $fc, $3f
+    .byte $00, $00, $00, $00, $fc, $00, $03, $fc
+    .byte $00, $07, $f8, $00, $0f, $f8, $00, $1f
+    .byte $f8, $00, $3f, $f8, $00, $3f, $f8, $00
+    .byte $7f, $fc, $02, $7f, $fe, $7e, $7f, $ff
+    .byte $fe, $7f, $ff, $fe, $7f, $ff, $fe, $3f
     .byte $ff, $fc, $3f, $ff, $fc, $1f, $ff, $f8
     .byte $0f, $ff, $f0, $07, $ff, $e0, $03, $ff
     .byte $c0, $00, $ff, $00, $00, $00, $00, $00
 pacman_sprite_open_n_data:
-    .byte $00, $00, $00, $00, $00, $00, $03, $00
-    .byte $c0, $07, $81, $e0, $0f, $81, $f0, $1f
-    .byte $c3, $f8, $3f, $c3, $fc, $3f, $e7, $fc
-    .byte $3f, $e7, $fc, $3f, $ff, $fc, $7f, $ff
-    .byte $fe, $3f, $ff, $fc, $3f, $ff, $fc, $3f
+    .byte $00, $00, $00, $00, $00, $00, $02, $00
+    .byte $40, $06, $00, $60, $0f, $00, $f0, $1f
+    .byte $81, $f8, $3f, $81, $fc, $3f, $c3, $fc
+    .byte $7f, $ff, $fe, $7f, $ff, $fe, $7f, $ff
+    .byte $fe, $7f, $ff, $fe, $7f, $ff, $fe, $3f
     .byte $ff, $fc, $3f, $ff, $fc, $1f, $ff, $f8
     .byte $0f, $ff, $f0, $07, $ff, $e0, $03, $ff
     .byte $c0, $00, $ff, $00, $00, $00, $00, $00
 pacman_sprite_open_nw_data:
-    .byte $00, $00, $00, $00, $7f, $00, $00, $7f
-    .byte $c0, $00, $3f, $e0, $00, $3f, $f0, $00
-    .byte $3f, $f8, $00, $1f, $fc, $20, $1f, $fc
-    .byte $3c, $1f, $fc, $3f, $8f, $fc, $7f, $ff
-    .byte $fe, $3f, $ff, $fc, $3f, $ff, $fc, $3f
+    .byte $00, $00, $00, $00, $3f, $00, $00, $3f
+    .byte $c0, $00, $1f, $e0, $00, $1f, $f0, $00
+    .byte $1f, $f8, $00, $1f, $fc, $00, $1f, $fc
+    .byte $40, $3f, $fe, $7e, $7f, $fe, $7f, $ff
+    .byte $fe, $7f, $ff, $fe, $7f, $ff, $fe, $3f
     .byte $ff, $fc, $3f, $ff, $fc, $1f, $ff, $f8
     .byte $0f, $ff, $f0, $07, $ff, $e0, $03, $ff
     .byte $c0, $00, $ff, $00, $00, $00, $00, $00
 pacman_sprite_open_w_data:
     .byte $00, $00, $00, $00, $ff, $00, $03, $ff
-    .byte $c0, $07, $ff, $e0, $0f, $ff, $f0, $1f
-    .byte $ff, $f8, $0f, $ff, $fc, $03, $ff, $fc
-    .byte $00, $ff, $fc, $00, $3f, $fc, $00, $1f
-    .byte $fe, $00, $3f, $fc, $00, $ff, $fc, $03
-    .byte $ff, $fc, $0f, $ff, $fc, $1f, $ff, $f8
+    .byte $c0, $07, $ff, $e0, $0f, $ff, $f0, $07
+    .byte $ff, $f8, $03, $ff, $fc, $00, $ff, $fc
+    .byte $00, $7f, $fe, $00, $7f, $fe, $00, $7f
+    .byte $fe, $00, $7f, $fe, $00, $7f, $fe, $00
+    .byte $ff, $fc, $03, $ff, $fc, $07, $ff, $f8
     .byte $0f, $ff, $f0, $07, $ff, $e0, $03, $ff
     .byte $c0, $00, $ff, $00, $00, $00, $00, $00
 pacman_sprite_open_sw_data:
     .byte $00, $00, $00, $00, $ff, $00, $03, $ff
     .byte $c0, $07, $ff, $e0, $0f, $ff, $f0, $1f
     .byte $ff, $f8, $3f, $ff, $fc, $3f, $ff, $fc
-    .byte $3f, $ff, $fc, $3f, $ff, $fc, $7f, $ff
-    .byte $fe, $3f, $8f, $fc, $3c, $1f, $fc, $20
-    .byte $1f, $fc, $00, $1f, $fc, $00, $3f, $f8
-    .byte $00, $3f, $f0, $00, $3f, $e0, $00, $7f
-    .byte $c0, $00, $7f, $00, $00, $00, $00, $00
+    .byte $7f, $ff, $fe, $7f, $ff, $fe, $7f, $ff
+    .byte $fe, $7e, $7f, $fe, $40, $3f, $fe, $00
+    .byte $1f, $fc, $00, $1f, $fc, $00, $1f, $f8
+    .byte $00, $1f, $f0, $00, $1f, $e0, $00, $3f
+    .byte $c0, $00, $3f, $00, $00, $00, $00, $00
 pacman_sprite_open_s_data:
     .byte $00, $00, $00, $00, $ff, $00, $03, $ff
     .byte $c0, $07, $ff, $e0, $0f, $ff, $f0, $1f
     .byte $ff, $f8, $3f, $ff, $fc, $3f, $ff, $fc
-    .byte $3f, $ff, $fc, $3f, $ff, $fc, $7f, $ff
-    .byte $fe, $3f, $ff, $fc, $3f, $e7, $fc, $3f
-    .byte $e7, $fc, $3f, $c3, $fc, $1f, $c3, $f8
-    .byte $0f, $81, $f0, $07, $81, $e0, $03, $00
-    .byte $c0, $00, $00, $00, $00, $00, $00, $00
+    .byte $7f, $ff, $fe, $7f, $ff, $fe, $7f, $ff
+    .byte $fe, $7f, $ff, $fe, $7f, $ff, $fe, $3f
+    .byte $c3, $fc, $3f, $81, $fc, $1f, $81, $f8
+    .byte $0f, $00, $f0, $06, $00, $60, $02, $00
+    .byte $40, $00, $00, $00, $00, $00, $00, $00
 pacman_sprite_open_se_data:
     .byte $00, $00, $00, $00, $ff, $00, $03, $ff
     .byte $c0, $07, $ff, $e0, $0f, $ff, $f0, $1f
     .byte $ff, $f8, $3f, $ff, $fc, $3f, $ff, $fc
-    .byte $3f, $ff, $fc, $3f, $ff, $fc, $7f, $ff
-    .byte $fe, $3f, $f1, $fc, $3f, $f8, $3c, $3f
-    .byte $f8, $04, $3f, $f8, $00, $1f, $fc, $00
-    .byte $0f, $fc, $00, $07, $fc, $00, $03, $fe
-    .byte $00, $00, $fe, $00, $00, $00, $00, $00
+    .byte $7f, $ff, $fe, $7f, $ff, $fe, $7f, $ff
+    .byte $fe, $7f, $fe, $7e, $7f, $fc, $02, $3f
+    .byte $f8, $00, $3f, $f8, $00, $1f, $f8, $00
+    .byte $0f, $f8, $00, $07, $f8, $00, $03, $fc
+    .byte $00, $00, $fc, $00, $00, $00, $00, $00
 
 .segment "INIT"
 .segment "ONCE"
