@@ -1,0 +1,11 @@
+implements goal "C64NET PROXY PING"
+optimize for speed
+set border blue
+set background black
+clear screen color black
+show title "C64NET PROXY PING"
+open rs232 device 2 config 1200 8n1
+dial proxy "127.0.0.1:6464" using hayes
+send line "GET /c64/ping"
+read response line to row 15 col 2 max 36
+loop forever

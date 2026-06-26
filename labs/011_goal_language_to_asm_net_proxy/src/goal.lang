@@ -1,0 +1,10 @@
+goal "C64NET PROXY PING"
+priority runtime speed first
+output assembly
+constraint no main.c
+constraint generated assembly is the app
+network pattern modem proxy server
+requires host proxy server
+requires RS232 or WiFi modem bridge
+request line "GET /c64/ping"
+show proxy response on screen

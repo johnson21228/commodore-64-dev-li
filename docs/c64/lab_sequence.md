@@ -14,17 +14,23 @@ Lab 006: Sprite Basics      - define, point, position, and enable sprite 0
 Lab 007: SID Tone           - write sound registers for a tone
 Lab 008: Memory Pal         - tiny rule-based C64 helper app
 Lab 009: Language to Assembly - controlled language -> intent JSON -> generated assembly
+Lab 010: Pac-Mouth Vector Motion - mouth crunch follows movement vector, including cardinal and diagonal facing
 ```
 
 ## Next candidates
 
 ```text
-Lab 010: Moving Sprite
 Lab 011: Simple Game Loop
 Lab 012: Character Set Experiment
 Lab 013: Disk Save/Load Note
 Lab 014: Serial/Host Gateway Sketch
 ```
+
+## Lab 010: Pac-Mouth Vector Motion
+
+Lab 010 adds a Pac-style sprite with mouth crunch behavior. The mouth opens and closes while the sprite moves, and the open-mouth frame follows the movement vector.
+
+This lab introduces cardinal and diagonal facing behavior. The implementation stores `dx/dy` as motion truth, derives direction from that vector, and then selects the appropriate mouth frame.
 
 ## Pattern
 
@@ -39,3 +45,7 @@ root Makefile shortcut
 verifier coverage
 capture/card/prompt when promoted to LI
 ```
+
+- Lab 010: Goal Language to Pac-Man Bounce Assembly — now includes vector-facing mouth behavior from `dx_vel`/`dy_vel`.
+
+- Lab 011: Goal Language to Network Proxy Assembly — RS232/Hayes C64 client with host proxy/server boundary.

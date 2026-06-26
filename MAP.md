@@ -221,3 +221,37 @@ Verification lives at:
 ```text
 tools/verify_c64_language_to_asm.py
 ```
+
+
+## C64 Goal Language to Fast Assembly Lab
+
+Lab 010 extends the Language-to-Assembly layer with a two-language front end:
+
+```text
+labs/010_goal_language_to_asm_fast_hello/src/goal.lang
+labs/010_goal_language_to_asm_fast_hello/src/program.lang
+labs/010_goal_language_to_asm_fast_hello/src/generated_intent.json
+labs/010_goal_language_to_asm_fast_hello/src/generated.s
+```
+
+Supporting files:
+
+```text
+docs/c64/goal_language_to_asm_fast_lab.md
+prompts/c64_build_goal_language_fast_asm_lab.md
+tools/verify_c64_goal_language_to_asm_fast_lab.py
+```
+
+This lab is assembly-only and speed-first. It intentionally has no `src/main.c`.
+
+## C64 Lab 010: Goal Language Pac-Man Bounce
+
+- `labs/010_goal_language_to_asm_pacman_bounce/` — Lab 010 language-front-end Pac-Man sprite bounce app.
+- `docs/c64/goal_language_to_asm_pacman_bounce_lab.md` — design note for goal language -> program language -> assembly-only behavioral app.
+- `prompts/c64_build_goal_language_pacman_bounce_lab.md` — prompt for extending the language front end with speed-first sprite motion.
+- `tools/verify_c64_goal_language_to_asm_pacman_bounce_lab.py` — verifier for the Lab 010 custody chain and generated assembly.
+
+- `docs/c64/goal_language_to_asm_net_proxy_lab.md` — Lab 011 goal-language internet/proxy pattern.
+- `labs/011_goal_language_to_asm_net_proxy/` — generated assembly C64 RS232 proxy ping lab.
+- `tools/verify_c64_goal_language_to_asm_net_proxy_lab.py` — verifier for Lab 011 custody chain.
+- `labs/010_goal_language_to_asm_pacman_bounce/` — authoritative Lab 010 with vector-facing Pac-Man mouth behavior.

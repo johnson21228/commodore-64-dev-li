@@ -1,7 +1,7 @@
 REPO_NAME := $(notdir $(CURDIR))
 PACK_PATH := dist/$(REPO_NAME).pack.zip
 
-.PHONY: verify verify-li verify-c64 verify-learning-lab verify-language-to-asm history clean-li clean-labs pack read-first 	lab001 lab001-run lab002 lab002-run lab003 lab003-run lab004 lab004-run 	lab005 lab005-run lab006 lab006-run lab007 lab007-run lab008 lab008-run lab009 lab009-run
+.PHONY: verify verify-li verify-c64 verify-learning-lab verify-language-to-asm verify-pacman-bounce verify-goal-language-to-asm-net-proxy verify-net-proxy history clean-li clean-labs pack read-first inventory lab001 lab001-run lab002 lab002-run lab003 lab003-run lab004 lab004-run lab005 lab005-run lab006 lab006-run lab007 lab007-run lab008 lab008-run lab009 lab009-run lab010 lab010-run lab011 lab011-run lab011-run-net lab011-server
 
 verify:
 	python3 tools/check_template_integrity.py
@@ -9,6 +9,8 @@ verify:
 	python3 tools/verify_c64_workbench.py
 	python3 tools/verify_c64_learning_lab.py
 	python3 tools/verify_c64_language_to_asm.py
+	python3 tools/verify_c64_goal_language_to_asm_pacman_bounce_lab.py
+	python3 tools/verify_c64_goal_language_to_asm_net_proxy_lab.py
 
 verify-li:
 	python3 tools/verify_li_governance.py
@@ -21,6 +23,15 @@ verify-learning-lab:
 
 verify-language-to-asm:
 	python3 tools/verify_c64_language_to_asm.py
+
+verify-pacman-bounce:
+	python3 tools/verify_c64_goal_language_to_asm_pacman_bounce_lab.py
+
+verify-goal-language-to-asm-net-proxy:
+	python3 tools/verify_c64_goal_language_to_asm_net_proxy_lab.py
+
+verify-net-proxy:
+	python3 tools/verify_c64_goal_language_to_asm_net_proxy_lab.py
 
 history:
 	python3 tools/export_repo_history_for_llm.py
@@ -92,9 +103,26 @@ lab009:
 lab009-run: lab009
 	@if command -v x64sc >/dev/null 2>&1; then x64sc labs/009_language_to_asm/dist/language_to_asm.prg; else echo "x64sc not found. Install VICE or open labs/009_language_to_asm/dist/language_to_asm.prg manually."; exit 1; fi
 
+lab010:
+	$(MAKE) -C labs/010_goal_language_to_asm_pacman_bounce build
+
+lab010-run: lab010
+	@if command -v x64sc >/dev/null 2>&1; then PRG=$$(find labs/010_goal_language_to_asm_pacman_bounce/dist -name "*.prg" | head -1); if [ -n "$$PRG" ]; then x64sc "$$PRG"; else echo "No Lab 010 PRG found under labs/010_goal_language_to_asm_pacman_bounce/dist"; exit 1; fi; else echo "x64sc not found. Install VICE or open the Lab 010 PRG manually."; exit 1; fi
+
+lab011:
+	$(MAKE) -C labs/011_goal_language_to_asm_net_proxy build
+
+lab011-run: lab011
+	@if command -v x64sc >/dev/null 2>&1; then PRG=$$(find labs/011_goal_language_to_asm_net_proxy/dist -name "*.prg" | head -1); if [ -n "$$PRG" ]; then x64sc "$$PRG"; else echo "No Lab 011 PRG found under labs/011_goal_language_to_asm_net_proxy/dist"; exit 1; fi; else echo "x64sc not found. Install VICE or open the Lab 011 PRG manually."; exit 1; fi
+
+lab011-run-net: lab011
+	$(MAKE) -C labs/011_goal_language_to_asm_net_proxy run-net
+
+lab011-server:
+	python3 labs/011_goal_language_to_asm_net_proxy/host/proxy_server.py
+
 read-first:
 	@cat LLM_READ_FIRST.md
 
-.PHONY: inventory
 inventory:
 	python3 tools/inventory_workbench_repo.py

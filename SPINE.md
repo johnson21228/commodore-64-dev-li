@@ -117,3 +117,8 @@ language command text -> parsed intent JSON -> generated assembly -> .prg build 
 ```
 
 This is not unconstrained natural-language compilation. The repo-owned parser/generator accepts only a small command language and fails closed for unknown commands. Lab 009 proves the first path from `program.lang` to generated ca65-compatible assembly.
+
+## Lab 010: Pac-Mouth Motion
+
+Lab 010 adds a tiny arcade-motion behavior: a yellow Pac-style sprite moves left/right, its mouth opens and closes, and the open mouth faces the current direction of motion. This makes animation state explicit instead of static sprite drawing.
+- Lab 010 Pac-Man bounce now owns vector-facing mouth behavior from signed `dx_vel`/`dy_vel`.

@@ -1,0 +1,12 @@
+# Lab 010 goal-language source.
+goal "PACMAN BOUNCE"
+priority runtime speed first
+output assembly
+constraint no main.c
+constraint generated assembly is the app
+visual yellow pac-man sprite
+animation crunching mouth opens and closes
+animation mouth faces direction_from_vector dx dy
+motion linear path
+bounce screen edges with incidence angle equals outgoing angle
+support mouth directions E NE N NW W SW S SE

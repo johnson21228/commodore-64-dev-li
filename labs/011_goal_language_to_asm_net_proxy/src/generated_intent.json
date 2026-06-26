@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "lab": "011_goal_language_to_asm_net_proxy",
+  "optimization_posture": "runtime_speed_first",
+  "output_contract": "assembly_only_no_main_c",
+  "app_model": "rs232_hayes_proxy_ping_client",
+  "internet_boundary": "host_proxy_server_owns_tcp_http_tls",
+  "goal": [
+    {
+      "op": "goal",
+      "name": "C64NET PROXY PING"
+    },
+    {
+      "op": "priority",
+      "value": "runtime_speed_first"
+    },
+    {
+      "op": "output",
+      "value": "assembly"
+    },
+    {
+      "op": "constraint",
+      "value": "no_main_c"
+    },
+    {
+      "op": "constraint",
+      "value": "generated_assembly_is_the_app"
+    },
+    {
+      "op": "network_pattern",
+      "value": "modem_proxy_server"
+    },
+    {
+      "op": "requires",
+      "value": "host_proxy_server"
+    },
+    {
+      "op": "requires",
+      "value": "rs232_or_wifi_modem_bridge"
+    },
+    {
+      "op": "request_line",
+      "text": "GET /c64/ping"
+    },
+    {
+      "op": "show_response",
+      "target": "screen"
+    }
+  ],
+  "program": [
+    {
+      "op": "implements_goal",
+      "name": "C64NET PROXY PING"
+    },
+    {
+      "op": "optimize",
+      "value": "speed"
+    },
+    {
+      "op": "set_border",
+      "color": "blue"
+    },
+    {
+      "op": "set_background",
+      "color": "black"
+    },
+    {
+      "op": "clear_screen",
+      "color": "black"
+    },
+    {
+      "op": "show_title",
+      "text": "C64NET PROXY PING"
+    },
+    {
+      "op": "open_rs232",
+      "device": 2,
+      "baud": 1200,
+      "format": "8n1"
+    },
+    {
+      "op": "dial_proxy",
+      "target": "127.0.0.1:6464",
+      "protocol": "hayes"
+    },
+    {
+      "op": "send_line",
+      "text": "GET /c64/ping"
+    },
+    {
+      "op": "read_response_line",
+      "row": 15,
+      "col": 2,
+      "max": 36
+    },
+    {
+      "op": "loop_forever"
+    }
+  ]
+}
