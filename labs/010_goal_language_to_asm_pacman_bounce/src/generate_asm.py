@@ -119,6 +119,161 @@ def wall_glyph(mask: int) -> list[int]:
     return glyph_rows_to_bytes(["".join(row) for row in pixels])
 
 
+
+SCORE_GLYPHS = {
+    "0": [
+        ".#####..",
+        "##...##.",
+        "##..###.",
+        "##.#.##.",
+        "###..##.",
+        "##...##.",
+        ".#####..",
+        "........",
+    ],
+    "1": [
+        "..##....",
+        ".###....",
+        "..##....",
+        "..##....",
+        "..##....",
+        "..##....",
+        ".####...",
+        "........",
+    ],
+    "2": [
+        ".#####..",
+        "##...##.",
+        ".....##.",
+        "...###..",
+        "..##....",
+        ".##.....",
+        "#######.",
+        "........",
+    ],
+    "3": [
+        "######..",
+        ".....##.",
+        ".....##.",
+        ".#####..",
+        ".....##.",
+        ".....##.",
+        "######..",
+        "........",
+    ],
+    "4": [
+        "...###..",
+        "..####..",
+        ".##.##..",
+        "##..##..",
+        "#######.",
+        "....##..",
+        "....##..",
+        "........",
+    ],
+    "5": [
+        "#######.",
+        "##......",
+        "##......",
+        "######..",
+        ".....##.",
+        ".....##.",
+        "######..",
+        "........",
+    ],
+    "6": [
+        ".#####..",
+        "##......",
+        "##......",
+        "######..",
+        "##...##.",
+        "##...##.",
+        ".#####..",
+        "........",
+    ],
+    "7": [
+        "#######.",
+        ".....##.",
+        "....##..",
+        "...##...",
+        "..##....",
+        "..##....",
+        "..##....",
+        "........",
+    ],
+    "8": [
+        ".#####..",
+        "##...##.",
+        "##...##.",
+        ".#####..",
+        "##...##.",
+        "##...##.",
+        ".#####..",
+        "........",
+    ],
+    "9": [
+        ".#####..",
+        "##...##.",
+        "##...##.",
+        ".######.",
+        ".....##.",
+        ".....##.",
+        ".#####..",
+        "........",
+    ],
+    "S": [
+        ".######.",
+        "##......",
+        "##......",
+        ".#####..",
+        ".....##.",
+        ".....##.",
+        "######..",
+        "........",
+    ],
+    "C": [
+        ".#####..",
+        "##...##.",
+        "##......",
+        "##......",
+        "##......",
+        "##...##.",
+        ".#####..",
+        "........",
+    ],
+    "O": [
+        ".#####..",
+        "##...##.",
+        "##...##.",
+        "##...##.",
+        "##...##.",
+        "##...##.",
+        ".#####..",
+        "........",
+    ],
+    "R": [
+        "######..",
+        "##...##.",
+        "##...##.",
+        "######..",
+        "##.##...",
+        "##..##..",
+        "##...##.",
+        "........",
+    ],
+    "E": [
+        "#######.",
+        "##......",
+        "##......",
+        "######..",
+        "##......",
+        "##......",
+        "#######.",
+        "........",
+    ],
+}
+
+
 def build_charset() -> list[list[int]]:
     glyphs: list[list[int]] = []
 
@@ -148,6 +303,9 @@ def build_charset() -> list[list[int]]:
         "........",
         "........",
     ]))
+
+    for ch in "0123456789SCORE":
+        glyphs.append(glyph_rows_to_bytes(SCORE_GLYPHS[ch]))
 
     return glyphs
 
@@ -540,7 +698,23 @@ POWER_DOT_COUNT = {power}
 WALL_COUNT = {walls}
 CUSTOM_CHAR_COUNT = {len(glyphs)}
 CUSTOM_CHARSET_BYTES = {charset_bytes}
+CUSTOM_CHARSET_REMAINDER = {charset_bytes % 256}
 CUSTOM_CHARSET_ADDR = {word(CUSTOM_CHARSET_ADDR)}
+SCORE_CHAR_0 = $13
+SCORE_CHAR_1 = $14
+SCORE_CHAR_2 = $15
+SCORE_CHAR_3 = $16
+SCORE_CHAR_4 = $17
+SCORE_CHAR_5 = $18
+SCORE_CHAR_6 = $19
+SCORE_CHAR_7 = $1a
+SCORE_CHAR_8 = $1b
+SCORE_CHAR_9 = $1c
+SCORE_CHAR_S = $1d
+SCORE_CHAR_C = $1e
+SCORE_CHAR_O = $1f
+SCORE_CHAR_R = $20
+SCORE_CHAR_E = $21
 SPRITE_DATA_BYTES = {sprite_bytes}
 SPRITE_DATA_ADDR = {word(SPRITE_DATA_ADDR)}
 SPRITE_PTR_E_OPEN = {byte(SPRITE_PTR_E_OPEN)}
@@ -716,21 +890,38 @@ init_score_loop:
     rts
 
 render_score:
-    lda #$13
+    lda #SCORE_CHAR_S
     sta $0401
-    lda #$03
+    lda #SCORE_CHAR_C
     sta $0402
-    lda #$0f
+    lda #SCORE_CHAR_O
     sta $0403
-    lda #$12
+    lda #SCORE_CHAR_R
     sta $0404
-    lda #$05
+    lda #SCORE_CHAR_E
     sta $0405
-    lda #$20
+    lda #$00
     sta $0406
+    lda #$01
+    sta $d801
+    sta $d802
+    sta $d803
+    sta $d804
+    sta $d805
+    sta $d806
+    sta $d807
+    sta $d808
+    sta $d809
+    sta $d80a
+    sta $d80b
+    sta $d80c
     ldx #$00
 render_score_digit_loop:
     lda score_digits,x
+    sec
+    sbc #$30
+    clc
+    adc #SCORE_CHAR_0
     sta $0407,x
     inx
     cpx #$06
@@ -1150,12 +1341,19 @@ score_power_dot:
 
 install_custom_charset:
     ldx #$00
-copy_charset_loop:
+copy_charset_page0:
     lda custom_charset,x
     sta CUSTOM_CHARSET_ADDR,x
     inx
-    cpx #CUSTOM_CHARSET_BYTES
-    bne copy_charset_loop
+    bne copy_charset_page0
+
+    ldx #$00
+copy_charset_page1:
+    lda custom_charset+$0100,x
+    sta CUSTOM_CHARSET_ADDR+$0100,x
+    inx
+    cpx #CUSTOM_CHARSET_REMAINDER
+    bne copy_charset_page1
     rts
 
 install_sprite_data:

@@ -13,9 +13,25 @@ BOARD_CHAR_TOP = 1
 DOT_COUNT = 205
 POWER_DOT_COUNT = 4
 WALL_COUNT = 332
-CUSTOM_CHAR_COUNT = 19
-CUSTOM_CHARSET_BYTES = 152
+CUSTOM_CHAR_COUNT = 34
+CUSTOM_CHARSET_BYTES = 272
+CUSTOM_CHARSET_REMAINDER = 16
 CUSTOM_CHARSET_ADDR = $3000
+SCORE_CHAR_0 = $13
+SCORE_CHAR_1 = $14
+SCORE_CHAR_2 = $15
+SCORE_CHAR_3 = $16
+SCORE_CHAR_4 = $17
+SCORE_CHAR_5 = $18
+SCORE_CHAR_6 = $19
+SCORE_CHAR_7 = $1a
+SCORE_CHAR_8 = $1b
+SCORE_CHAR_9 = $1c
+SCORE_CHAR_S = $1d
+SCORE_CHAR_C = $1e
+SCORE_CHAR_O = $1f
+SCORE_CHAR_R = $20
+SCORE_CHAR_E = $21
 SPRITE_DATA_BYTES = 512
 SPRITE_DATA_ADDR = $3400
 SPRITE_PTR_E_OPEN = $d0
@@ -191,21 +207,38 @@ init_score_loop:
     rts
 
 render_score:
-    lda #$13
+    lda #SCORE_CHAR_S
     sta $0401
-    lda #$03
+    lda #SCORE_CHAR_C
     sta $0402
-    lda #$0f
+    lda #SCORE_CHAR_O
     sta $0403
-    lda #$12
+    lda #SCORE_CHAR_R
     sta $0404
-    lda #$05
+    lda #SCORE_CHAR_E
     sta $0405
-    lda #$20
+    lda #$00
     sta $0406
+    lda #$01
+    sta $d801
+    sta $d802
+    sta $d803
+    sta $d804
+    sta $d805
+    sta $d806
+    sta $d807
+    sta $d808
+    sta $d809
+    sta $d80a
+    sta $d80b
+    sta $d80c
     ldx #$00
 render_score_digit_loop:
     lda score_digits,x
+    sec
+    sbc #$30
+    clc
+    adc #SCORE_CHAR_0
     sta $0407,x
     inx
     cpx #$06
@@ -625,12 +658,19 @@ score_power_dot:
 
 install_custom_charset:
     ldx #$00
-copy_charset_loop:
+copy_charset_page0:
     lda custom_charset,x
     sta CUSTOM_CHARSET_ADDR,x
     inx
-    cpx #CUSTOM_CHARSET_BYTES
-    bne copy_charset_loop
+    bne copy_charset_page0
+
+    ldx #$00
+copy_charset_page1:
+    lda custom_charset+$0100,x
+    sta CUSTOM_CHARSET_ADDR+$0100,x
+    inx
+    cpx #CUSTOM_CHARSET_REMAINDER
+    bne copy_charset_page1
     rts
 
 install_sprite_data:
@@ -781,6 +821,36 @@ custom_char_17:
     .byte $00, $00, $00, $18, $18, $00, $00, $00
 custom_char_18:
     .byte $00, $00, $3c, $3c, $3c, $3c, $00, $00
+custom_char_19:
+    .byte $7c, $c6, $ce, $d6, $e6, $c6, $7c, $00
+custom_char_20:
+    .byte $30, $70, $30, $30, $30, $30, $78, $00
+custom_char_21:
+    .byte $7c, $c6, $06, $1c, $30, $60, $fe, $00
+custom_char_22:
+    .byte $fc, $06, $06, $7c, $06, $06, $fc, $00
+custom_char_23:
+    .byte $1c, $3c, $6c, $cc, $fe, $0c, $0c, $00
+custom_char_24:
+    .byte $fe, $c0, $c0, $fc, $06, $06, $fc, $00
+custom_char_25:
+    .byte $7c, $c0, $c0, $fc, $c6, $c6, $7c, $00
+custom_char_26:
+    .byte $fe, $06, $0c, $18, $30, $30, $30, $00
+custom_char_27:
+    .byte $7c, $c6, $c6, $7c, $c6, $c6, $7c, $00
+custom_char_28:
+    .byte $7c, $c6, $c6, $7e, $06, $06, $7c, $00
+custom_char_29:
+    .byte $7e, $c0, $c0, $7c, $06, $06, $fc, $00
+custom_char_30:
+    .byte $7c, $c6, $c0, $c0, $c0, $c6, $7c, $00
+custom_char_31:
+    .byte $7c, $c6, $c6, $c6, $c6, $c6, $7c, $00
+custom_char_32:
+    .byte $fc, $c6, $c6, $fc, $d8, $cc, $c6, $00
+custom_char_33:
+    .byte $fe, $c0, $c0, $fc, $c0, $c0, $fe, $00
 
 ; Hardware sprite data for Pac-Man directions.
 custom_sprites:
