@@ -1,4 +1,4 @@
-implements goal "PAC-MAN RANDOM PATH WALKER"
+implements goal "PAC-MAN HARDWARE SPRITE PATH WALKER"
 use projected board data
 read board.txt
 read projected_board.json
@@ -10,10 +10,12 @@ render dots yellow
 render power dots yellow
 render paths black
 render outside black
-render pac-man yellow
-start pac-man at P cell
-constrain pac-man to traversable cells
-choose random legal path turns from board model
-force reverse at dead ends
-stop visibly when path completes
+keep board as character map
+use hardware sprite 0 for pac-man
+start pac-man sprite at P cell center
+constrain pac-man target cells to traversable board cells
+move pac-man sprite pixel by pixel between board cell centers
+choose direction sprite from movement direction
+clear dots as pac-man reaches board cells
+stop visibly when generated path completes
 loop forever

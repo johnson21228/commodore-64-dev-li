@@ -110,11 +110,40 @@ def main() -> int:
     asm_text = ASM.read_text()
     generator_text = GENERATOR.read_text()
 
+    sprite_contract_path = LAB / "li" / "sprite_projection_contract.md"
+    capture_contract_path = LAB.parents[1] / "captures" / "CAPTURE_BACK_PACMAN_SPRITE_PROJECTION_CONTRACT.md"
+
+    if not sprite_contract_path.exists():
+        return fail("Lab 010 must include li/sprite_projection_contract.md")
+    if not capture_contract_path.exists():
+        return fail("captures/CAPTURE_BACK_PACMAN_SPRITE_PROJECTION_CONTRACT.md must exist")
+
+    sprite_contract = sprite_contract_path.read_text()
+    capture_contract = capture_contract_path.read_text()
+
+    required_contract_lines = [
+        "Do not treat board projection as proof of sprite centering.",
+        "return 17 + (left + x) * 8",
+        "return 44 + (top + y) * 8",
+        "Sprite projection answers:",
+    ]
+
+    for required_line in required_contract_lines:
+        if required_line not in sprite_contract:
+            return fail(f"sprite projection contract missing: {required_line}")
+
+    if "Lab 010 has two coordinate systems that must not be conflated" not in capture_contract:
+        return fail("sprite projection Capture Back must document the coordinate-system boundary")
+    if "The board projection can prove that Pac-Man is in a legal maze cell." not in capture_contract:
+        return fail("sprite projection Capture Back must document board legality boundary")
+    if "It does not, by itself, prove that the visible 24x21 hardware sprite is centered" not in capture_contract:
+        return fail("sprite projection Capture Back must document sprite-centering boundary")
+
     if meta.get("width") != len(rows[0]) or meta.get("height") != len(rows):
         return fail("projected_board.json dimensions do not match board.txt")
 
-    if intent.get("milestone") != "pacman_random_path_walker":
-        return fail("generated_intent.json does not declare pacman_random_path_walker")
+    if intent.get("milestone") != "pacman_hardware_sprite_interpolation_retuned_xy_origin":
+        return fail("generated_intent.json does not declare pacman_hardware_sprite_interpolation_retuned_xy_origin")
 
     if not intent.get("authority", {}).get("generatedAssemblyIsArtifact"):
         return fail("generated_intent.json must declare generated assembly as artifact")
@@ -124,14 +153,14 @@ def main() -> int:
 
     path_x = parse_byte_table(asm_text, "path_x")
     path_y = parse_byte_table(asm_text, "path_y")
-    path_char = parse_byte_table(asm_text, "path_char")
+    sprite_x_lo = parse_byte_table(asm_text, "path_sprite_x_lo")
+    sprite_x_hi = parse_byte_table(asm_text, "path_sprite_x_hi")
+    sprite_y = parse_byte_table(asm_text, "path_sprite_y")
+    sprite_ptr = parse_byte_table(asm_text, "path_sprite_ptr")
 
-    if len(path_x) != len(path_y):
-        return fail("path_x and path_y lengths differ")
-    if len(path_char) != len(path_x):
-        return fail("path_char length does not match path length")
-    if not set(path_char).issubset({19, 20, 21, 22}):
-        return fail("path_char must use only directional Pac-Man chars 19..22")
+    lengths = {len(path_x), len(path_y), len(sprite_x_lo), len(sprite_x_hi), len(sprite_y), len(sprite_ptr)}
+    if len(lengths) != 1:
+        return fail("path and sprite interpolation table lengths differ")
 
     declared_len = intent.get("pacmanPathWalker", {}).get("pathLength")
     if declared_len != len(path_x):
@@ -170,42 +199,83 @@ def main() -> int:
     if reversals < 1:
         return fail("path should include at least one reverse direction")
 
+    pointers = intent.get("spriteProjection", {}).get("spritePointers", {})
+    expected_open_ptrs = {0xD0, 0xD1, 0xD2, 0xD3}
+    expected_all_ptrs = {0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7}
+    if set(pointers.values()) != expected_all_ptrs:
+        return fail("intent must declare animated sprite pointers D0-D7")
+    if not set(sprite_ptr).issubset(expected_open_ptrs):
+        return fail("path sprite pointer table must use only open direction sprite pointers D0-D3")
+
+    if any(value not in {0, 1} for value in sprite_x_hi):
+        return fail("sprite x high-bit table must contain only 0/1")
+
     for snippet in [
-        "Milestone C: Pac-Man random path walker",
-        "PACMAN_E_CHAR = $13",
-        "PACMAN_W_CHAR = $14",
-        "PACMAN_N_CHAR = $15",
-        "PACMAN_S_CHAR = $16",
-        "PATH_LEN = 220",
-        "path_char:",
-        "draw_pacman:",
-        "erase_pacman_cell:",
-        "walk_loop:",
-        "stop_game:",
-        "path_x:",
-        "path_y:",
+        "Milestone C.15: radial Pac-Man sprite geometry with retuned x/y sprite origin",
+        "SPRITE_DATA_ADDR = $3400",
+        "SPRITE_PTR_E_OPEN = $d0",
+        "SPRITE_PTR_W_OPEN = $d1",
+        "SPRITE_PTR_N_OPEN = $d2",
+        "SPRITE_PTR_S_OPEN = $d3",
+        "SPRITE_PTR_E_CLOSED = $d4",
+        "SPRITE_PTR_W_CLOSED = $d5",
+        "SPRITE_PTR_N_CLOSED = $d6",
+        "SPRITE_PTR_S_CLOSED = $d7",
+        "init_sprite:",
+        "set_sprite_position_from_index:",
+        "set_target_for_index:",
+        "move_sprite_toward_target:",
+        "update_sprite_registers:",
+        "update_mouth_animation:",
+        "mouth_phase:",
+        "copy_sprite_page0:",
+        "copy_sprite_page1:",
+        "SPRITE_DATA_BYTES = 512",
+        "custom_sprites:",
+        "path_sprite_x_lo:",
+        "path_sprite_x_hi:",
+        "path_sprite_y:",
+        "path_sprite_ptr:",
         "board_row_00:",
         "board_row_21:",
     ]:
         if snippet not in asm_text:
             return fail(f"generated.s missing expected snippet: {snippet}")
 
-    projection = intent.get("characterProjection", {})
-    expected_chars = {"E": 19, "W": 20, "N": 21, "S": 22}
-    if projection.get("pacmanChars") != expected_chars:
-        return fail("generated_intent.json must declare directional Pac-Man chars 19..22")
+    sprite_projection = intent.get("spriteProjection", {})
+    if sprite_projection.get("enabledSprite") != 0:
+        return fail("intent must declare sprite 0 for Pac-Man")
+    if sprite_projection.get("movement") != "pixel interpolation between board-cell centers":
+        return fail("intent must declare pixel interpolation movement")
+    if sprite_projection.get("mouthAnimation") != "open and closed sprite frames alternate at a visible crunch pace while moving":
+        return fail("intent must declare visible crunch mouth animation")
+    if sprite_projection.get("mouthSpeedTuning") != "toggle every 8 frame-pixel updates":
+        return fail("intent must declare 8-frame mouth crunch tuning")
+    if sprite_projection.get("verticalSpriteArt") != "north/south mouth uses same radial sprite geometry as east/west":
+        return fail("intent must declare radial vertical mouth sprite art")
+    if sprite_projection.get("spriteFootprint") != "all directions use shared center, shared radius, and shared mouth-wedge rule":
+        return fail("intent must declare shared radial sprite footprint")
+    if sprite_projection.get("spriteGeometry") != "radial Pac-Man generated from one circle-like pixel model":
+        return fail("intent must declare radial Pac-Man sprite geometry")
+    if sprite_projection.get("spriteOriginTuning") != "sprite y origin lowered by one pixel and x origin shifted left by three pixels for hallway centering":
+        return fail("intent must declare retuned x/y sprite origin centering")
+    if sprite_projection.get("spriteCopyFix") != "copies all 512 bytes for eight sprite frames":
+        return fail("intent must declare 512-byte sprite frame copy fix")
+    if sprite_projection.get("speedTuning") != "two raster frames per interpolated pixel":
+        return fail("intent must declare two-frame-per-pixel half-speed tuning")
+    if sprite_projection.get("sizeTuning") != "smaller 10-12 pixel centered sprite body within 24x21 hardware sprite cell":
+        return fail("intent must declare smaller 10-12 pixel centered sprite tuning")
 
     walker = intent.get("pacmanPathWalker", {})
-    if walker.get("verticalGlyphReview") != "north and south glyphs use round body with explicit top/bottom mouth notch":
-        return fail("intent must declare round-body vertical glyph review")
-
     if walker.get("movementAuthority") != "board.txt traversable cells":
         return fail("intent must declare board.txt traversable cells as movement authority")
 
-    if "generate_path" not in generator_text or "legal_moves" not in generator_text:
-        return fail("generate_asm.py must include legal path generation from board model")
+    if "build_sprites" not in generator_text or "cell_sprite_x" not in generator_text:
+        return fail("generate_asm.py must include hardware sprite projection helpers")
+    if "radial_pacman_sprite" not in generator_text or "mouth_slope" not in generator_text:
+        return fail("generate_asm.py must include radial Pac-Man mouth geometry")
 
-    print("OK: C64 Lab 010 Pac-Man random path walker stays on verified board paths with slowed larger directional Pac-Man glyphs and round-body vertical mouth review.")
+    print("OK: C64 Lab 010 Pac-Man uses retuned x/y-origin radial sprite art over verified board paths.")
     return 0
 
 

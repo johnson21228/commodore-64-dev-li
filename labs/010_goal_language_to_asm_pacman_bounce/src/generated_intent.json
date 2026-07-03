@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 4,
-  "milestone": "pacman_random_path_walker",
+  "schemaVersion": 5,
+  "milestone": "pacman_hardware_sprite_interpolation_retuned_xy_origin",
   "authority": {
     "boardText": "/Users/stevejohnson/Developer/commodore-64-dev-li/labs/010_goal_language_to_asm_pacman_bounce/src/board.txt",
     "projectedBoard": "/Users/stevejohnson/Developer/commodore-64-dev-li/labs/010_goal_language_to_asm_pacman_bounce/src/projected_board.json",
@@ -9,17 +9,17 @@
   },
   "inputs": {
     "goal": [
-      "goal \"PAC-MAN RANDOM PATH WALKER\"",
-      "priority runtime speed first",
+      "goal \"PAC-MAN HARDWARE SPRITE PATH WALKER\"",
+      "priority smooth runtime motion",
       "output assembly",
       "constraint no main.c",
       "constraint generated assembly is the app",
       "source image board projection",
       "visual render pac-man board walls and dots",
-      "milestone pac-man random path walker"
+      "milestone hardware sprite pac-man interpolation"
     ],
     "program": [
-      "implements goal \"PAC-MAN RANDOM PATH WALKER\"",
+      "implements goal \"PAC-MAN HARDWARE SPRITE PATH WALKER\"",
       "use projected board data",
       "read board.txt",
       "read projected_board.json",
@@ -31,12 +31,14 @@
       "render power dots yellow",
       "render paths black",
       "render outside black",
-      "render pac-man yellow",
-      "start pac-man at P cell",
-      "constrain pac-man to traversable cells",
-      "choose random legal path turns from board model",
-      "force reverse at dead ends",
-      "stop visibly when path completes",
+      "keep board as character map",
+      "use hardware sprite 0 for pac-man",
+      "start pac-man sprite at P cell center",
+      "constrain pac-man target cells to traversable board cells",
+      "move pac-man sprite pixel by pixel between board cell centers",
+      "choose direction sprite from movement direction",
+      "clear dots as pac-man reaches board cells",
+      "stop visibly when generated path completes",
       "loop forever"
     ]
   },
@@ -71,13 +73,32 @@
     ],
     "centeredDotChar": 17,
     "centeredPowerDotChar": 18,
-    "pacmanChars": {
-      "E": 19,
-      "W": 20,
-      "N": 21,
-      "S": 22
-    },
     "wallGlyphSelection": "neighbor_aware_thin_wall"
+  },
+  "spriteProjection": {
+    "enabledSprite": 0,
+    "spriteDataAddress": "$3400",
+    "spritePointers": {
+      "E_OPEN": 208,
+      "W_OPEN": 209,
+      "N_OPEN": 210,
+      "S_OPEN": 211,
+      "E_CLOSED": 212,
+      "W_CLOSED": 213,
+      "N_CLOSED": 214,
+      "S_CLOSED": 215
+    },
+    "movement": "pixel interpolation between board-cell centers",
+    "sizeTuning": "smaller 10-12 pixel centered sprite body within 24x21 hardware sprite cell",
+    "mouthDirection": "hardware sprite pointer selected from path direction",
+    "mouthAnimation": "open and closed sprite frames alternate at a visible crunch pace while moving",
+    "mouthSpeedTuning": "toggle every 8 frame-pixel updates",
+    "verticalSpriteArt": "north/south mouth uses same radial sprite geometry as east/west",
+    "spriteFootprint": "all directions use shared center, shared radius, and shared mouth-wedge rule",
+    "spriteGeometry": "radial Pac-Man generated from one circle-like pixel model",
+    "spriteOriginTuning": "sprite y origin lowered by one pixel and x origin shifted left by three pixels for hallway centering",
+    "spriteCopyFix": "copies all 512 bytes for eight sprite frames",
+    "speedTuning": "two raster frames per interpolated pixel"
   },
   "pacmanPathWalker": {
     "pathLength": 220,
@@ -98,10 +119,6 @@
       "X"
     ],
     "turnPolicy": "deterministic LFSR random legal path from board model",
-    "visualMotion": "slowed cell-to-cell movement",
-    "mouthDirection": "Pac-Man character faces next path direction",
-    "cellFit": "nearly full 8x8 hallway cell with small inset",
-    "verticalGlyphReview": "north and south glyphs use round body with explicit top/bottom mouth notch",
     "deadEndPolicy": "reverse if it is the only legal move",
     "failurePolicy": "runtime stops visibly if path completes; verifier fails if path enters blocked cells"
   },

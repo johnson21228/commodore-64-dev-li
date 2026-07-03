@@ -1,8 +1,8 @@
-goal "PAC-MAN RANDOM PATH WALKER"
-priority runtime speed first
+goal "PAC-MAN HARDWARE SPRITE PATH WALKER"
+priority smooth runtime motion
 output assembly
 constraint no main.c
 constraint generated assembly is the app
 source image board projection
 visual render pac-man board walls and dots
-milestone pac-man random path walker
+milestone hardware sprite pac-man interpolation
