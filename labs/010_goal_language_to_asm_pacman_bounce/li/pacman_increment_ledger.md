@@ -176,3 +176,12 @@ F.2 scoring rules:
 - score changes when Pac-Man reaches a board-cell center
 
 F.2 uses the rendered board cells as the mutable item map because Pac-Man is a hardware sprite and does not overwrite the character board.
+
+## F.3 — Tunnel wrap
+
+- Adds declared horizontal tunnel topology on row 09.
+- Treats tunnel wrap as declared topology, not boundary escape.
+- Allows Pac-Man to wrap left from `(0, 9)` to `(27, 9)`.
+- Allows Pac-Man to wrap right from `(27, 9)` to `(0, 9)`.
+- Does not allow generic off-board movement.
+- Keeps scoring separate from movement topology.

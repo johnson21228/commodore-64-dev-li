@@ -178,7 +178,7 @@ def main() -> int:
         return fail("intent must preserve radial vertical mouth sprite art")
 
     for snippet in [
-        "Milestone F.2: buffered-turn Pac-Man with visible dot and energizer scoring",
+        "Milestone F.3: buffered-turn Pac-Man with visible scoring and declared tunnel wrap",
         "START_DIR_PTR =",
         "START_TARGET_CELL_X =",
         "START_TARGET_CELL_Y =",
@@ -376,7 +376,30 @@ def main() -> int:
         if required_snippet not in asm_text:
             return fail(f"generated assembly missing scoring snippet: {required_snippet}")
 
-    print("OK: C64 Lab 010 uses buffered turns, compact rendering, full-rule LI, and F.2 scoring.")
+    # F.3 tunnel wrap verifier checks
+    generated_asm_text = ASM.read_text()
+    required_tunnel_snippets = [
+        "TUNNEL_ROW = $09",
+        "TUNNEL_LEFT_X = $00",
+        "TUNNEL_RIGHT_X = $1b",
+        "try_tunnel_left:",
+        "try_tunnel_right:",
+        "TUNNEL_RIGHT_CONTINUE_X",
+        "TUNNEL_LEFT_CONTINUE_X",
+    ]
+    for snippet in required_tunnel_snippets:
+        if snippet not in generated_asm_text:
+            raise SystemExit(f"ERROR: generated assembly missing tunnel snippet: {snippet}")
+
+    if "Tunnel wrap is declared topology" not in (LAB / "li" / "pacman_tunnel_wrap_contract.md").read_text():
+        raise SystemExit("ERROR: missing F.3 tunnel wrap contract language")
+
+    if "tunnelWrap" not in intent:
+        raise SystemExit("ERROR: intent must describe F.3 tunnel wrap")
+    if intent["tunnelWrap"].get("noGenericOffBoardMovement") is not True:
+        raise SystemExit("ERROR: intent must forbid generic off-board movement")
+
+    print("OK: C64 Lab 010 uses buffered turns, compact rendering, full-rule LI, F.2 scoring, and F.3 tunnel wrap.")
     return 0
 
 

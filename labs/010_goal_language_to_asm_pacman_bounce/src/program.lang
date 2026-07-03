@@ -30,3 +30,10 @@ add 50 when pac-man consumes an energizer
 score each dot or energizer only once
 clear dots and energizers as pac-man reaches board cells
 loop forever
+
+implement F.3 tunnel_wrap:
+  generate tunnel constants from the declared row 09 topology.
+  intercept left movement at the left tunnel endpoint.
+  intercept right movement at the right tunnel endpoint.
+  teleport to the paired endpoint, then set the next target cell in the same direction.
+  preserve score-on-consume behavior.

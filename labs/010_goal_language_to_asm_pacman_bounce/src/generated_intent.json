@@ -16,7 +16,14 @@
       "constraint generated assembly is the app",
       "source image board projection",
       "visual render pac-man board walls and dots",
-      "milestone visible score for consumed dots and energizers"
+      "milestone visible score for consumed dots and energizers",
+      "",
+      "feature F.3 tunnel_wrap:",
+      "  tunnel wrap is declared topology, not boundary escape.",
+      "  row 09 has a horizontal tunnel pair between x 0 and x 27.",
+      "  moving left from cell (0, 9) wraps to the right endpoint and continues left.",
+      "  moving right from cell (27, 9) wraps to the left endpoint and continues right.",
+      "  no other board edge permits off-board movement."
     ],
     "program": [
       "implements goal \"PAC-MAN SCORING\"",
@@ -50,7 +57,14 @@
       "add 50 when pac-man consumes an energizer",
       "score each dot or energizer only once",
       "clear dots and energizers as pac-man reaches board cells",
-      "loop forever"
+      "loop forever",
+      "",
+      "implement F.3 tunnel_wrap:",
+      "  generate tunnel constants from the declared row 09 topology.",
+      "  intercept left movement at the left tunnel endpoint.",
+      "  intercept right movement at the right tunnel endpoint.",
+      "  teleport to the paired endpoint, then set the next target cell in the same direction.",
+      "  preserve score-on-consume behavior."
     ]
   },
   "board": {
@@ -83,6 +97,28 @@
     "centeredDotChar": 17,
     "centeredPowerDotChar": 18,
     "wallGlyphSelection": "neighbor_aware_thin_wall"
+  },
+  "tunnelWrap": {
+    "enabled": true,
+    "rule": "declared topology, not boundary escape",
+    "row": 9,
+    "leftEndpoint": {
+      "x": 0,
+      "y": 9
+    },
+    "rightEndpoint": {
+      "x": 27,
+      "y": 9
+    },
+    "leftFromLeftEndpointContinuesTo": {
+      "x": 26,
+      "y": 9
+    },
+    "rightFromRightEndpointContinuesTo": {
+      "x": 1,
+      "y": 9
+    },
+    "noGenericOffBoardMovement": true
   },
   "scoring": {
     "enabled": true,
