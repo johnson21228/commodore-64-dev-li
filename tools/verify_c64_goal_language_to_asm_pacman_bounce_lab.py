@@ -178,7 +178,7 @@ def main() -> int:
         return fail("intent must preserve radial vertical mouth sprite art")
 
     for snippet in [
-        "Milestone F.3: buffered-turn Pac-Man with visible scoring and declared tunnel wrap",
+        "Milestone F.4: Pac-Man expiration state with temporary tunnel trigger",
         "START_DIR_PTR =",
         "START_TARGET_CELL_X =",
         "START_TARGET_CELL_Y =",
@@ -399,7 +399,31 @@ def main() -> int:
     if intent["tunnelWrap"].get("noGenericOffBoardMovement") is not True:
         raise SystemExit("ERROR: intent must forbid generic off-board movement")
 
-    print("OK: C64 Lab 010 uses buffered turns, compact rendering, full-rule LI, F.2 scoring, and F.3 tunnel wrap.")
+    # F.4 expiration verifier checks
+    required_expiration_snippets = [
+        "PACMAN_STATE_EXPIRING = $01",
+        "EXPIRATION_TICKS = $40",
+        "pacman_state:",
+        "expiration_counter:",
+        "trigger_pacman_expiration:",
+        "update_expiration_state:",
+        "reset_after_expiration:",
+        "jsr trigger_pacman_expiration",
+    ]
+    for snippet in required_expiration_snippets:
+        if snippet not in asm_text:
+            return fail(f"generated assembly missing expiration snippet: {snippet}")
+
+    expiration_contract = (LAB / "li" / "pacman_expiration_and_lives_contract.md").read_text()
+    if "Expiration is a controlled state transition" not in expiration_contract:
+        return fail("missing F.4 expiration contract language")
+
+    if "pacmanExpiration" not in intent:
+        return fail("intent must describe F.4 Pac-Man expiration")
+    if intent["pacmanExpiration"].get("livesCounterDeferred") is not True:
+        return fail("F.4 must defer lives counter runtime")
+
+    print("OK: C64 Lab 010 uses buffered turns, compact rendering, scoring, tunnel topology, and F.4 expiration state.")
     return 0
 
 
