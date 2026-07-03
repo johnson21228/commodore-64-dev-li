@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "projectionStatus": "manual_first_pass",
+  "sourceImage": "labs/010_goal_language_to_asm_pacman_bounce/assets/source_board.png",
+  "boardText": "labs/010_goal_language_to_asm_pacman_bounce/src/board.txt",
+  "width": 28,
+  "height": 22,
+  "tileLegend": {
+    "#": {
+      "baseType": "wall",
+      "traversable": false,
+      "description": "Wall cell"
+    },
+    ".": {
+      "baseType": "path",
+      "traversable": true,
+      "contains": "dot",
+      "description": "Traversable path cell with dot"
+    },
+    "o": {
+      "baseType": "path",
+      "traversable": true,
+      "contains": "power_dot",
+      "description": "Traversable path cell with power dot"
+    },
+    " ": {
+      "baseType": "path",
+      "traversable": true,
+      "description": "Empty traversable path cell"
+    },
+    "P": {
+      "baseType": "path",
+      "traversable": true,
+      "contains": "pacman_start",
+      "description": "Pac-Man start on traversable path"
+    },
+    "G": {
+      "baseType": "path",
+      "traversable": true,
+      "contains": "ghost_start",
+      "description": "Ghost start on traversable path"
+    },
+    "X": {
+      "baseType": "outside",
+      "traversable": false,
+      "description": "Outside / non-playable cell"
+    }
+  },
+  "pacmanStart": {
+    "x": 13,
+    "y": 13
+  },
+  "ghostStarts": [
+    {
+      "x": 13,
+      "y": 8
+    },
+    {
+      "x": 14,
+      "y": 8
+    }
+  ],
+  "wrapTunnels": [],
+  "bestFitNotes": [
+    "Manual first-pass projection from source board screenshot.",
+    "The source image is not assumed to satisfy native C64 graphics constraints.",
+    "Board is snapped to a 28x22 tile grid for initial reviewability.",
+    "Walls, dots, power dots, Pac-Man start, and ghost starts are represented as board data.",
+    "This projection is intentionally not computer vision yet."
+  ]
+}
