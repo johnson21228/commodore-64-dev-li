@@ -185,3 +185,20 @@ F.2 uses the rendered board cells as the mutable item map because Pac-Man is a h
 - Allows Pac-Man to wrap right from `(27, 9)` to `(0, 9)`.
 - Does not allow generic off-board movement.
 - Keeps scoring separate from movement topology.
+
+## F.4 — Pac-Man expiration state
+
+- Introduce Pac-Man expiration as a controlled state transition.
+- Movement stops during expiration.
+- Input is ignored during expiration.
+- Score and consumed board items remain unchanged.
+- The tunnel may temporarily trigger expiration before ghost collision exists.
+- No life counter is required in F.4 runtime.
+
+## F.5 — Multiple lives
+
+- Introduce a game-level lives counter.
+- Initial lives: 3.
+- Each expiration consumes one life.
+- If lives remain, Pac-Man resets and play resumes.
+- If no lives remain, the game enters game-over state.

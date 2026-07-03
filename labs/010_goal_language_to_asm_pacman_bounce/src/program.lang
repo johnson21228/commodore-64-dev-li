@@ -37,3 +37,17 @@ implement F.3 tunnel_wrap:
   intercept right movement at the right tunnel endpoint.
   teleport to the paired endpoint, then set the next target cell in the same direction.
   preserve score-on-consume behavior.
+
+implement F.4 pacman_expiration:
+  add an expiration state flag and countdown timer.
+  when expiration begins, stop movement and ignore input.
+  use the tunnel as the temporary expiration trigger.
+  after timeout, reset Pac-Man to start cell and clear requested direction.
+  preserve score and consumed item map.
+
+implement F.5 multiple_lives:
+  add lives state after expiration works.
+  initialize lives to 3.
+  decrement lives on expiration.
+  reset Pac-Man if lives remain.
+  enter game-over if lives reach 0.

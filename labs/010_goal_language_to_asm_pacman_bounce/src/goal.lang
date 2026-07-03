@@ -13,3 +13,18 @@ feature F.3 tunnel_wrap:
   moving left from cell (0, 9) wraps to the right endpoint and continues left.
   moving right from cell (27, 9) wraps to the left endpoint and continues right.
   no other board edge permits off-board movement.
+
+feature F.4 pacman_expiration:
+  Pac-Man expiration is a controlled state transition, not an immediate reset.
+  during expiration, movement stops and input is ignored.
+  score remains unchanged.
+  consumed board items remain consumed.
+  after a short timeout, Pac-Man returns to the start cell.
+  until ghosts exist, the tunnel may be a temporary expiration trigger.
+
+feature F.5 multiple_lives:
+  a game has multiple Pac-Man lives.
+  initial lives are 3.
+  each expiration consumes one life.
+  if lives remain, Pac-Man resets and play resumes.
+  if no lives remain, the game enters game-over state.
