@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 3,
-  "milestone": "board_only_render_custom_character_projection",
+  "schemaVersion": 4,
+  "milestone": "pacman_random_path_walker",
   "authority": {
     "boardText": "/Users/stevejohnson/Developer/commodore-64-dev-li/labs/010_goal_language_to_asm_pacman_bounce/src/board.txt",
     "projectedBoard": "/Users/stevejohnson/Developer/commodore-64-dev-li/labs/010_goal_language_to_asm_pacman_bounce/src/projected_board.json",
@@ -9,17 +9,17 @@
   },
   "inputs": {
     "goal": [
-      "goal \"PAC-MAN BOARD ONLY RENDER\"",
+      "goal \"PAC-MAN RANDOM PATH WALKER\"",
       "priority runtime speed first",
       "output assembly",
       "constraint no main.c",
       "constraint generated assembly is the app",
       "source image board projection",
       "visual render pac-man board walls and dots",
-      "milestone board-only render"
+      "milestone pac-man random path walker"
     ],
     "program": [
-      "implements goal \"PAC-MAN BOARD ONLY RENDER\"",
+      "implements goal \"PAC-MAN RANDOM PATH WALKER\"",
       "use projected board data",
       "read board.txt",
       "read projected_board.json",
@@ -31,6 +31,12 @@
       "render power dots yellow",
       "render paths black",
       "render outside black",
+      "render pac-man yellow",
+      "start pac-man at P cell",
+      "constrain pac-man to traversable cells",
+      "choose random legal path turns from board model",
+      "force reverse at dead ends",
+      "stop visibly when path completes",
       "loop forever"
     ]
   },
@@ -65,13 +71,44 @@
     ],
     "centeredDotChar": 17,
     "centeredPowerDotChar": 18,
+    "pacmanChars": {
+      "E": 19,
+      "W": 20,
+      "N": 21,
+      "S": 22
+    },
     "wallGlyphSelection": "neighbor_aware_thin_wall"
   },
+  "pacmanPathWalker": {
+    "pathLength": 220,
+    "start": {
+      "x": 13,
+      "y": 13
+    },
+    "movementAuthority": "board.txt traversable cells",
+    "traversableCells": [
+      ".",
+      "o",
+      " ",
+      "P",
+      "G"
+    ],
+    "blockedCells": [
+      "#",
+      "X"
+    ],
+    "turnPolicy": "deterministic LFSR random legal path from board model",
+    "visualMotion": "slowed cell-to-cell movement",
+    "mouthDirection": "Pac-Man character faces next path direction",
+    "cellFit": "nearly full 8x8 hallway cell with small inset",
+    "verticalGlyphReview": "north and south glyphs use round body with explicit top/bottom mouth notch",
+    "deadEndPolicy": "reverse if it is the only legal move",
+    "failurePolicy": "runtime stops visibly if path completes; verifier fails if path enters blocked cells"
+  },
   "scopeLimits": [
-    "no Pac-Man movement",
     "no ghost movement",
     "no scoring",
-    "no win/loss outcomes",
+    "no win/loss outcomes beyond visible stop",
     "no computer vision"
   ]
 }

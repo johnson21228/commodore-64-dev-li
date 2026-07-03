@@ -1,4 +1,4 @@
-implements goal "PAC-MAN BOARD ONLY RENDER"
+implements goal "PAC-MAN RANDOM PATH WALKER"
 use projected board data
 read board.txt
 read projected_board.json
@@ -10,4 +10,10 @@ render dots yellow
 render power dots yellow
 render paths black
 render outside black
+render pac-man yellow
+start pac-man at P cell
+constrain pac-man to traversable cells
+choose random legal path turns from board model
+force reverse at dead ends
+stop visibly when path completes
 loop forever

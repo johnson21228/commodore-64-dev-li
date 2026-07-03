@@ -1,8 +1,8 @@
-goal "PAC-MAN BOARD ONLY RENDER"
+goal "PAC-MAN RANDOM PATH WALKER"
 priority runtime speed first
 output assembly
 constraint no main.c
 constraint generated assembly is the app
 source image board projection
 visual render pac-man board walls and dots
-milestone board-only render
+milestone pac-man random path walker
