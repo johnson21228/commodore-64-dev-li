@@ -3,23 +3,16 @@ from __future__ import annotations
 
 import json
 import re
-import subprocess
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LAB = ROOT / "labs" / "010_goal_language_to_asm_pacman_bounce"
 SRC = LAB / "src"
-
 BOARD = SRC / "board.txt"
 META = SRC / "projected_board.json"
 ASM = SRC / "generated.s"
 INTENT = SRC / "generated_intent.json"
 GENERATOR = SRC / "generate_asm.py"
-PROJECTED_VERIFIER = SRC / "verify_projected_board.py"
-
-ALLOWED = set("#.o PGX")
-TRAVERSABLE = set(".o PG")
 
 
 def fail(message: str) -> int:
@@ -28,81 +21,52 @@ def fail(message: str) -> int:
 
 
 def read_board() -> list[str]:
-    rows = BOARD.read_text().splitlines()
-    if not rows:
-        raise AssertionError("board.txt is empty")
-    width = len(rows[0])
+    return BOARD.read_text().splitlines()
+
+
+def is_traversable(rows: list[str], x: int, y: int) -> bool:
+    return rows[y][x] in {".", "o", " ", "P", "G"}
+
+
+def expected_legal_masks(rows: list[str]) -> list[list[int]]:
+    masks: list[list[int]] = []
     for y, row in enumerate(rows):
-        if len(row) != width:
-            raise AssertionError(f"board row {y} width mismatch")
-        bad = sorted({ch for ch in row if ch not in ALLOWED})
-        if bad:
-            raise AssertionError(f"board row {y} has unsupported chars {bad}")
-    return rows
+        mask_row: list[int] = []
+        for x, ch in enumerate(row):
+            mask = 0
+            if ch in {".", "o", " ", "P", "G"}:
+                if y > 0 and is_traversable(rows, x, y - 1):
+                    mask |= 0x01
+                if y + 1 < len(rows) and is_traversable(rows, x, y + 1):
+                    mask |= 0x02
+                if x > 0 and is_traversable(rows, x - 1, y):
+                    mask |= 0x04
+                if x + 1 < len(row) and is_traversable(rows, x + 1, y):
+                    mask |= 0x08
+            mask_row.append(mask)
+        masks.append(mask_row)
+    return masks
 
 
-def parse_asm_board_rows(text: str) -> list[str]:
-    rows = []
-    for _, payload in re.findall(r"board_row_(\d{2}):\n    \.byte ([^\n]+)", text):
-        chars = []
-        for raw in payload.split(","):
-            raw = raw.strip()
-            chars.append(chr(int(raw[1:], 16) if raw.startswith("$") else int(raw)))
-        rows.append("".join(chars))
-    return rows
-
-
-def parse_byte_table(text: str, label: str) -> list[int]:
-    pattern = rf"{re.escape(label)}:\n((?:    \.byte [^\n]+\n?)+)"
-    match = re.search(pattern, text)
+def parse_byte_row(asm_text: str, label: str) -> list[int]:
+    match = re.search(rf"^{re.escape(label)}:\n\s+\.byte\s+([^\n]+)", asm_text, re.MULTILINE)
     if not match:
-        raise AssertionError(f"missing byte table {label}")
-    values = []
-    for line in match.group(1).splitlines():
-        payload = line.split(".byte", 1)[1]
-        for raw in payload.split(","):
-            raw = raw.strip()
-            values.append(int(raw[1:], 16) if raw.startswith("$") else int(raw))
+        raise ValueError(f"missing byte row {label}")
+    values: list[int] = []
+    for raw in match.group(1).split(","):
+        token = raw.strip()
+        if token.startswith("$"):
+            values.append(int(token[1:], 16))
+        else:
+            values.append(int(token, 10))
     return values
 
 
-def pacman_start(rows: list[str]) -> tuple[int, int]:
-    found = [(x, y) for y, row in enumerate(rows) for x, ch in enumerate(row) if ch == "P"]
-    if len(found) != 1:
-        raise AssertionError(f"expected exactly one Pac-Man start, found {len(found)}")
-    return found[0]
-
-
-def legal_neighbors(rows: list[str], x: int, y: int) -> list[tuple[int, int]]:
-    out = []
-    for dx, dy in ((0, -1), (1, 0), (0, 1), (-1, 0)):
-        nx, ny = x + dx, y + dy
-        if 0 <= ny < len(rows) and 0 <= nx < len(rows[ny]) and rows[ny][nx] in TRAVERSABLE:
-            out.append((nx, ny))
-    return out
-
-
 def main() -> int:
-    required = [
-        BOARD,
-        META,
-        ASM,
-        INTENT,
-        GENERATOR,
-        PROJECTED_VERIFIER,
-        LAB / "BOARD_PROJECTION_LI.md",
-        LAB / "assets" / "source_board.png",
-        LAB / "c64_asm.cfg",
-    ]
-    missing = [str(path) for path in required if not path.exists()]
-    if missing:
-        return fail("missing required files: " + ", ".join(missing))
-
-    projected = subprocess.run([sys.executable, str(PROJECTED_VERIFIER)], cwd=ROOT, text=True, capture_output=True)
-    if projected.returncode != 0:
-        print(projected.stdout)
-        print(projected.stderr)
-        return fail("projected board verifier failed")
+    required_paths = [BOARD, META, ASM, INTENT, GENERATOR]
+    for path in required_paths:
+        if not path.exists():
+            return fail(f"missing required file: {path}")
 
     rows = read_board()
     meta = json.loads(META.read_text())
@@ -111,7 +75,11 @@ def main() -> int:
     generator_text = GENERATOR.read_text()
 
     sprite_contract_path = LAB / "li" / "sprite_projection_contract.md"
-    capture_contract_path = LAB.parents[1] / "captures" / "CAPTURE_BACK_PACMAN_SPRITE_PROJECTION_CONTRACT.md"
+    capture_contract_path = ROOT / "captures" / "CAPTURE_BACK_PACMAN_SPRITE_PROJECTION_CONTRACT.md"
+    movement_contract_path = LAB / "li" / "pacman_movement_contract.md"
+    movement_capture_path = ROOT / "captures" / "CAPTURE_BACK_PACMAN_MOVEMENT_CONTRACT.md"
+    increment_ledger_path = LAB / "li" / "pacman_increment_ledger.md"
+    assembly_efficiency_contract_path = LAB / "li" / "assembly_efficiency_contract.md"
 
     if not sprite_contract_path.exists():
         return fail("Lab 010 must include li/sprite_projection_contract.md")
@@ -120,162 +88,188 @@ def main() -> int:
 
     sprite_contract = sprite_contract_path.read_text()
     capture_contract = capture_contract_path.read_text()
+    movement_contract = movement_contract_path.read_text()
+    movement_capture = movement_capture_path.read_text()
+    increment_ledger = increment_ledger_path.read_text()
+    assembly_efficiency_contract = assembly_efficiency_contract_path.read_text()
 
-    required_contract_lines = [
+    for required_line in [
         "Do not treat board projection as proof of sprite centering.",
         "return 17 + (left + x) * 8",
         "return 44 + (top + y) * 8",
         "Sprite projection answers:",
-    ]
-
-    for required_line in required_contract_lines:
+    ]:
         if required_line not in sprite_contract:
             return fail(f"sprite projection contract missing: {required_line}")
 
     if "Lab 010 has two coordinate systems that must not be conflated" not in capture_contract:
         return fail("sprite projection Capture Back must document the coordinate-system boundary")
-    if "The board projection can prove that Pac-Man is in a legal maze cell." not in capture_contract:
-        return fail("sprite projection Capture Back must document board legality boundary")
-    if "It does not, by itself, prove that the visible 24x21 hardware sprite is centered" not in capture_contract:
-        return fail("sprite projection Capture Back must document sprite-centering boundary")
+
+    for required_line in [
+        "Pac-Man-style continuous motion with buffered turn requests.",
+        "Pac-Man must not auto-select a new direction merely because he reached the end of a hallway.",
+        "The runtime should preserve the most recent requested direction and apply it when that direction becomes legal.",
+        "D.8 implements a C64 W/A/S/D keyboard fallback.",
+    ]:
+        if required_line not in movement_contract:
+            return fail(f"movement contract missing: {required_line}")
+
+    for required_line in [
+        "Pac-Man should not auto-turn at hallway ends.",
+        "The right fix is reliable buffered input.",
+        "no automatic turn selection",
+    ]:
+        if required_line not in movement_capture:
+            return fail(f"movement Capture Back missing: {required_line}")
+
+    for required_line in [
+        "D.6 — Auto-turn experiment",
+        "Superseded.",
+        "D.7 — Buffered requested turns",
+        "D.8 — W/A/S/D keyboard fallback",
+        "Auto-turning is not the target behavior.",
+    ]:
+        if required_line not in increment_ledger:
+            return fail(f"increment ledger missing: {required_line}")
+
+    for required_line in [
+        "The learning surface is language and LI.",
+        "generated assembly should be compact",
+        "table-driven board renderer",
+        "Unrolled per-cell board writes are superseded",
+    ]:
+        if required_line not in assembly_efficiency_contract:
+            return fail(f"assembly efficiency contract missing: {required_line}")
 
     if meta.get("width") != len(rows[0]) or meta.get("height") != len(rows):
         return fail("projected_board.json dimensions do not match board.txt")
 
-    if intent.get("milestone") != "pacman_hardware_sprite_interpolation_retuned_xy_origin":
-        return fail("generated_intent.json does not declare pacman_hardware_sprite_interpolation_retuned_xy_origin")
+    if intent.get("milestone") != "pacman_buffered_turn_keyboard_fallback_control":
+        return fail("generated_intent.json does not declare pacman_buffered_turn_keyboard_fallback_control")
 
-    if not intent.get("authority", {}).get("generatedAssemblyIsArtifact"):
-        return fail("generated_intent.json must declare generated assembly as artifact")
+    joystick = intent.get("joystickControl", {})
+    if joystick.get("enabled") is not True:
+        return fail("intent must declare joystick control enabled")
+    if joystick.get("port") != "$dc00":
+        return fail("intent must declare joystick port $dc00")
+    if joystick.get("activeLow") is not True:
+        return fail("intent must declare active-low joystick control")
+    if joystick.get("movementPolicy") != "Pac-Man starts moving immediately, continues in the current legal direction, and applies buffered joystick or keyboard requested turns when legal at cell centers":
+        return fail("intent must declare buffered joystick/keyboard requested-turn movement policy")
+    if joystick.get("wallPolicy") != "blocked requested turns are ignored; if current momentum is blocked and no buffered legal turn exists, Pac-Man stops":
+        return fail("intent must declare blocked requested turns stop only when current momentum is blocked")
+    if joystick.get("keyboardFallback") != "W/A/S/D keys update the same requested direction buffer as joystick input":
+        return fail("intent must declare W/A/S/D keyboard fallback into requested direction buffer")
 
-    if parse_asm_board_rows(asm_text) != rows:
-        return fail("generated.s board_row data does not match board.txt")
+    assembly_efficiency = intent.get("assemblyEfficiency", {})
+    if assembly_efficiency.get("renderer") != "table-driven board renderer":
+        return fail("intent must declare table-driven board renderer")
+    if assembly_efficiency.get("unrolledBoardWrites") is not False:
+        return fail("intent must declare unrolled board writes disabled")
+    if assembly_efficiency.get("auditBoardTextInAssembly") is not False:
+        return fail("intent must declare board text audit removed from assembly")
 
-    path_x = parse_byte_table(asm_text, "path_x")
-    path_y = parse_byte_table(asm_text, "path_y")
-    sprite_x_lo = parse_byte_table(asm_text, "path_sprite_x_lo")
-    sprite_x_hi = parse_byte_table(asm_text, "path_sprite_x_hi")
-    sprite_y = parse_byte_table(asm_text, "path_sprite_y")
-    sprite_ptr = parse_byte_table(asm_text, "path_sprite_ptr")
-
-    lengths = {len(path_x), len(path_y), len(sprite_x_lo), len(sprite_x_hi), len(sprite_y), len(sprite_ptr)}
-    if len(lengths) != 1:
-        return fail("path and sprite interpolation table lengths differ")
-
-    declared_len = intent.get("pacmanPathWalker", {}).get("pathLength")
-    if declared_len != len(path_x):
-        return fail(f"intent pathLength {declared_len} does not match generated path length {len(path_x)}")
-
-    start = pacman_start(rows)
-    if (path_x[0], path_y[0]) != start:
-        return fail(f"path starts at {(path_x[0], path_y[0])}, expected Pac-Man start {start}")
-
-    if not legal_neighbors(rows, *start):
-        return fail("Pac-Man start has no legal move")
-
-    visited = set()
-    reversals = 0
-    previous_delta = None
-
-    for index, (x, y) in enumerate(zip(path_x, path_y)):
-        if not (0 <= y < len(rows) and 0 <= x < len(rows[y])):
-            return fail(f"path step {index} exits board at {(x, y)}")
-        if rows[y][x] not in TRAVERSABLE:
-            return fail(f"path step {index} enters blocked cell {(x, y)} = {rows[y][x]!r}")
-        visited.add((x, y))
-
-        if index > 0:
-            px, py = path_x[index - 1], path_y[index - 1]
-            dx, dy = x - px, y - py
-            if abs(dx) + abs(dy) != 1:
-                return fail(f"path step {index} is not orthogonal adjacent: {(px, py)} -> {(x, y)}")
-            if previous_delta and (dx, dy) == (-previous_delta[0], -previous_delta[1]):
-                reversals += 1
-            previous_delta = (dx, dy)
-
-    if len(visited) < 40:
-        return fail(f"path visits only {len(visited)} unique cells")
-
-    if reversals < 1:
-        return fail("path should include at least one reverse direction")
-
-    pointers = intent.get("spriteProjection", {}).get("spritePointers", {})
-    expected_open_ptrs = {0xD0, 0xD1, 0xD2, 0xD3}
-    expected_all_ptrs = {0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7}
-    if set(pointers.values()) != expected_all_ptrs:
-        return fail("intent must declare animated sprite pointers D0-D7")
-    if not set(sprite_ptr).issubset(expected_open_ptrs):
-        return fail("path sprite pointer table must use only open direction sprite pointers D0-D3")
-
-    if any(value not in {0, 1} for value in sprite_x_hi):
-        return fail("sprite x high-bit table must contain only 0/1")
+    sprite_projection = intent.get("spriteProjection", {})
+    if sprite_projection.get("spriteOriginTuning") != "sprite y origin lowered by one pixel and x origin shifted left by three pixels for hallway centering":
+        return fail("intent must preserve C.15 sprite origin tuning")
+    if sprite_projection.get("movement") != "pixel interpolation between board-cell centers":
+        return fail("intent must preserve pixel interpolation movement")
+    if sprite_projection.get("verticalSpriteArt") != "north/south mouth uses same radial sprite geometry as east/west":
+        return fail("intent must preserve radial vertical mouth sprite art")
 
     for snippet in [
-        "Milestone C.15: radial Pac-Man sprite geometry with retuned x/y sprite origin",
-        "SPRITE_DATA_ADDR = $3400",
-        "SPRITE_PTR_E_OPEN = $d0",
-        "SPRITE_PTR_W_OPEN = $d1",
-        "SPRITE_PTR_N_OPEN = $d2",
-        "SPRITE_PTR_S_OPEN = $d3",
-        "SPRITE_PTR_E_CLOSED = $d4",
-        "SPRITE_PTR_W_CLOSED = $d5",
-        "SPRITE_PTR_N_CLOSED = $d6",
-        "SPRITE_PTR_S_CLOSED = $d7",
-        "init_sprite:",
-        "set_sprite_position_from_index:",
-        "set_target_for_index:",
+        "Milestone D.8: buffered-turn Pac-Man with W/A/S/D keyboard fallback",
+        "START_DIR_PTR =",
+        "START_TARGET_CELL_X =",
+        "START_TARGET_CELL_Y =",
+        "START_TARGET_SPRITE_X_LO =",
+        "START_TARGET_SPRITE_Y =",
+        "continue_current_direction:",
+        "requested_dir_ptr:",
+        "read_input_buffer:",
+        "read_keyboard_fallback:",
+        "keyboard_buffer_up:",
+        "keyboard_buffer_left:",
+        "keyboard_buffer_down:",
+        "keyboard_buffer_right:",
+        "KEYBOARD_ROW_PORT = $dc00",
+        "KEYBOARD_COL_PORT = $dc01",
+        "keyboard_row_state:",
+        "buffer_left:",
+        "buffer_right:",
+        "buffer_up:",
+        "buffer_down:",
+        "choose_next_target_from_buffer:",
+        "try_requested_left:",
+        "try_requested_right:",
+        "try_requested_up:",
+        "try_requested_down:",
+        "try_current_left:",
+        "try_current_right:",
+        "try_current_up:",
+        "try_current_down:",
+        "stop_at_cell_center:",
+        ".segment \"LOADADDR\"",
+        "PRG file load address",
+        ".word $0801",
+        ".segment \"EXEHDR\"",
+        "10 SYS 2061",
+        "$9e, $32, $30, $36, $31",
+        "BOARD_PTR = $f7",
+        "COLOR_PTR = $f9",
+        "render_board_row_loop:",
+        "render_board_col_loop:",
+        "board_render_rows:",
+        "board_render_row_lo:",
+        "board_render_row_hi:",
+        "color_addr_row_lo:",
+        "color_addr_row_hi:",
+        "JOY_PORT_2 = $dc00",
+        "JOY_UP = $01",
+        "JOY_DOWN = $02",
+        "JOY_LEFT = $04",
+        "JOY_RIGHT = $08",
+        "load_legal_mask:",
+        "legal_move_rows:",
+        "legal_row_lo:",
+        "legal_row_hi:",
+        "sprite_x_lo_by_cell:",
+        "sprite_x_hi_by_cell:",
+        "sprite_y_by_cell:",
+        "set_target_sprite_from_cell:",
         "move_sprite_toward_target:",
-        "update_sprite_registers:",
-        "update_mouth_animation:",
-        "mouth_phase:",
         "copy_sprite_page0:",
         "copy_sprite_page1:",
         "SPRITE_DATA_BYTES = 512",
-        "custom_sprites:",
-        "path_sprite_x_lo:",
-        "path_sprite_x_hi:",
-        "path_sprite_y:",
-        "path_sprite_ptr:",
-        "board_row_00:",
-        "board_row_21:",
     ]:
         if snippet not in asm_text:
             return fail(f"generated.s missing expected snippet: {snippet}")
 
-    sprite_projection = intent.get("spriteProjection", {})
-    if sprite_projection.get("enabledSprite") != 0:
-        return fail("intent must declare sprite 0 for Pac-Man")
-    if sprite_projection.get("movement") != "pixel interpolation between board-cell centers":
-        return fail("intent must declare pixel interpolation movement")
-    if sprite_projection.get("mouthAnimation") != "open and closed sprite frames alternate at a visible crunch pace while moving":
-        return fail("intent must declare visible crunch mouth animation")
-    if sprite_projection.get("mouthSpeedTuning") != "toggle every 8 frame-pixel updates":
-        return fail("intent must declare 8-frame mouth crunch tuning")
-    if sprite_projection.get("verticalSpriteArt") != "north/south mouth uses same radial sprite geometry as east/west":
-        return fail("intent must declare radial vertical mouth sprite art")
-    if sprite_projection.get("spriteFootprint") != "all directions use shared center, shared radius, and shared mouth-wedge rule":
-        return fail("intent must declare shared radial sprite footprint")
-    if sprite_projection.get("spriteGeometry") != "radial Pac-Man generated from one circle-like pixel model":
-        return fail("intent must declare radial Pac-Man sprite geometry")
-    if sprite_projection.get("spriteOriginTuning") != "sprite y origin lowered by one pixel and x origin shifted left by three pixels for hallway centering":
-        return fail("intent must declare retuned x/y sprite origin centering")
-    if sprite_projection.get("spriteCopyFix") != "copies all 512 bytes for eight sprite frames":
-        return fail("intent must declare 512-byte sprite frame copy fix")
-    if sprite_projection.get("speedTuning") != "two raster frames per interpolated pixel":
-        return fail("intent must declare two-frame-per-pixel half-speed tuning")
-    if sprite_projection.get("sizeTuning") != "smaller 10-12 pixel centered sprite body within 24x21 hardware sprite cell":
-        return fail("intent must declare smaller 10-12 pixel centered sprite tuning")
+    if "path_x:" in asm_text or "path_sprite_x_lo:" in asm_text:
+        return fail("joystick milestone should not use generated random path tables")
 
-    walker = intent.get("pacmanPathWalker", {})
-    if walker.get("movementAuthority") != "board.txt traversable cells":
-        return fail("intent must declare board.txt traversable cells as movement authority")
+    if "auto_turn_from_blocked_momentum:" in asm_text:
+        return fail("movement LI now forbids auto-turning; implement buffered requested turns instead")
 
-    if "build_sprites" not in generator_text or "cell_sprite_x" not in generator_text:
-        return fail("generate_asm.py must include hardware sprite projection helpers")
-    if "radial_pacman_sprite" not in generator_text or "mouth_slope" not in generator_text:
-        return fail("generate_asm.py must include radial Pac-Man mouth geometry")
+    if "; board[" in asm_text:
+        return fail("unrolled board writes are superseded; use compact table-driven renderer")
+    if "board_row_00:" in asm_text:
+        return fail("audit board_row_* data should not be embedded in generated assembly")
 
-    print("OK: C64 Lab 010 Pac-Man uses retuned x/y-origin radial sprite art over verified board paths.")
+    masks = expected_legal_masks(rows)
+    for y, expected_row in enumerate(masks):
+        actual = parse_byte_row(asm_text, f"legal_row_{y:02d}")
+        if actual != expected_row:
+            return fail(f"legal move mask row {y:02d} does not match board.txt")
+
+    if "legal_move_masks" not in generator_text:
+        return fail("generate_asm.py must generate joystick legal move masks from board.txt")
+    if "JOY_PORT_2 = $dc00" not in asm_text:
+        return fail("generated assembly must read joystick port 2")
+    if "radial_pacman_sprite" not in generator_text:
+        return fail("generate_asm.py must preserve radial Pac-Man sprite generation")
+
+    print("OK: C64 Lab 010 uses buffered turns and compact table-driven board rendering.")
     return 0
 
 

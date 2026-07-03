@@ -1,8 +1,8 @@
-goal "PAC-MAN HARDWARE SPRITE PATH WALKER"
-priority smooth runtime motion
+goal "PAC-MAN BUFFERED TURN KEYBOARD FALLBACK"
+priority canonical pac-man movement behavior
 output assembly
 constraint no main.c
 constraint generated assembly is the app
 source image board projection
 visual render pac-man board walls and dots
-milestone hardware sprite pac-man interpolation
+milestone buffered turn momentum with joystick and W/A/S/D keyboard fallback

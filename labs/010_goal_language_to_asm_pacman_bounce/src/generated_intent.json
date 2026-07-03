@@ -1,31 +1,30 @@
 {
-  "schemaVersion": 5,
-  "milestone": "pacman_hardware_sprite_interpolation_retuned_xy_origin",
+  "schemaVersion": 6,
+  "milestone": "pacman_buffered_turn_keyboard_fallback_control",
   "authority": {
     "boardText": "/Users/stevejohnson/Developer/commodore-64-dev-li/labs/010_goal_language_to_asm_pacman_bounce/src/board.txt",
     "projectedBoard": "/Users/stevejohnson/Developer/commodore-64-dev-li/labs/010_goal_language_to_asm_pacman_bounce/src/projected_board.json",
-    "sourceImage": "labs/010_goal_language_to_asm_pacman_bounce/assets/source_board.png",
-    "generatedAssemblyIsArtifact": true
+    "generatedAssemblyIsArtifact": true,
+    "movementAuthority": "board.txt traversable cells"
   },
   "inputs": {
     "goal": [
-      "goal \"PAC-MAN HARDWARE SPRITE PATH WALKER\"",
-      "priority smooth runtime motion",
+      "goal \"PAC-MAN BUFFERED TURN KEYBOARD FALLBACK\"",
+      "priority canonical pac-man movement behavior",
       "output assembly",
       "constraint no main.c",
       "constraint generated assembly is the app",
       "source image board projection",
       "visual render pac-man board walls and dots",
-      "milestone hardware sprite pac-man interpolation"
+      "milestone buffered turn momentum with joystick and W/A/S/D keyboard fallback"
     ],
     "program": [
-      "implements goal \"PAC-MAN HARDWARE SPRITE PATH WALKER\"",
+      "implements goal \"PAC-MAN BUFFERED TURN KEYBOARD FALLBACK\"",
       "use projected board data",
       "read board.txt",
       "read projected_board.json",
-      "set border black",
-      "set background black",
-      "clear screen color black",
+      "use custom c64 charset",
+      "copy custom charset",
       "render walls blue",
       "render dots yellow",
       "render power dots yellow",
@@ -33,12 +32,18 @@
       "render outside black",
       "keep board as character map",
       "use hardware sprite 0 for pac-man",
-      "start pac-man sprite at P cell center",
-      "constrain pac-man target cells to traversable board cells",
+      "start pac-man moving in a legal board-derived direction",
+      "keep pac-man moving in the current direction while the next board cell is traversable",
+      "read joystick port 2 at $dc00 when available",
+      "read c64 keyboard fallback W/A/S/D into the same requested direction buffer",
+      "buffer the latest requested player direction",
+      "change direction only when the buffered requested direction is legal at a board-cell center",
+      "ignore blocked requested turns",
+      "do not auto-select turns at hallway ends",
+      "stop at a cell center if current direction is blocked and no buffered legal turn is available",
       "move pac-man sprite pixel by pixel between board cell centers",
-      "choose direction sprite from movement direction",
+      "choose direction sprite from current movement direction",
       "clear dots as pac-man reaches board cells",
-      "stop visibly when generated path completes",
       "loop forever"
     ]
   },
@@ -61,11 +66,9 @@
         "x": 14,
         "y": 8
       }
-    ],
-    "projectionStatus": "manual_first_pass"
+    ]
   },
   "characterProjection": {
-    "customCharsetAddress": "$3000",
     "blankChar": 0,
     "wallGlyphRange": [
       1,
@@ -90,7 +93,7 @@
     },
     "movement": "pixel interpolation between board-cell centers",
     "sizeTuning": "smaller 10-12 pixel centered sprite body within 24x21 hardware sprite cell",
-    "mouthDirection": "hardware sprite pointer selected from path direction",
+    "mouthDirection": "hardware sprite pointer selected from current buffered-turn movement direction",
     "mouthAnimation": "open and closed sprite frames alternate at a visible crunch pace while moving",
     "mouthSpeedTuning": "toggle every 8 frame-pixel updates",
     "verticalSpriteArt": "north/south mouth uses same radial sprite geometry as east/west",
@@ -100,12 +103,23 @@
     "spriteCopyFix": "copies all 512 bytes for eight sprite frames",
     "speedTuning": "two raster frames per interpolated pixel"
   },
-  "pacmanPathWalker": {
-    "pathLength": 220,
-    "start": {
-      "x": 13,
-      "y": 13
+  "joystickControl": {
+    "enabled": true,
+    "port": "$dc00",
+    "portName": "joystick port 2",
+    "activeLow": true,
+    "directionBits": {
+      "up": 1,
+      "down": 2,
+      "left": 4,
+      "right": 8
     },
+    "movementPolicy": "Pac-Man starts moving immediately, continues in the current legal direction, and applies buffered joystick or keyboard requested turns when legal at cell centers",
+    "wallPolicy": "blocked requested turns are ignored; if current momentum is blocked and no buffered legal turn exists, Pac-Man stops",
+    "legalitySource": "legal move masks generated from board.txt traversable cells",
+    "keyboardFallback": "W/A/S/D keys update the same requested direction buffer as joystick input"
+  },
+  "pacmanPathWalker": {
     "movementAuthority": "board.txt traversable cells",
     "traversableCells": [
       ".",
@@ -118,14 +132,15 @@
       "#",
       "X"
     ],
-    "turnPolicy": "deterministic LFSR random legal path from board model",
-    "deadEndPolicy": "reverse if it is the only legal move",
-    "failurePolicy": "runtime stops visibly if path completes; verifier fails if path enters blocked cells"
+    "turnPolicy": "buffered joystick or keyboard requested legal turn, otherwise continue current legal direction",
+    "deadEndPolicy": "start with a legal first target; continue current direction; stop at a cell center when current direction is blocked and no buffered legal turn exists",
+    "failurePolicy": "runtime ignores blocked requested turns"
   },
-  "scopeLimits": [
-    "no ghost movement",
-    "no scoring",
-    "no win/loss outcomes beyond visible stop",
-    "no computer vision"
-  ]
+  "assemblyEfficiency": {
+    "renderer": "table-driven board renderer",
+    "unrolledBoardWrites": false,
+    "auditBoardTextInAssembly": false,
+    "dataSource": "compact board_render_row tables generated from board.txt",
+    "colorPolicy": "derive blue/yellow color from compact render character value"
+  }
 }

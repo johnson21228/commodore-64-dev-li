@@ -1,14 +1,14 @@
-# Lab 010 — Pac-Man Hardware Sprite Path Walker
+# Lab 010 — Pac-Man Buffered-Turn Hardware Sprite
 
-This lab is being rebuilt around a board-first LI pipeline.
+This lab rebuilds a Pac-Man-style C64 runtime from a board-first LI pipeline.
 
-The source board image is visual input, not runtime authority. The board must first be projected into reviewable data, then verified, then generated into C64 assembly.
+The source board image is visual input, not runtime authority. The board is projected into reviewable data, verified, and then generated into C64 assembly.
 
 ## Current milestone
 
-Milestone C.4: hardware sprite Pac-Man interpolation.
+Milestone D.8: buffered-turn Pac-Man movement with W/A/S/D keyboard fallback.
 
-The generated C64 program renders the board with custom characters and animates Pac-Man as hardware sprite 0.
+The generated C64 program renders the Pac-Man board with custom characters and animates Pac-Man as hardware sprite 0.
 
 Pac-Man movement is constrained by `src/board.txt`:
 
@@ -16,11 +16,36 @@ Pac-Man movement is constrained by `src/board.txt`:
 - `X` blocks movement
 - `.`, `o`, space, `P`, and `G` are traversable
 
-Pac-Man starts at the `P` cell.
+Pac-Man starts at the `P` cell and is initialized with a legal first target so he begins moving immediately.
 
-The generated path is produced from the verified board model and checked by the verifier before commit.
+## Current movement rule
 
-Pac-Man is no longer moved as a character-cell marker. The board remains character/tile based, while Pac-Man is a hardware sprite that moves pixel-by-pixel between board-cell centers.
+Pac-Man uses Pac-Man-style continuous movement with buffered turn requests.
+
+Input does not push Pac-Man one cell at a time.
+
+Input records a requested direction.
+
+At board-cell centers:
+
+1. If the buffered requested direction is legal, Pac-Man turns.
+2. If the buffered requested direction is blocked, Pac-Man continues current direction if legal.
+3. If current direction is also blocked, Pac-Man stops at the cell center.
+
+Pac-Man must not auto-select turns at hallway ends.
+
+## Controls
+
+Joystick port 2 is read from `$dc00` when VICE or hardware mapping is valid.
+
+D.8 also adds W/A/S/D keyboard fallback into the same requested-direction buffer:
+
+- W = up
+- A = left
+- S = down
+- D = right
+
+Use W/A/S/D for local VICE testing before relying on joystick mapping.
 
 ## Authority chain
 
@@ -28,148 +53,71 @@ Pac-Man is no longer moved as a character-cell marker. The board remains charact
 2. `BOARD_PROJECTION_LI.md`
 3. `src/board.txt`
 4. `src/projected_board.json`
-5. generated legal Pac-Man path
-6. generated hardware sprite interpolation tables
-7. `src/generated.s`
-8. C64 runtime review
+5. `li/sprite_projection_contract.md`
+6. `li/pacman_movement_contract.md`
+7. `li/pacman_increment_ledger.md`
+8. `src/generate_asm.py`
+9. `src/generated.s`
+10. C64 runtime review
 
-`src/generated.s` is an artifact. The board authority is `src/board.txt` plus `src/projected_board.json`.
+`src/generated.s` is an artifact.
+
+Board legality authority is `src/board.txt` plus `src/projected_board.json`.
+
+Sprite visual registration authority is `li/sprite_projection_contract.md`.
+
+Movement behavior authority is `li/pacman_movement_contract.md`.
+
+Increment history authority is `li/pacman_increment_ledger.md`.
+
+## Current generated runtime features
+
+- C64 PRG load address `$0801`
+- BASIC autostart line `10 SYS 2061`
+- board rendered from verified board data
+- custom C64 character set for walls/dots
+- Pac-Man hardware sprite 0
+- radial Pac-Man sprite art
+- open/closed mouth animation
+- pixel interpolation between board-cell centers
+- generated legal-move masks from `board.txt`
+- requested-direction buffer
+- joystick input into requested-direction buffer
+- W/A/S/D keyboard fallback into requested-direction buffer
+- no generated random path tables
+- no auto-turning
+
+## Superseded experiment
+
+D.6 auto-turning was an experiment and is superseded.
+
+Auto-turning kept Pac-Man moving at hallway ends, but it was not canonical Pac-Man behavior.
+
+The correct behavior is buffered player turn requests.
 
 ## Verify
 
-- `python3 src/verify_projected_board.py`
-- `make regenerate`
-- `python3 ../../tools/verify_c64_goal_language_to_asm_pacman_bounce_lab.py`
+From the repo root:
+
+    python3 labs/010_goal_language_to_asm_pacman_bounce/src/verify_projected_board.py
+    python3 tools/verify_c64_goal_language_to_asm_pacman_bounce_lab.py
+    make verify
+
+From the lab directory:
+
+    make regenerate
+    make build
+    make run
 
 
-## Milestone C.5 — Smaller animated Pac-Man sprite
+## E.1 — Assembly efficiency gold
 
-Pac-Man now uses eight hardware sprite frames:
+E.1 makes the generated board renderer compact.
 
-- east open / east closed
-- west open / west closed
-- north open / north closed
-- south open / south closed
+The learning surface remains `goal.lang`, `program.lang`, LI contracts, generated intent, and runtime review. Under the hood, generated assembly should be efficient.
 
-The sprite art is smaller inside the 24x21 C64 sprite cell so Pac-Man fits the hallway better.
+The board renderer now uses compact `board_render_row_*` character tables and a row/column loop.
 
-The runtime alternates open/closed frames while moving, while the direction still comes from the generated legal board path.
+This supersedes unrolled per-cell screen/color writes.
 
-
-## Milestone C.6 — Sprite copy and speed fix
-
-The C.5 sprite animation exposed two runtime issues:
-
-- eight Pac-Man sprite frames require 512 bytes, but the old copy loop only copied one 256-byte page
-- movement was too slow because each interpolated pixel waited five raster frames
-
-C.6 fixes both:
-
-- sprite data copy now copies two 256-byte pages
-- Pac-Man moves one pixel per raster frame
-- mouth animation toggles every four frame/pixel updates
-
-
-## Milestone C.7 — Smaller diameter and slower mouth
-
-Pac-Man sprite tuning was adjusted again:
-
-- the drawn body is smaller inside the 24x21 sprite cell
-- the mouth alternates more slowly
-- movement speed remains one raster frame per interpolated pixel
-- board/path authority remains unchanged
-
-
-## Milestone C.8 — Half-speed movement tuning
-
-Pac-Man movement pace was cut approximately in half by waiting two raster frames per interpolated pixel.
-
-The board/path authority and sprite art remain unchanged.
-
-
-## Milestone C.9 — Faster mouth crunch at same movement pace
-
-Pac-Man movement pace remains the C.8 half-speed setting.
-
-Only the mouth animation timing changed:
-
-- C.8: mouth toggled every 16 frame-pixel updates
-- C.9: mouth toggles every 8 frame-pixel updates
-
-The board/path authority and sprite diameter remain unchanged.
-
-
-## Milestone C.10 — Dedicated vertical sprite art
-
-The north/south Pac-Man sprites are now hand-authored vertical sprites.
-
-They are not generated by rotating the horizontal sprite. A literal rotation is not ideal because the C64 hardware sprite canvas is 24x21, not square.
-
-C.10 keeps:
-
-- C.8 movement pace
-- C.9 mouth crunch pace
-- board/path authority
-- hardware sprite interpolation
-
-Only the vertical sprite art changed.
-
-
-## Milestone C.11 — Equal-footprint sprite art
-
-Pac-Man sprite art now uses a shared drawn footprint for all directions.
-
-All directions are constrained to the same intended body box inside the C64 24x21 hardware sprite cell:
-
-- x = 6..17
-- y = 4..15
-
-This avoids the vertical sprite looking heavier or mismatched compared with horizontal movement.
-
-Direction is represented by the mouth cutout; body diameter remains consistent.
-
-
-## Milestone C.12 — Radial vertical mouth
-
-Pac-Man sprite art now comes from one radial pixel model.
-
-Instead of hand-drawing separate vertical sprites, each open-mouth direction is generated by cutting a directional wedge from the same circle-like body.
-
-This keeps:
-
-- same center
-- same radius
-- same visual weight
-- same mouth-wedge rule
-
-for east, west, north, and south motion.
-
-
-## Milestone C.13 — Sprite origin centering
-
-Pac-Man sprite origin was tuned after visual review.
-
-C.12 placed the sprite slightly too high in the hallway. C.13 lowers the sprite Y coordinate by one pixel so the sprite sits more evenly between the hallway wall above and below.
-
-The board/path authority is unchanged.
-
-
-## Milestone C.14 — Sprite X origin centering
-
-Pac-Man sprite origin was tuned again after visual review.
-
-C.13 fixed the Y centering. C.14 shifts the sprite X coordinate left by one pixel so Pac-Man sits more evenly between the left and right hallway walls.
-
-The board/path authority is unchanged.
-
-
-## Milestone C.15 — Sprite X origin retuning
-
-C.14 still placed Pac-Man visually too far right in the hallway.
-
-C.15 shifts the sprite X coordinate left two additional pixels. The effective tuning is now:
-
-- X origin: three pixels left from the earlier hardware-sprite position
-- Y origin: one pixel down from the earlier hardware-sprite position
-
-The board/path authority is unchanged.
+Board audit authority remains in `src/board.txt` and `src/projected_board.json`.

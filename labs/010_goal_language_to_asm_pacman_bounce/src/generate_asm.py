@@ -274,6 +274,14 @@ def lfsr_next(value: int) -> int:
     return value
 
 
+
+def find_char(rows: list[str], wanted: str) -> tuple[int, int]:
+    for y, row in enumerate(rows):
+        for x, ch in enumerate(row):
+            if ch == wanted:
+                return x, y
+    raise ValueError(f"character {wanted!r} not found in board")
+
 def legal_moves(rows: list[str], x: int, y: int) -> list[tuple[str, int, int]]:
     moves: list[tuple[str, int, int]] = []
     for name, dx, dy in DIRS:
@@ -371,6 +379,13 @@ def render_code(rows: list[str], left: int, top: int) -> str:
     return "\n".join(out)
 
 
+def render_char_rows(rows: list[str]) -> list[list[int]]:
+    return [
+        [char_for_cell(rows, x, y) for x in range(len(row))]
+        for y, row in enumerate(rows)
+    ]
+
+
 def cell_screen_addr(x: int, y: int, left: int, top: int) -> int:
     return SCREEN_BASE + (top + y) * SCREEN_WIDTH + left + x
 
@@ -409,37 +424,115 @@ def direction_ptr(path: list[tuple[int, int]], index: int) -> int:
     return SPRITE_PTR_S_OPEN
 
 
-def generate(rows: list[str], path: list[tuple[int, int]]) -> str:
+def legal_move_masks(rows: list[str]) -> list[list[int]]:
+    masks: list[list[int]] = []
+    height = len(rows)
+    width = len(rows[0])
+
+    for y in range(height):
+        mask_row: list[int] = []
+        for x in range(width):
+            mask = 0
+            if is_traversable(rows, x, y):
+                if y > 0 and is_traversable(rows, x, y - 1):
+                    mask |= 0x01
+                if y + 1 < height and is_traversable(rows, x, y + 1):
+                    mask |= 0x02
+                if x > 0 and is_traversable(rows, x - 1, y):
+                    mask |= 0x04
+                if x + 1 < width and is_traversable(rows, x + 1, y):
+                    mask |= 0x08
+            mask_row.append(mask)
+        masks.append(mask_row)
+    return masks
+
+
+def labelled_byte_rows(prefix: str, rows: list[list[int]]) -> str:
+    out: list[str] = []
+    for index, values in enumerate(rows):
+        out.append(f"{prefix}_{index:02d}:")
+        out.append("    .byte " + ", ".join(byte(value) for value in values))
+    return "\n".join(out)
+
+
+def row_address_tables(prefix: str, labels: list[str]) -> str:
+    lo_values = [f"<{label}" for label in labels]
+    hi_values = [f">{label}" for label in labels]
+    return "\n".join([
+        f"{prefix}_lo:",
+        "    .byte " + ", ".join(lo_values),
+        f"{prefix}_hi:",
+        "    .byte " + ", ".join(hi_values),
+    ])
+
+
+def generate(rows: list[str]) -> str:
+    left = (SCREEN_WIDTH - len(rows[0])) // 2
+    top = 1
     width = len(rows[0])
     height = len(rows)
-    left = (SCREEN_WIDTH - width) // 2
-    top = 1 if height < SCREEN_HEIGHT else 0
     dots = sum(ch == "." for row in rows for ch in row)
     power = sum(ch == "o" for row in rows for ch in row)
     walls = sum(ch == "#" for row in rows for ch in row)
+    start_x, start_y = find_char(rows, "P")
+
     glyphs = build_charset()
     sprites = build_sprites()
     charset_bytes = len(glyphs) * 8
     sprite_bytes = len(sprites) * 64
 
-    path_screen = [cell_screen_addr(x, y, left, top) for x, y in path]
-    path_x = [x for x, _ in path]
-    path_y = [y for _, y in path]
-    sprite_x = [cell_sprite_x(x, left) for x, _ in path]
-    sprite_y = [cell_sprite_y(y, top) for _, y in path]
-    sprite_ptr = [direction_ptr(path, index) for index in range(len(path))]
+    start_sprite_x = cell_sprite_x(start_x, left)
+    start_sprite_y = cell_sprite_y(start_y, top)
+
+    sprite_x_by_cell = [cell_sprite_x(x, left) for x in range(width)]
+    sprite_y_by_cell = [cell_sprite_y(y, top) for y in range(height)]
+
+    screen_rows = [cell_screen_addr(0, y, left, top) for y in range(height)]
+    color_rows = [COLOR_BASE + (top + y) * SCREEN_WIDTH + left for y in range(height)]
+    render_rows = render_char_rows(rows)
+    legal_rows = legal_move_masks(rows)
+
+    start_mask = legal_rows[start_y][start_x]
+    if start_mask & 0x02:
+        start_dir_ptr = SPRITE_PTR_S_OPEN
+        start_target_x, start_target_y = start_x, start_y + 1
+    elif start_mask & 0x08:
+        start_dir_ptr = SPRITE_PTR_E_OPEN
+        start_target_x, start_target_y = start_x + 1, start_y
+    elif start_mask & 0x04:
+        start_dir_ptr = SPRITE_PTR_W_OPEN
+        start_target_x, start_target_y = start_x - 1, start_y
+    elif start_mask & 0x01:
+        start_dir_ptr = SPRITE_PTR_N_OPEN
+        start_target_x, start_target_y = start_x, start_y - 1
+    else:
+        start_dir_ptr = SPRITE_PTR_E_OPEN
+        start_target_x, start_target_y = start_x, start_y
+
+    start_target_sprite_x = cell_sprite_x(start_target_x, left)
+    start_target_sprite_y = cell_sprite_y(start_target_y, top)
+
+    screen_row_labels = [f"screen_row_{y:02d}" for y in range(height)]
+    legal_row_labels = [f"legal_row_{y:02d}" for y in range(height)]
+    board_render_row_labels = [f"board_render_row_{y:02d}" for y in range(height)]
+
+    screen_row_data = labelled_byte_rows("screen_row", [[addr & 0xFF for addr in screen_rows]])
+    # Replace compact single row with actual labels for address pointer tables.
+    screen_label_lines: list[str] = []
+    for y, addr in enumerate(screen_rows):
+        screen_label_lines.append(f"screen_row_{y:02d}:")
+        screen_label_lines.append("    .byte " + ", ".join(byte(0) for _ in range(width)) + f" ; screen base {word(addr)}")
 
     return f"""; Generated by Lab 010 generate_asm.py.
-; Milestone C.15: radial Pac-Man sprite geometry with retuned x/y sprite origin from verified board.txt.
+; Milestone D.8: buffered-turn Pac-Man with W/A/S/D keyboard fallback from verified board.txt.
 ; Generated assembly is an artifact, not the board authority.
 
 .setcpu "6502"
 
-.segment "EXEHDR"
-    .word $0801
-
-BOARD_COLS = {width}
-BOARD_ROWS = {height}
+SCREEN_BASE = {word(SCREEN_BASE)}
+COLOR_BASE = {word(COLOR_BASE)}
+BOARD_WIDTH = {width}
+BOARD_HEIGHT = {height}
 BOARD_CHAR_LEFT = {left}
 BOARD_CHAR_TOP = {top}
 DOT_COUNT = {dots}
@@ -458,19 +551,60 @@ SPRITE_PTR_E_CLOSED = {byte(SPRITE_PTR_E_CLOSED)}
 SPRITE_PTR_W_CLOSED = {byte(SPRITE_PTR_W_CLOSED)}
 SPRITE_PTR_N_CLOSED = {byte(SPRITE_PTR_N_CLOSED)}
 SPRITE_PTR_S_CLOSED = {byte(SPRITE_PTR_S_CLOSED)}
-PATH_LEN = {len(path)}
-PATH_LAST = {len(path) - 1}
+START_CELL_X = {byte(start_x)}
+START_CELL_Y = {byte(start_y)}
+START_TARGET_CELL_X = {byte(start_target_x)}
+START_TARGET_CELL_Y = {byte(start_target_y)}
+START_SPRITE_X_LO = {byte(start_sprite_x & 0xFF)}
+START_SPRITE_X_HI = {byte((start_sprite_x >> 8) & 0x01)}
+START_SPRITE_Y = {byte(start_sprite_y)}
+START_TARGET_SPRITE_X_LO = {byte(start_target_sprite_x & 0xFF)}
+START_TARGET_SPRITE_X_HI = {byte((start_target_sprite_x >> 8) & 0x01)}
+START_TARGET_SPRITE_Y = {byte(start_target_sprite_y)}
+START_DIR_PTR = {byte(start_dir_ptr)}
+JOY_PORT_2 = $dc00
+JOY_UP = $01
+JOY_DOWN = $02
+JOY_LEFT = $04
+JOY_RIGHT = $08
+KEYBOARD_ROW_PORT = $dc00
+KEYBOARD_COL_PORT = $dc01
+KEY_ROW_ALL = $ff
+KEY_ROW_1 = $fd
+KEY_ROW_2 = $fb
+KEY_W = $02
+KEY_A = $04
+KEY_S = $20
+KEY_D = $04
+MASK_UP = $01
+MASK_DOWN = $02
+MASK_LEFT = $04
+MASK_RIGHT = $08
+BOARD_PTR = $f7
+COLOR_PTR = $f9
 SCREEN_PTR = $fb
+LEGAL_PTR = $fd
 
-.segment "STARTUP"
+.segment "LOADADDR"
 
-basic_start:
-    .word basic_next
-    .word 10
-    .byte $9e
-    .byte "2061", 0
-basic_next:
-    .word 0
+; PRG file load address. C64 PRG files must begin with the little-endian
+; address where the following bytes should be loaded.
+.word $0801
+
+.segment "EXEHDR"
+
+; BASIC autostart line:
+; 10 SYS 2061
+;
+; With the standard C64 load address at $0801, this header ends at $080d.
+; Decimal 2061 is $080d, the first byte of the CODE segment below.
+.word basic_line_end
+.word 10
+.byte $9e, $32, $30, $36, $31, $00
+basic_line_end:
+.word $0000
+
+.segment "CODE"
 
 start:
     sei
@@ -484,40 +618,25 @@ start:
     jsr clear_screen
     jsr render_board
     jsr init_sprite
-    lda #$00
-    sta path_index
-    jsr set_sprite_position_from_index
-    jsr set_target_for_index
-    lda #$00
-    sta mouth_counter
-    sta mouth_phase
-    jsr set_sprite_pointer_for_index
-    jsr update_sprite_registers
+    jsr init_pacman_state
 
-walk_loop:
+main_loop:
     jsr delay_frame
-    jsr update_mouth_animation
-    jsr set_sprite_pointer_for_index
+    jsr read_input_buffer
+    jsr read_keyboard_fallback
     jsr at_target
-    beq move_sprite
-    jsr erase_cell_for_index
-    lda path_index
-    cmp #PATH_LAST
-    bcc advance_path
-    lda #$02
-    sta $d020
-stop_game:
-    jmp stop_game
+    beq moving
+    jsr commit_target_cell
+    jsr choose_next_target_from_buffer
+    jsr update_sprite_registers
+    jmp main_loop
 
-advance_path:
-    inc path_index
-    jsr set_target_for_index
-    jsr set_sprite_pointer_for_index
-
-move_sprite:
+moving:
+    jsr update_mouth_animation
+    jsr set_sprite_pointer_current
     jsr move_sprite_toward_target
     jsr update_sprite_registers
-    jmp walk_loop
+    jmp main_loop
 
 delay_frame:
     ldx #$02
@@ -545,29 +664,316 @@ init_sprite:
     sta $d027
     rts
 
-set_sprite_position_from_index:
-    ldx path_index
-    lda path_sprite_x_lo,x
+init_pacman_state:
+    lda #START_CELL_X
+    sta pac_cell_x
+    lda #START_TARGET_CELL_X
+    sta target_cell_x
+    lda #START_CELL_Y
+    sta pac_cell_y
+    lda #START_TARGET_CELL_Y
+    sta target_cell_y
+    lda #START_SPRITE_X_LO
     sta sprite_x_lo
-    lda path_sprite_x_hi,x
+    lda #START_TARGET_SPRITE_X_LO
+    sta target_x_lo
+    lda #START_SPRITE_X_HI
     sta sprite_x_hi
-    lda path_sprite_y,x
+    lda #START_TARGET_SPRITE_X_HI
+    sta target_x_hi
+    lda #START_SPRITE_Y
     sta sprite_y
+    lda #START_TARGET_SPRITE_Y
+    sta target_y
+    lda #START_DIR_PTR
+    sta target_dir_ptr
+    sta requested_dir_ptr
+    lda #$00
+    sta mouth_counter
+    sta mouth_phase
+    jsr set_sprite_pointer_current
+    jsr update_sprite_registers
     rts
 
-set_target_for_index:
-    ldx path_index
-    lda path_sprite_x_lo,x
+commit_target_cell:
+    lda target_cell_x
+    sta pac_cell_x
+    lda target_cell_y
+    sta pac_cell_y
+    jsr erase_current_cell
+    rts
+
+read_input_buffer:
+    lda JOY_PORT_2
+    sta joystick_state
+
+    lda joystick_state
+    and #JOY_LEFT
+    beq buffer_left
+
+    lda joystick_state
+    and #JOY_RIGHT
+    beq buffer_right
+
+    lda joystick_state
+    and #JOY_UP
+    beq buffer_up
+
+    lda joystick_state
+    and #JOY_DOWN
+    beq buffer_down
+
+    rts
+
+buffer_left:
+    lda #SPRITE_PTR_W_OPEN
+    sta requested_dir_ptr
+    rts
+
+buffer_right:
+    lda #SPRITE_PTR_E_OPEN
+    sta requested_dir_ptr
+    rts
+
+buffer_up:
+    lda #SPRITE_PTR_N_OPEN
+    sta requested_dir_ptr
+    rts
+
+buffer_down:
+    lda #SPRITE_PTR_S_OPEN
+    sta requested_dir_ptr
+    rts
+
+read_keyboard_fallback:
+    lda #KEY_ROW_1
+    sta KEYBOARD_ROW_PORT
+    lda KEYBOARD_COL_PORT
+    sta keyboard_row_state
+
+    lda keyboard_row_state
+    and #KEY_W
+    beq keyboard_buffer_up
+
+    lda keyboard_row_state
+    and #KEY_A
+    beq keyboard_buffer_left
+
+    lda keyboard_row_state
+    and #KEY_S
+    beq keyboard_buffer_down
+
+    lda #KEY_ROW_2
+    sta KEYBOARD_ROW_PORT
+    lda KEYBOARD_COL_PORT
+    sta keyboard_row_state
+
+    lda keyboard_row_state
+    and #KEY_D
+    beq keyboard_buffer_right
+
+    lda #KEY_ROW_ALL
+    sta KEYBOARD_ROW_PORT
+    rts
+
+keyboard_buffer_up:
+    lda #SPRITE_PTR_N_OPEN
+    sta requested_dir_ptr
+    lda #KEY_ROW_ALL
+    sta KEYBOARD_ROW_PORT
+    rts
+
+keyboard_buffer_left:
+    lda #SPRITE_PTR_W_OPEN
+    sta requested_dir_ptr
+    lda #KEY_ROW_ALL
+    sta KEYBOARD_ROW_PORT
+    rts
+
+keyboard_buffer_down:
+    lda #SPRITE_PTR_S_OPEN
+    sta requested_dir_ptr
+    lda #KEY_ROW_ALL
+    sta KEYBOARD_ROW_PORT
+    rts
+
+keyboard_buffer_right:
+    lda #SPRITE_PTR_E_OPEN
+    sta requested_dir_ptr
+    lda #KEY_ROW_ALL
+    sta KEYBOARD_ROW_PORT
+    rts
+
+choose_next_target_from_buffer:
+    lda requested_dir_ptr
+    cmp #SPRITE_PTR_W_OPEN
+    beq try_requested_left
+    cmp #SPRITE_PTR_E_OPEN
+    beq try_requested_right
+    cmp #SPRITE_PTR_N_OPEN
+    beq try_requested_up
+    cmp #SPRITE_PTR_S_OPEN
+    beq try_requested_down
+    jmp continue_current_direction
+
+try_requested_left:
+    jsr load_legal_mask
+    and #MASK_LEFT
+    beq continue_current_direction
+    lda pac_cell_x
+    sec
+    sbc #$01
+    sta target_cell_x
+    lda pac_cell_y
+    sta target_cell_y
+    lda #SPRITE_PTR_W_OPEN
+    sta target_dir_ptr
+    jsr set_target_sprite_from_cell
+    rts
+
+try_requested_right:
+    jsr load_legal_mask
+    and #MASK_RIGHT
+    beq continue_current_direction
+    lda pac_cell_x
+    clc
+    adc #$01
+    sta target_cell_x
+    lda pac_cell_y
+    sta target_cell_y
+    lda #SPRITE_PTR_E_OPEN
+    sta target_dir_ptr
+    jsr set_target_sprite_from_cell
+    rts
+
+try_requested_up:
+    jsr load_legal_mask
+    and #MASK_UP
+    beq continue_current_direction
+    lda pac_cell_x
+    sta target_cell_x
+    lda pac_cell_y
+    sec
+    sbc #$01
+    sta target_cell_y
+    lda #SPRITE_PTR_N_OPEN
+    sta target_dir_ptr
+    jsr set_target_sprite_from_cell
+    rts
+
+try_requested_down:
+    jsr load_legal_mask
+    and #MASK_DOWN
+    beq continue_current_direction
+    lda pac_cell_x
+    sta target_cell_x
+    lda pac_cell_y
+    clc
+    adc #$01
+    sta target_cell_y
+    lda #SPRITE_PTR_S_OPEN
+    sta target_dir_ptr
+    jsr set_target_sprite_from_cell
+    rts
+
+continue_current_direction:
+    lda target_dir_ptr
+    cmp #SPRITE_PTR_W_OPEN
+    beq try_current_left
+    cmp #SPRITE_PTR_E_OPEN
+    beq try_current_right
+    cmp #SPRITE_PTR_N_OPEN
+    beq try_current_up
+    cmp #SPRITE_PTR_S_OPEN
+    beq try_current_down
+    rts
+
+try_current_left:
+    jsr load_legal_mask
+    and #MASK_LEFT
+    beq stop_at_cell_center
+    lda pac_cell_x
+    sec
+    sbc #$01
+    sta target_cell_x
+    lda pac_cell_y
+    sta target_cell_y
+    lda #SPRITE_PTR_W_OPEN
+    sta target_dir_ptr
+    jsr set_target_sprite_from_cell
+    rts
+
+try_current_right:
+    jsr load_legal_mask
+    and #MASK_RIGHT
+    beq stop_at_cell_center
+    lda pac_cell_x
+    clc
+    adc #$01
+    sta target_cell_x
+    lda pac_cell_y
+    sta target_cell_y
+    lda #SPRITE_PTR_E_OPEN
+    sta target_dir_ptr
+    jsr set_target_sprite_from_cell
+    rts
+
+try_current_up:
+    jsr load_legal_mask
+    and #MASK_UP
+    beq stop_at_cell_center
+    lda pac_cell_x
+    sta target_cell_x
+    lda pac_cell_y
+    sec
+    sbc #$01
+    sta target_cell_y
+    lda #SPRITE_PTR_N_OPEN
+    sta target_dir_ptr
+    jsr set_target_sprite_from_cell
+    rts
+
+try_current_down:
+    jsr load_legal_mask
+    and #MASK_DOWN
+    beq stop_at_cell_center
+    lda pac_cell_x
+    sta target_cell_x
+    lda pac_cell_y
+    clc
+    adc #$01
+    sta target_cell_y
+    lda #SPRITE_PTR_S_OPEN
+    sta target_dir_ptr
+    jsr set_target_sprite_from_cell
+    rts
+
+stop_at_cell_center:
+    rts
+
+load_legal_mask:
+    ldx pac_cell_y
+    lda legal_row_lo,x
+    sta LEGAL_PTR
+    lda legal_row_hi,x
+    sta LEGAL_PTR+1
+    ldy pac_cell_x
+    lda (LEGAL_PTR),y
+    rts
+
+set_target_sprite_from_cell:
+    ldx target_cell_x
+    lda sprite_x_lo_by_cell,x
     sta target_x_lo
-    lda path_sprite_x_hi,x
+    lda sprite_x_hi_by_cell,x
     sta target_x_hi
-    lda path_sprite_y,x
+    ldx target_cell_y
+    lda sprite_y_by_cell,x
     sta target_y
     rts
 
-set_sprite_pointer_for_index:
-    ldx path_index
-    lda path_sprite_ptr,x
+set_sprite_pointer_current:
+    lda target_dir_ptr
     ldy mouth_phase
     beq sprite_pointer_ready
     clc
@@ -656,13 +1062,13 @@ move_y_dec:
 move_done:
     rts
 
-erase_cell_for_index:
-    ldx path_index
-    lda path_screen_lo,x
+erase_current_cell:
+    ldx pac_cell_y
+    lda screen_addr_row_lo,x
     sta SCREEN_PTR
-    lda path_screen_hi,x
+    lda screen_addr_row_hi,x
     sta SCREEN_PTR+1
-    ldy #$00
+    ldy pac_cell_x
     lda #$00
     sta (SCREEN_PTR),y
     rts
@@ -697,24 +1103,64 @@ clear_screen:
     ldx #$00
 clear_loop:
     lda #$00
-    sta $0400,x
-    sta $0500,x
-    sta $0600,x
-    sta $06e8,x
-    lda #$00
-    sta $d800,x
-    sta $d900,x
-    sta $da00,x
-    sta $dae8,x
+    sta SCREEN_BASE,x
+    sta SCREEN_BASE+$0100,x
+    sta SCREEN_BASE+$0200,x
+    sta SCREEN_BASE+$0300,x
+    sta COLOR_BASE,x
+    sta COLOR_BASE+$0100,x
+    sta COLOR_BASE+$0200,x
+    sta COLOR_BASE+$0300,x
     inx
     bne clear_loop
     rts
 
 render_board:
-{render_code(rows, left, top)}
+    ldx #$00
+render_board_row_loop:
+    stx render_row_index
+    lda board_render_row_lo,x
+    sta BOARD_PTR
+    lda board_render_row_hi,x
+    sta BOARD_PTR+1
+    lda screen_addr_row_lo,x
+    sta SCREEN_PTR
+    lda screen_addr_row_hi,x
+    sta SCREEN_PTR+1
+    lda color_addr_row_lo,x
+    sta COLOR_PTR
+    lda color_addr_row_hi,x
+    sta COLOR_PTR+1
+    ldy #$00
+render_board_col_loop:
+    lda (BOARD_PTR),y
+    beq render_board_skip_cell
+    sta (SCREEN_PTR),y
+    cmp #$11
+    bcs render_board_yellow
+    lda #$06
+    jmp render_board_store_color
+render_board_yellow:
+    lda #$07
+render_board_store_color:
+    sta (COLOR_PTR),y
+render_board_skip_cell:
+    iny
+    cpy #BOARD_WIDTH
+    bne render_board_col_loop
+    ldx render_row_index
+    inx
+    cpx #BOARD_HEIGHT
+    bne render_board_row_loop
     rts
 
-path_index:
+pac_cell_x:
+    .byte $00
+pac_cell_y:
+    .byte $00
+target_cell_x:
+    .byte $00
+target_cell_y:
     .byte $00
 sprite_x_lo:
     .byte $00
@@ -727,6 +1173,16 @@ target_x_lo:
 target_x_hi:
     .byte $00
 target_y:
+    .byte $00
+target_dir_ptr:
+    .byte $00
+requested_dir_ptr:
+    .byte $00
+joystick_state:
+    .byte $ff
+keyboard_row_state:
+    .byte $ff
+render_row_index:
     .byte $00
 mouth_counter:
     .byte $00
@@ -741,18 +1197,40 @@ custom_charset:
 custom_sprites:
 {sprite_asm(sprites)}
 
-; Random legal path generated from board.txt.
-{byte_table("path_x", path_x)}
-{byte_table("path_y", path_y)}
-{byte_table("path_sprite_x_lo", [value & 0xFF for value in sprite_x])}
-{byte_table("path_sprite_x_hi", [(value >> 8) & 0x01 for value in sprite_x])}
-{byte_table("path_sprite_y", sprite_y)}
-{byte_table("path_sprite_ptr", sprite_ptr)}
-{byte_table("path_screen_lo", [addr & 0xFF for addr in path_screen])}
-{byte_table("path_screen_hi", [addr >> 8 for addr in path_screen])}
+; Compact board-render character rows generated from board.txt.
+; Zero entries are skipped because clear_screen already initialized blank black cells.
+board_render_rows:
+{labelled_byte_rows("board_render_row", render_rows)}
 
-; Board data copied from src/board.txt for auditability.
-{board_data(rows)}
+{row_address_tables("board_render_row", board_render_row_labels)}
+
+; Joystick legality masks generated from board.txt.
+; bit 0 = up, bit 1 = down, bit 2 = left, bit 3 = right
+legal_move_rows:
+{labelled_byte_rows("legal_row", legal_rows)}
+
+{row_address_tables("legal_row", legal_row_labels)}
+
+; Screen and color row base addresses for compact rendering and dot clearing.
+screen_addr_row_lo:
+    .byte {", ".join(byte(addr & 0xFF) for addr in screen_rows)}
+screen_addr_row_hi:
+    .byte {", ".join(byte(addr >> 8) for addr in screen_rows)}
+color_addr_row_lo:
+    .byte {", ".join(byte(addr & 0xFF) for addr in color_rows)}
+color_addr_row_hi:
+    .byte {", ".join(byte(addr >> 8) for addr in color_rows)}
+
+; Sprite coordinate projection tables.
+sprite_x_lo_by_cell:
+    .byte {", ".join(byte(value & 0xFF) for value in sprite_x_by_cell)}
+sprite_x_hi_by_cell:
+    .byte {", ".join(byte((value >> 8) & 0x01) for value in sprite_x_by_cell)}
+sprite_y_by_cell:
+    .byte {", ".join(byte(value) for value in sprite_y_by_cell)}
+
+; Board text audit authority remains in src/board.txt and src/projected_board.json.
+; Runtime board rendering uses compact board_render_row_* tables above.
 """
 
 
@@ -775,21 +1253,22 @@ def main(argv: list[str]) -> int:
     if meta.get("width") != len(rows[0]) or meta.get("height") != len(rows):
         raise ValueError("projected_board.json dimensions do not match board.txt")
 
-    path = generate_path(rows)
-    asm_path.write_text(generate(rows, path))
+    asm_path.write_text(generate(rows))
+
+    start_x, start_y = find_char(rows, "P")
 
     intent = {
-        "schemaVersion": 5,
-        "milestone": "pacman_hardware_sprite_interpolation_retuned_xy_origin",
+        "schemaVersion": 6,
+        "milestone": "pacman_buffered_turn_keyboard_fallback_control",
         "authority": {
             "boardText": str(board_path),
             "projectedBoard": str(meta_path),
-            "sourceImage": meta.get("sourceImage"),
-            "generatedAssemblyIsArtifact": True
+            "generatedAssemblyIsArtifact": True,
+            "movementAuthority": "board.txt traversable cells"
         },
         "inputs": {
-            "goal": goal_path.read_text().splitlines(),
-            "program": program_path.read_text().splitlines()
+            "goal": goal_path.read_text().strip().splitlines(),
+            "program": program_path.read_text().strip().splitlines()
         },
         "board": {
             "width": len(rows[0]),
@@ -797,12 +1276,15 @@ def main(argv: list[str]) -> int:
             "walls": sum(ch == "#" for row in rows for ch in row),
             "dots": sum(ch == "." for row in rows for ch in row),
             "powerDots": sum(ch == "o" for row in rows for ch in row),
-            "pacmanStart": meta.get("pacmanStart"),
-            "ghostStarts": meta.get("ghostStarts", []),
-            "projectionStatus": meta.get("projectionStatus")
+            "pacmanStart": {"x": start_x, "y": start_y},
+            "ghostStarts": [
+                {"x": x, "y": y}
+                for y, row in enumerate(rows)
+                for x, ch in enumerate(row)
+                if ch == "G"
+            ]
         },
         "characterProjection": {
-            "customCharsetAddress": "$3000",
             "blankChar": 0,
             "wallGlyphRange": [1, 16],
             "centeredDotChar": 17,
@@ -824,7 +1306,7 @@ def main(argv: list[str]) -> int:
             },
             "movement": "pixel interpolation between board-cell centers",
             "sizeTuning": "smaller 10-12 pixel centered sprite body within 24x21 hardware sprite cell",
-            "mouthDirection": "hardware sprite pointer selected from path direction",
+            "mouthDirection": "hardware sprite pointer selected from current buffered-turn movement direction",
             "mouthAnimation": "open and closed sprite frames alternate at a visible crunch pace while moving",
             "mouthSpeedTuning": "toggle every 8 frame-pixel updates",
             "verticalSpriteArt": "north/south mouth uses same radial sprite geometry as east/west",
@@ -834,23 +1316,39 @@ def main(argv: list[str]) -> int:
             "spriteCopyFix": "copies all 512 bytes for eight sprite frames",
             "speedTuning": "two raster frames per interpolated pixel"
         },
+        "joystickControl": {
+            "enabled": True,
+            "port": "$dc00",
+            "portName": "joystick port 2",
+            "activeLow": True,
+            "directionBits": {
+                "up": 1,
+                "down": 2,
+                "left": 4,
+                "right": 8
+            },
+            "movementPolicy": "Pac-Man starts moving immediately, continues in the current legal direction, and applies buffered joystick or keyboard requested turns when legal at cell centers",
+            "wallPolicy": "blocked requested turns are ignored; if current momentum is blocked and no buffered legal turn exists, Pac-Man stops",
+            "legalitySource": "legal move masks generated from board.txt traversable cells",
+            "keyboardFallback": "W/A/S/D keys update the same requested direction buffer as joystick input"
+        },
         "pacmanPathWalker": {
-            "pathLength": len(path),
-            "start": {"x": path[0][0], "y": path[0][1]},
             "movementAuthority": "board.txt traversable cells",
             "traversableCells": [".", "o", " ", "P", "G"],
             "blockedCells": ["#", "X"],
-            "turnPolicy": "deterministic LFSR random legal path from board model",
-            "deadEndPolicy": "reverse if it is the only legal move",
-            "failurePolicy": "runtime stops visibly if path completes; verifier fails if path enters blocked cells"
+            "turnPolicy": "buffered joystick or keyboard requested legal turn, otherwise continue current legal direction",
+            "deadEndPolicy": "start with a legal first target; continue current direction; stop at a cell center when current direction is blocked and no buffered legal turn exists",
+            "failurePolicy": "runtime ignores blocked requested turns"
         },
-        "scopeLimits": [
-            "no ghost movement",
-            "no scoring",
-            "no win/loss outcomes beyond visible stop",
-            "no computer vision"
-        ]
+        "assemblyEfficiency": {
+            "renderer": "table-driven board renderer",
+            "unrolledBoardWrites": False,
+            "auditBoardTextInAssembly": False,
+            "dataSource": "compact board_render_row tables generated from board.txt",
+            "colorPolicy": "derive blue/yellow color from compact render character value"
+        },
     }
+
     intent_path.write_text(json.dumps(intent, indent=2) + "\n")
     print(f"Generated {asm_path} from {board_path}")
     print(f"Generated {intent_path} from {meta_path}")
