@@ -178,7 +178,7 @@ def main() -> int:
         return fail("intent must preserve radial vertical mouth sprite art")
 
     for snippet in [
-        "Milestone D.8: buffered-turn Pac-Man with W/A/S/D keyboard fallback",
+        "Milestone F.2: buffered-turn Pac-Man with visible dot and energizer scoring",
         "START_DIR_PTR =",
         "START_TARGET_CELL_X =",
         "START_TARGET_CELL_Y =",
@@ -273,7 +273,9 @@ def main() -> int:
         "li/pacman_rule_source_inventory.md": LAB / "li" / "pacman_rule_source_inventory.md",
         "li/pacman_full_game_rule_contract.md": LAB / "li" / "pacman_full_game_rule_contract.md",
         "li/pacman_implementation_lane.md": LAB / "li" / "pacman_implementation_lane.md",
+        "li/pacman_scoring_contract.md": LAB / "li" / "pacman_scoring_contract.md",
         "captures/CAPTURE_BACK_PACMAN_FULL_RULE_SPEC_DIRECTION.md": ROOT / "captures" / "CAPTURE_BACK_PACMAN_FULL_RULE_SPEC_DIRECTION.md",
+        "captures/CAPTURE_BACK_PACMAN_SCORING_CONTRACT.md": ROOT / "captures" / "CAPTURE_BACK_PACMAN_SCORING_CONTRACT.md",
     }
     for label, path in full_rule_paths.items():
         if not path.exists():
@@ -282,7 +284,9 @@ def main() -> int:
     source_inventory = full_rule_paths["li/pacman_rule_source_inventory.md"].read_text()
     full_rule_contract = full_rule_paths["li/pacman_full_game_rule_contract.md"].read_text()
     implementation_lane = full_rule_paths["li/pacman_implementation_lane.md"].read_text()
+    scoring_contract = full_rule_paths["li/pacman_scoring_contract.md"].read_text()
     full_rule_capture = full_rule_paths["captures/CAPTURE_BACK_PACMAN_FULL_RULE_SPEC_DIRECTION.md"].read_text()
+    scoring_capture = full_rule_paths["captures/CAPTURE_BACK_PACMAN_SCORING_CONTRACT.md"].read_text()
 
     for required_line in [
         "The Pac-Man Dossier",
@@ -326,7 +330,53 @@ def main() -> int:
         if required_line not in full_rule_capture:
             return fail(f"full-rule Capture Back missing: {required_line}")
 
-    print("OK: C64 Lab 010 uses buffered turns, compact rendering, and full-rule LI direction.")
+    for required_line in [
+        "Score starts at zero.",
+        "add 10",
+        "add 50",
+        "A consumed item must not score twice.",
+        "SCORE 000000",
+        "rendered board cells as the mutable item map",
+    ]:
+        if required_line not in scoring_contract:
+            return fail(f"scoring contract missing: {required_line}")
+
+    for required_line in [
+        "small dot adds 10",
+        "energizer adds 50",
+        "consumed items do not score twice",
+    ]:
+        if required_line not in scoring_capture:
+            return fail(f"scoring Capture Back missing: {required_line}")
+
+    scoring = intent.get("scoring", {})
+    if scoring.get("enabled") is not True:
+        return fail("intent must enable scoring")
+    if scoring.get("smallDot") != 10:
+        return fail("intent must declare small dot score 10")
+    if scoring.get("energizer") != 50:
+        return fail("intent must declare energizer score 50")
+    if scoring.get("scoreOncePerConsumedCell") is not True:
+        return fail("intent must declare score-once consumed cells")
+    if scoring.get("visibleScore") is not True:
+        return fail("intent must declare visible score")
+
+    for required_snippet in [
+        "jsr init_score",
+        "init_score:",
+        "render_score:",
+        "add_score_10:",
+        "add_score_50:",
+        "score_digits:",
+        "cmp #$11",
+        "cmp #$12",
+        "score_small_dot:",
+        "score_power_dot:",
+    ]:
+        if required_snippet not in asm_text:
+            return fail(f"generated assembly missing scoring snippet: {required_snippet}")
+
+    print("OK: C64 Lab 010 uses buffered turns, compact rendering, full-rule LI, and F.2 scoring.")
     return 0
 
 

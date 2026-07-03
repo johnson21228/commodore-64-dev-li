@@ -1,4 +1,4 @@
-implements goal "PAC-MAN BUFFERED TURN KEYBOARD FALLBACK"
+implements goal "PAC-MAN SCORING"
 use projected board data
 read board.txt
 read projected_board.json
@@ -10,6 +10,7 @@ render power dots yellow
 render paths black
 render outside black
 keep board as character map
+use compact table-driven board renderer
 use hardware sprite 0 for pac-man
 start pac-man moving in a legal board-derived direction
 keep pac-man moving in the current direction while the next board cell is traversable
@@ -22,5 +23,10 @@ do not auto-select turns at hallway ends
 stop at a cell center if current direction is blocked and no buffered legal turn is available
 move pac-man sprite pixel by pixel between board cell centers
 choose direction sprite from current movement direction
-clear dots as pac-man reaches board cells
+score starts at zero
+show score on screen
+add 10 when pac-man consumes a small dot
+add 50 when pac-man consumes an energizer
+score each dot or energizer only once
+clear dots and energizers as pac-man reaches board cells
 loop forever

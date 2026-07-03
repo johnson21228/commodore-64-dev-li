@@ -161,3 +161,18 @@ Added:
 F.1 does not change runtime behavior.
 
 It prepares F.2 scoring.
+
+
+### F.2 — Dot and energizer scoring
+
+Adds visible score accounting.
+
+F.2 scoring rules:
+
+- score starts at zero
+- small dot adds 10
+- energizer adds 50
+- consumed dots and energizers do not score twice
+- score changes when Pac-Man reaches a board-cell center
+
+F.2 uses the rendered board cells as the mutable item map because Pac-Man is a hardware sprite and does not overwrite the character board.
