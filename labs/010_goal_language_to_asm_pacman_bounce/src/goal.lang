@@ -1,11 +1,8 @@
-# Lab 010 goal language: describe the app before implementation language.
-goal "PACMAN BOUNCE"
+goal "PAC-MAN BOARD ONLY RENDER"
 priority runtime speed first
 output assembly
 constraint no main.c
 constraint generated assembly is the app
-visual yellow pac-man sprite
-animation crunching mouth opens and closes
-animation mouth faces dx/dy movement vector
-motion linear path
-bounce screen edges with incidence angle equals outgoing angle
+source image board projection
+visual render pac-man board walls and dots
+milestone board-only render

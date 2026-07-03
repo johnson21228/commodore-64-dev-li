@@ -1,20 +1,28 @@
-# Lab 010: Goal-Language to Assembly — Pac-Man Bounce
+# Lab 010 — Pac-Man Board-Only Render
 
-This lab uses a tiny goal-language file to generate a C64-style Pac-Man bounce program.
+This lab is being rebuilt around a board-first LI pipeline.
 
-The output is generated assembly, not C.
+The source board image is visual input, not runtime authority. The board must first be projected into reviewable data, then verified, then generated into C64 assembly.
 
-The current runtime is arcade-optimized for the mouth path:
+Current milestone: Milestone B, board-only C64 render.
 
-- motion is represented by signed `dx` and `dy`
-- boundary collisions update that vector
-- `direction_index` caches the current movement direction
-- `refresh_direction_index_01` runs only when a bounce changes `dx_vel` or `dy_vel`
-- the mouth opens and closes as a crunching animation
-- `mouth_dirty` marks whether the sprite pointer may need to change
-- `apply_mouth_pointer_if_dirty_01` uses `mouth_pointer_table_01,x`
-- `$07f8` is written only at the single cached pointer update site
-- supported open-mouth directions are `E`, `NE`, `N`, `NW`, `W`, `SW`, `S`, and `SE`
-- left/right-only mouth selection is not enough
+The generated C64 program renders walls, dots, power dots, empty paths, and outside cells.
 
-The learning goal is to show that a higher-level intent sentence can be lowered into speed-first assembly evidence while preserving a real gameplay invariant.
+It does not yet implement Pac-Man movement, ghosts, scoring, or game outcomes.
+
+Authority chain:
+
+1. assets/source_board.png
+2. BOARD_PROJECTION_LI.md
+3. src/board.txt
+4. src/projected_board.json
+5. src/generated.s
+6. C64 runtime review
+
+src/generated.s is an artifact. The board authority is src/board.txt plus src/projected_board.json.
+
+Verify:
+
+- python3 src/verify_projected_board.py
+- make regenerate
+- python3 ../../tools/verify_c64_goal_language_to_asm_pacman_bounce_lab.py

@@ -1,204 +1,66 @@
 {
-  "source_chain": [
-    "goal.lang",
-    "program.lang",
-    "generated_intent.json",
-    "generated.s"
-  ],
-  "goal": [
-    {
-      "op": "comment",
-      "line": 1,
-      "source": "# Lab 010 goal language: describe the app before implementation language."
+  "schemaVersion": 2,
+  "milestone": "board_only_render",
+  "authority": {
+    "boardText": "/Users/stevejohnson/Developer/commodore-64-dev-li/labs/010_goal_language_to_asm_pacman_bounce/src/board.txt",
+    "projectedBoard": "/Users/stevejohnson/Developer/commodore-64-dev-li/labs/010_goal_language_to_asm_pacman_bounce/src/projected_board.json",
+    "sourceImage": "labs/010_goal_language_to_asm_pacman_bounce/assets/source_board.png",
+    "generatedAssemblyIsArtifact": true
+  },
+  "inputs": {
+    "goal": [
+      "goal \"PAC-MAN BOARD ONLY RENDER\"",
+      "priority runtime speed first",
+      "output assembly",
+      "constraint no main.c",
+      "constraint generated assembly is the app",
+      "source image board projection",
+      "visual render pac-man board walls and dots",
+      "milestone board-only render"
+    ],
+    "program": [
+      "implements goal \"PAC-MAN BOARD ONLY RENDER\"",
+      "use projected board data",
+      "read board.txt",
+      "read projected_board.json",
+      "set border black",
+      "set background black",
+      "clear screen color black",
+      "render walls blue",
+      "render dots yellow",
+      "render power dots yellow",
+      "render paths black",
+      "render outside black",
+      "loop forever"
+    ]
+  },
+  "board": {
+    "width": 28,
+    "height": 22,
+    "walls": 332,
+    "dots": 205,
+    "powerDots": 4,
+    "pacmanStart": {
+      "x": 13,
+      "y": 13
     },
-    {
-      "op": "goal",
-      "line": 2,
-      "source": "goal \"PACMAN BOUNCE\"",
-      "name": "PACMAN BOUNCE"
-    },
-    {
-      "op": "priority",
-      "line": 3,
-      "source": "priority runtime speed first",
-      "value": "runtime_speed_first"
-    },
-    {
-      "op": "output",
-      "line": 4,
-      "source": "output assembly",
-      "value": "assembly"
-    },
-    {
-      "op": "constraint",
-      "line": 5,
-      "source": "constraint no main.c",
-      "value": "no_main_c"
-    },
-    {
-      "op": "constraint",
-      "line": 6,
-      "source": "constraint generated assembly is the app",
-      "value": "generated_assembly_is_app"
-    },
-    {
-      "op": "visual",
-      "line": 7,
-      "source": "visual yellow pac-man sprite",
-      "subject": "yellow_pacman_sprite"
-    },
-    {
-      "op": "animation_goal",
-      "line": 8,
-      "source": "animation crunching mouth opens and closes",
-      "model": "pacman_mouth_crunch"
-    },
-    {
-      "op": "animation_goal",
-      "line": 9,
-      "source": "animation mouth faces dx/dy movement vector",
-      "model": "pacman_mouth_faces_dxdy_vector"
-    },
-    {
-      "op": "motion",
-      "line": 10,
-      "source": "motion linear path",
-      "model": "linear_path"
-    },
-    {
-      "op": "bounce_goal",
-      "line": 11,
-      "source": "bounce screen edges with incidence angle equals outgoing angle",
-      "model": "reflect_edges_equal_angle"
-    }
-  ],
-  "program": [
-    {
-      "op": "comment",
-      "line": 1,
-      "source": "# Lab 010 implementation language: controlled primitives, not C."
-    },
-    {
-      "op": "implements_goal",
-      "line": 2,
-      "source": "implements goal \"PACMAN BOUNCE\"",
-      "goal": "PACMAN BOUNCE"
-    },
-    {
-      "op": "optimize",
-      "line": 3,
-      "source": "optimize for speed",
-      "strategy": "runtime_speed_first"
-    },
-    {
-      "op": "set_border",
-      "line": 4,
-      "source": "set border black",
-      "color": "black",
-      "value": 0,
-      "register": "$d020"
-    },
-    {
-      "op": "set_background",
-      "line": 5,
-      "source": "set background black",
-      "color": "black",
-      "value": 0,
-      "register": "$d021"
-    },
-    {
-      "op": "clear_screen",
-      "line": 6,
-      "source": "clear screen color black",
-      "color": "black",
-      "color_value": 0,
-      "strategy": "exact_1000_byte_y_loop"
-    },
-    {
-      "op": "use_pacman_sprite",
-      "line": 7,
-      "source": "use yellow pacman sprite at x 40 y 60",
-      "color": "yellow",
-      "color_value": 7,
-      "x": 40,
-      "y": 60
-    },
-    {
-      "op": "animate_mouth",
-      "line": 8,
-      "source": "animate mouth crunch every 8 frames",
-      "model": "toggle_sprite_frame",
-      "period_frames": 8
-    },
-    {
-      "op": "face_mouth_with_vector",
-      "line": 9,
-      "source": "face mouth with dx/dy vector",
-      "model": "cached_direction_index_pointer_table",
-      "directions": [
-        "E",
-        "NE",
-        "N",
-        "NW",
-        "W",
-        "SW",
-        "S",
-        "SE"
-      ]
-    },
-    {
-      "op": "move_sprite_velocity",
-      "line": 10,
-      "source": "move sprite velocity dx 2 dy 1",
-      "dx": 2,
-      "dy": 1,
-      "dx_byte": 2,
-      "dy_byte": 1
-    },
-    {
-      "op": "bounds",
-      "line": 11,
-      "source": "bounds x 24 232 y 50 229",
-      "min_x": 24,
-      "max_x": 232,
-      "min_y": 50,
-      "max_y": 229
-    },
-    {
-      "op": "bounce_reflect",
-      "line": 12,
-      "source": "bounce reflect at screen edge",
-      "model": "invert_axis_velocity_on_boundary"
-    },
-    {
-      "op": "loop_forever",
-      "line": 13,
-      "source": "loop forever"
-    }
-  ],
-  "optimization_posture": "runtime_speed_first",
-  "runtime_optimization": "arcade_optimized_dirty_pointer_cache",
-  "output_contract": "assembly_only_no_main_c",
-  "app_model": "yellow_pacman_sprite_linear_bounce_vector_facing_crunching_mouth",
-  "mouth_orientation": "cached direction_index derived from direction_from_vector(dx_vel, dy_vel)",
-  "supported_mouth_directions": [
-    "E",
-    "NE",
-    "N",
-    "NW",
-    "W",
-    "SW",
-    "S",
-    "SE"
-  ],
-  "initial_mouth_direction": "SE",
-  "forbidden_orientation_model": "left/right-only mouth selection",
-  "assembly_strategy": {
-    "sprite": "hardware sprite 0 uses a neutral closed frame plus eight vector-facing open-mouth frames copied to $2000..$2200 and pointed from $07f8",
-    "motion": "add signed byte dx/dy per frame",
-    "bounce": "axis reflection: invert dx on vertical edge, invert dy on horizontal edge; refresh direction_index only when a bounce changes dx/dy",
-    "animation": "toggle open/closed every 8 frames and set mouth_dirty",
-    "mouth_pointer": "mouth_dirty gates writes to SPRITE_POINTER_0; mouth_pointer_table_01,x selects closed/open-vector frames",
-    "screen_clear": "exact 1000-byte y loop"
-  }
+    "ghostStarts": [
+      {
+        "x": 13,
+        "y": 8
+      },
+      {
+        "x": 14,
+        "y": 8
+      }
+    ],
+    "projectionStatus": "manual_first_pass"
+  },
+  "scopeLimits": [
+    "no Pac-Man movement",
+    "no ghost movement",
+    "no scoring",
+    "no win/loss outcomes",
+    "no computer vision"
+  ]
 }
