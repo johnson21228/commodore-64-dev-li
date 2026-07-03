@@ -269,7 +269,64 @@ def main() -> int:
     if "radial_pacman_sprite" not in generator_text:
         return fail("generate_asm.py must preserve radial Pac-Man sprite generation")
 
-    print("OK: C64 Lab 010 uses buffered turns and compact table-driven board rendering.")
+    full_rule_paths = {
+        "li/pacman_rule_source_inventory.md": LAB / "li" / "pacman_rule_source_inventory.md",
+        "li/pacman_full_game_rule_contract.md": LAB / "li" / "pacman_full_game_rule_contract.md",
+        "li/pacman_implementation_lane.md": LAB / "li" / "pacman_implementation_lane.md",
+        "captures/CAPTURE_BACK_PACMAN_FULL_RULE_SPEC_DIRECTION.md": ROOT / "captures" / "CAPTURE_BACK_PACMAN_FULL_RULE_SPEC_DIRECTION.md",
+    }
+    for label, path in full_rule_paths.items():
+        if not path.exists():
+            return fail(f"missing Pac-Man full-rule LI file: {label}")
+
+    source_inventory = full_rule_paths["li/pacman_rule_source_inventory.md"].read_text()
+    full_rule_contract = full_rule_paths["li/pacman_full_game_rule_contract.md"].read_text()
+    implementation_lane = full_rule_paths["li/pacman_implementation_lane.md"].read_text()
+    full_rule_capture = full_rule_paths["captures/CAPTURE_BACK_PACMAN_FULL_RULE_SPEC_DIRECTION.md"].read_text()
+
+    for required_line in [
+        "The Pac-Man Dossier",
+        "small dot: 10 points",
+        "energizer: 50 points",
+        "frightened ghosts in one energizer chain: 200, 400, 800, 1600",
+        "Lab 010 uses its own projected board.",
+    ]:
+        if required_line not in source_inventory:
+            return fail(f"rule source inventory missing: {required_line}")
+
+    for required_line in [
+        "Dot and scoring rules",
+        "Round completion",
+        "Energizers and frightened mode",
+        "Ghost common movement",
+        "Scatter and chase modes",
+        "Individual ghost targeting",
+        "Collision and lives",
+        "Fruit",
+        "Level progression",
+    ]:
+        if required_line not in full_rule_contract:
+            return fail(f"full-game rule contract missing: {required_line}")
+
+    for required_line in [
+        "Next slice: F.2 scoring",
+        "consuming a small dot adds 10",
+        "consuming an energizer adds 50",
+        "consumed cells do not score twice",
+        "score is visible on screen",
+    ]:
+        if required_line not in implementation_lane:
+            return fail(f"implementation lane missing: {required_line}")
+
+    for required_line in [
+        "F.2 should be scoring.",
+        "Scoring is the right next feature",
+        "Do not implement the full game at once.",
+    ]:
+        if required_line not in full_rule_capture:
+            return fail(f"full-rule Capture Back missing: {required_line}")
+
+    print("OK: C64 Lab 010 uses buffered turns, compact rendering, and full-rule LI direction.")
     return 0
 
 

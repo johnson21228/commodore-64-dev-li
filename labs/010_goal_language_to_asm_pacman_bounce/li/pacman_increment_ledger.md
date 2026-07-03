@@ -145,3 +145,19 @@ Replaced unrolled per-cell board rendering with compact board render character r
 This preserves the language/LI learning surface while making generated assembly smaller and more C64-respectful.
 
 E.1 also removes embedded audit-only `board_row_*` data from generated assembly. Board audit authority remains in `src/board.txt` and `src/projected_board.json`.
+
+
+### F.1 — Full-game rule LI
+
+Captured the direction to use the public Pac-Man rules corpus as a paraphrased LI rule contract.
+
+Added:
+
+- `li/pacman_rule_source_inventory.md`
+- `li/pacman_full_game_rule_contract.md`
+- `li/pacman_implementation_lane.md`
+- `captures/CAPTURE_BACK_PACMAN_FULL_RULE_SPEC_DIRECTION.md`
+
+F.1 does not change runtime behavior.
+
+It prepares F.2 scoring.

@@ -168,3 +168,16 @@ W/A/S/D updates the same requested-direction buffer as joystick input.
 - Board render characters should come from compact `board_render_row_*` tables.
 - Runtime visual output should remain the same.
 - Learning remains centered on the language and LI surface.
+
+
+## F.1 expected behavior
+
+F.1 is documentation and LI only.
+
+Runtime behavior should remain D.8 + E.1:
+
+- buffered Pac-Man movement
+- W/A/S/D fallback
+- compact table-driven renderer
+
+F.1 prepares F.2 scoring.

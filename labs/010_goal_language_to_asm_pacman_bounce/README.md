@@ -121,3 +121,16 @@ The board renderer now uses compact `board_render_row_*` character tables and a 
 This supersedes unrolled per-cell screen/color writes.
 
 Board audit authority remains in `src/board.txt` and `src/projected_board.json`.
+
+
+## F.1 — Full-game rule LI
+
+F.1 adds a full-game Pac-Man rule direction without changing runtime behavior.
+
+New LI files:
+
+- `li/pacman_rule_source_inventory.md`
+- `li/pacman_full_game_rule_contract.md`
+- `li/pacman_implementation_lane.md`
+
+The next implementation slice is F.2 scoring.
