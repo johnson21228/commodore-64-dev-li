@@ -127,6 +127,14 @@
     "centeredPowerDotChar": 18,
     "wallGlyphSelection": "neighbor_aware_thin_wall"
   },
+  "lives": {
+    "enabled": true,
+    "initialLives": 3,
+    "expirationConsumesOneLife": true,
+    "resetIfLivesRemain": true,
+    "gameOverAtZero": true,
+    "visibleDisplayDeferred": true
+  },
   "pacmanExpiration": {
     "enabled": true,
     "stateTransition": "controlled expiration state, not immediate reset",
@@ -136,7 +144,7 @@
     "scoreRemainsUnchanged": true,
     "consumedItemsRemainConsumed": true,
     "resetAfterTimeout": true,
-    "livesCounterDeferred": true
+    "livesCounterDeferred": false
   },
   "tunnelWrap": {
     "enabled": true,

@@ -178,7 +178,7 @@ def main() -> int:
         return fail("intent must preserve radial vertical mouth sprite art")
 
     for snippet in [
-        "Milestone F.4: Pac-Man expiration state with temporary tunnel trigger",
+        "Milestone F.5: multiple lives accounting around Pac-Man expiration",
         "START_DIR_PTR =",
         "START_TARGET_CELL_X =",
         "START_TARGET_CELL_Y =",
@@ -420,10 +420,38 @@ def main() -> int:
 
     if "pacmanExpiration" not in intent:
         return fail("intent must describe F.4 Pac-Man expiration")
-    if intent["pacmanExpiration"].get("livesCounterDeferred") is not True:
-        return fail("F.4 must defer lives counter runtime")
+    if "lives" not in intent:
+        if intent["pacmanExpiration"].get("livesCounterDeferred") is not True:
+            return fail("F.4 must defer lives counter runtime until F.5")
+    else:
+        if intent["pacmanExpiration"].get("livesCounterDeferred") is not False:
+            return fail("F.5 must mark lives counter as no longer deferred")
 
-    print("OK: C64 Lab 010 uses buffered turns, compact rendering, scoring, tunnel topology, and F.4 expiration state.")
+    # F.5 lives verifier checks
+    required_lives_snippets = [
+        "PACMAN_STATE_GAME_OVER = $02",
+        "INITIAL_LIVES = $03",
+        "init_lives:",
+        "lives_counter:",
+        "dec lives_counter",
+        "enter_game_over:",
+        "cmp #PACMAN_STATE_GAME_OVER",
+    ]
+    for snippet in required_lives_snippets:
+        if snippet not in asm_text:
+            return fail(f"generated assembly missing lives snippet: {snippet}")
+
+    if "lives" not in intent:
+        return fail("intent must describe F.5 lives accounting")
+    lives = intent["lives"]
+    if lives.get("initialLives") != 3:
+        return fail("F.5 lives must initialize to 3")
+    if lives.get("gameOverAtZero") is not True:
+        return fail("F.5 lives must enter game over at zero")
+    if lives.get("visibleDisplayDeferred") is not True:
+        return fail("F.5 must defer visible lives display")
+
+    print("OK: C64 Lab 010 uses buffered turns, compact rendering, scoring, tunnel topology, F.4 expiration, and F.5 lives accounting.")
     return 0
 
 
