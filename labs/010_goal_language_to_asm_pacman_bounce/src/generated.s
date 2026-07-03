@@ -4,6 +4,9 @@
 
 .setcpu "6502"
 
+.segment "EXEHDR"
+    .word $0801
+
 BOARD_COLS = 28
 BOARD_ROWS = 22
 BOARD_CHAR_LEFT = 6

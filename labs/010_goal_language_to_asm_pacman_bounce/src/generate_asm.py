@@ -98,6 +98,9 @@ def generate(rows: list[str]) -> str:
 
 .setcpu "6502"
 
+.segment "EXEHDR"
+    .word $0801
+
 BOARD_COLS = {width}
 BOARD_ROWS = {height}
 BOARD_CHAR_LEFT = {left}

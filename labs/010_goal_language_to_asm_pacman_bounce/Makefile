@@ -16,9 +16,9 @@ build: $(PRG)
 $(ASM) $(INTENT): $(GOAL) $(PROGRAM) $(BOARD) $(PROJECTED_BOARD) $(SRC_DIR)/generate_asm.py
 	python3 $(SRC_DIR)/generate_asm.py $(GOAL) $(PROGRAM) $(INTENT) $(ASM)
 
-$(PRG): $(ASM)
+$(PRG): $(ASM) c64_asm.cfg
 	mkdir -p $(DIST_DIR)
-	cl65 -t c64 -o $(PRG) $(ASM)
+	cl65 -C c64_asm.cfg -o $(PRG) $(ASM)
 
 verify-board:
 	python3 $(SRC_DIR)/verify_projected_board.py
