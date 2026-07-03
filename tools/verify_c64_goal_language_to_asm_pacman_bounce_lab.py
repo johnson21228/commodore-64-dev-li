@@ -61,6 +61,7 @@ def main() -> int:
         PROJECTED_VERIFIER,
         LAB / "BOARD_PROJECTION_LI.md",
         LAB / "assets" / "source_board.png",
+        LAB / "c64_asm.cfg",
     ]
     missing = [str(path) for path in required if not path.exists()]
     if missing:
@@ -81,8 +82,8 @@ def main() -> int:
     if meta.get("width") != len(board_rows[0]) or meta.get("height") != len(board_rows):
         return fail("projected_board.json dimensions do not match board.txt")
 
-    if intent.get("milestone") != "board_only_render":
-        return fail("generated_intent.json does not declare board_only_render")
+    if intent.get("milestone") != "board_only_render_custom_character_projection":
+        return fail("generated_intent.json does not declare board_only_render_custom_character_projection")
 
     if not intent.get("authority", {}).get("generatedAssemblyIsArtifact"):
         return fail("generated_intent.json must declare generated assembly as artifact")
@@ -91,12 +92,16 @@ def main() -> int:
         return fail("generated.s board_row data does not match board.txt")
 
     for snippet in [
-        "Milestone B: board-only C64 render",
+        "Milestone B.1: custom C64 character projection",
         "BOARD_COLS = 28",
         "BOARD_ROWS = 22",
         "DOT_COUNT = 205",
         "POWER_DOT_COUNT = 4",
         "WALL_COUNT = 332",
+        "CUSTOM_CHAR_COUNT = 19",
+        "CUSTOM_CHARSET_ADDR = $3000",
+        "install_custom_charset:",
+        "custom_charset:",
         "render_board:",
         "forever:",
         "board_row_00:",
@@ -105,14 +110,24 @@ def main() -> int:
         if snippet not in asm_text:
             return fail(f"generated.s missing expected snippet: {snippet}")
 
+    projection = intent.get("characterProjection", {})
+    if projection.get("centeredDotChar") != 17:
+        return fail("generated_intent.json must declare centered dot char 17")
+    if projection.get("centeredPowerDotChar") != 18:
+        return fail("generated_intent.json must declare centered power dot char 18")
+    if projection.get("wallGlyphSelection") != "neighbor_aware_thin_wall":
+        return fail("generated_intent.json must declare neighbor-aware thin wall projection")
+
     for forbidden in ["move_pacman", "ghost_move", "collision_loss", "dot_eating_loop"]:
         if forbidden in asm_text:
             return fail(f"board-only milestone should not include runtime feature: {forbidden}")
 
     if "board.txt" not in generator_text or "projected_board.json" not in generator_text:
         return fail("generate_asm.py must read board.txt and projected_board.json")
+    if "build_charset" not in generator_text or "wall_mask" not in generator_text:
+        return fail("generate_asm.py must include custom character projection helpers")
 
-    print("OK: C64 Lab 010 board-only render is generated from verified board.txt/projected_board.json.")
+    print("OK: C64 Lab 010 board-only render uses custom character projection from verified board data.")
     return 0
 
 

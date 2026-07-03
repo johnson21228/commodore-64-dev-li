@@ -32,3 +32,10 @@ Generated assembly:
 - src/generated.s
 
 Generated assembly is an artifact derived from the verified board contract.
+
+## Milestone B.1 visual refinement
+
+- dots should use a centered custom pellet glyph
+- power dots should use a centered larger custom pellet glyph
+- walls should use custom neighbor-aware thin-wall glyphs
+- `board.txt` remains unchanged as the logical authority

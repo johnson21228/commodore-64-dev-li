@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 2,
-  "milestone": "board_only_render",
+  "schemaVersion": 3,
+  "milestone": "board_only_render_custom_character_projection",
   "authority": {
     "boardText": "/Users/stevejohnson/Developer/commodore-64-dev-li/labs/010_goal_language_to_asm_pacman_bounce/src/board.txt",
     "projectedBoard": "/Users/stevejohnson/Developer/commodore-64-dev-li/labs/010_goal_language_to_asm_pacman_bounce/src/projected_board.json",
@@ -55,6 +55,17 @@
       }
     ],
     "projectionStatus": "manual_first_pass"
+  },
+  "characterProjection": {
+    "customCharsetAddress": "$3000",
+    "blankChar": 0,
+    "wallGlyphRange": [
+      1,
+      16
+    ],
+    "centeredDotChar": 17,
+    "centeredPowerDotChar": 18,
+    "wallGlyphSelection": "neighbor_aware_thin_wall"
   },
   "scopeLimits": [
     "no Pac-Man movement",

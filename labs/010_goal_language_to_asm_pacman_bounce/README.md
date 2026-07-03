@@ -26,3 +26,18 @@ Verify:
 - python3 src/verify_projected_board.py
 - make regenerate
 - python3 ../../tools/verify_c64_goal_language_to_asm_pacman_bounce_lab.py
+
+## Milestone B.1 — Character projection
+
+The board-only render now uses a generated custom character set.
+
+Board logic still comes from `src/board.txt`.
+
+The C64 visual projection maps:
+
+- wall cells to neighbor-aware thin-wall glyphs
+- dot cells to centered pellet glyphs
+- power-dot cells to centered larger pellet glyphs
+- path, outside, Pac-Man start, and ghost start cells to blank for this milestone
+
+Pac-Man movement is still out of scope.
