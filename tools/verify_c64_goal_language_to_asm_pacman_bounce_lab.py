@@ -178,7 +178,7 @@ def main() -> int:
         return fail("intent must preserve radial vertical mouth sprite art")
 
     for snippet in [
-        "Milestone F.5: multiple lives accounting around Pac-Man expiration",
+        "Milestone F.6: stationary ghost appearance and collision trigger",
         "START_DIR_PTR =",
         "START_TARGET_CELL_X =",
         "START_TARGET_CELL_Y =",
@@ -240,7 +240,7 @@ def main() -> int:
         "move_sprite_toward_target:",
         "copy_sprite_page0:",
         "copy_sprite_page1:",
-        "SPRITE_DATA_BYTES = 512",
+        "SPRITE_DATA_BYTES = 576",
     ]:
         if snippet not in asm_text:
             return fail(f"generated.s missing expected snippet: {snippet}")
@@ -451,7 +451,37 @@ def main() -> int:
     if lives.get("visibleDisplayDeferred") is not True:
         return fail("F.5 must defer visible lives display")
 
-    print("OK: C64 Lab 010 uses buffered turns, compact rendering, scoring, tunnel topology, F.4 expiration, and F.5 lives accounting.")
+    # F.6 ghost verifier checks
+    required_ghost_snippets = [
+        "SPRITE_PTR_GHOST",
+        "GHOST_START_CELL_X",
+        "GHOST_START_CELL_Y",
+        "init_stationary_ghost:",
+        "sta $07f9",
+        "sta $d002",
+        "sta $d003",
+        "check_stationary_ghost_collision:",
+        "jsr check_stationary_ghost_collision",
+    ]
+    for snippet in required_ghost_snippets:
+        if snippet not in asm_text:
+            return fail(f"generated assembly missing ghost snippet: {snippet}")
+
+    if "ghosts" not in intent:
+        return fail("intent must describe F.6 ghost appearance/collision")
+    ghosts = intent["ghosts"]
+    if ghosts.get("implementedCount") != 1:
+        return fail("F.6 must implement exactly one stationary ghost")
+    if ghosts.get("stationary") is not True:
+        return fail("F.6 ghost must be stationary")
+    if ghosts.get("collisionTriggersExpiration") is not True:
+        return fail("F.6 ghost collision must trigger expiration")
+    if ghosts.get("overlayDoesNotConsumeDots") is not True:
+        return fail("F.6 ghost must be an overlay, not a dot consumer")
+    if ghosts.get("movementDeferred") is not True:
+        return fail("F.6 must defer ghost movement")
+
+    print("OK: C64 Lab 010 uses buffered turns, compact rendering, scoring, lives, and F.6 stationary ghost collision.")
     return 0
 
 

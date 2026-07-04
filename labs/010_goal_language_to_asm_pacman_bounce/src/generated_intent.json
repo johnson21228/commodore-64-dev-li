@@ -127,6 +127,20 @@
     "centeredPowerDotChar": 18,
     "wallGlyphSelection": "neighbor_aware_thin_wall"
   },
+  "ghosts": {
+    "enabled": true,
+    "implementedCount": 1,
+    "firstGhostStart": {
+      "x": 13,
+      "y": 8
+    },
+    "appearance": "single-color hardware sprite 1",
+    "stationary": true,
+    "overlayDoesNotConsumeDots": true,
+    "collisionTriggersExpiration": true,
+    "movementDeferred": true,
+    "targetingDeferred": true
+  },
   "lives": {
     "enabled": true,
     "initialLives": 3,
@@ -190,7 +204,8 @@
       "E_CLOSED": 212,
       "W_CLOSED": 213,
       "N_CLOSED": 214,
-      "S_CLOSED": 215
+      "S_CLOSED": 215,
+      "GHOST": 216
     },
     "movement": "pixel interpolation between board-cell centers",
     "sizeTuning": "smaller 10-12 pixel centered sprite body within 24x21 hardware sprite cell",
@@ -201,7 +216,7 @@
     "spriteFootprint": "all directions use shared center, shared radius, and shared mouth-wedge rule",
     "spriteGeometry": "radial Pac-Man generated from one circle-like pixel model",
     "spriteOriginTuning": "sprite y origin lowered by one pixel and x origin shifted left by three pixels for hallway centering",
-    "spriteCopyFix": "copies all 512 bytes for eight sprite frames",
+    "spriteCopyFix": "copies all 576 bytes for nine sprite frames including the stationary ghost",
     "speedTuning": "two raster frames per interpolated pixel"
   },
   "joystickControl": {
