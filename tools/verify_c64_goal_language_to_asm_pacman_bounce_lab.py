@@ -178,7 +178,7 @@ def main() -> int:
         return fail("intent must preserve radial vertical mouth sprite art")
 
     for snippet in [
-        "Milestone F.9: ghost legal movement",
+        "Milestone F.10: ghost smooth movement",
         "START_DIR_PTR =",
         "START_TARGET_CELL_X =",
         "START_TARGET_CELL_Y =",
@@ -471,8 +471,22 @@ def main() -> int:
         "sta $d003",
         "check_ghost_collision:",
         "jsr check_ghost_collision",
-        "GHOST_SPEED_TICKS",
         "ghost_motion_counter:",
+        "GHOST_PIXEL_SPEED_TICKS",
+        "ghost_target_cell_x:",
+        "ghost_target_cell_y:",
+        "ghost_sprite_x_lo:",
+        "ghost_sprite_x_hi:",
+        "ghost_sprite_y:",
+        "ghost_target_x_lo:",
+        "ghost_target_x_hi:",
+        "ghost_target_y:",
+        "ghost_at_target:",
+        "commit_ghost_target_cell:",
+        "choose_ghost_next_target:",
+        "move_ghost_sprite_toward_target:",
+        "update_ghost_sprite_registers:",
+        "set_ghost_target_sprite_from_cell:",
         "update_ghost_movement:",
         "try_ghost_current_direction:",
         "choose_ghost_fallback_direction:",
@@ -508,6 +522,12 @@ def main() -> int:
         "collisionUsesCurrentCell",
         "resetAfterPacmanExpiration",
         "legalMovement",
+        "smoothMovement",
+        "targetCellState",
+        "spritePixelState",
+        "commitCellAtTarget",
+        "pixelInterpolation",
+        "collisionChecksCurrentAndTargetCell",
         "movementUsesBoardLegalMasks",
         "currentDirectionFirst",
         "reverseOnlyAfterPerpendicularBlocked",
@@ -518,8 +538,8 @@ def main() -> int:
 
     if ghosts.get("movementDeferred") is not False:
         return fail("F.9 ghost movement must be implemented, not deferred")
-    if ghosts.get("speedTicks") != 32:
-        return fail("F.9 ghost speedTicks must be 32")
+    if ghosts.get("pixelSpeedTicks") != 4:
+        return fail("F.10 ghost pixelSpeedTicks must be 4")
     if ghosts.get("fallbackTurnPolicy") != "try perpendicular turns before reversing":
         return fail("F.9 ghost fallback must try perpendicular turns before reversing")
 
@@ -527,8 +547,10 @@ def main() -> int:
         return fail("F.8 ghost collision must trigger expiration")
     if ghosts.get("overlayDoesNotConsumeDots") is not True:
         return fail("F.8 ghost must be an overlay, not a dot consumer")
+    if ghosts.get("speedDeferred") is not False:
+        return fail("F.10 ghost speed must be implemented as pixel speed, not deferred")
+
     for key in [
-        "speedDeferred",
         "animationDeferred",
         "eyesDeferred",
         "targetingDeferred",
@@ -539,7 +561,7 @@ def main() -> int:
             return 1
 
 
-    print("OK: C64 Lab 010 uses buffered turns, compact rendering, scoring, lives, and F.9 ghost legal movement.")
+    print("OK: C64 Lab 010 uses buffered turns, compact rendering, scoring, lives, and F.10 ghost smooth movement.")
     return 0
 
 
