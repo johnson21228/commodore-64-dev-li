@@ -136,10 +136,19 @@
     },
     "appearance": "single-color hardware sprite 1",
     "stationary": true,
+    "currentCellState": true,
+    "directionState": true,
+    "spritePositionFromCurrentCell": true,
+    "collisionUsesCurrentCell": true,
+    "resetAfterPacmanExpiration": true,
     "overlayDoesNotConsumeDots": true,
     "collisionTriggersExpiration": true,
     "movementDeferred": true,
-    "targetingDeferred": true
+    "speedDeferred": true,
+    "animationDeferred": true,
+    "eyesDeferred": true,
+    "targetingDeferred": true,
+    "multipleGhostsDeferred": true
   },
   "lives": {
     "enabled": true,
@@ -216,7 +225,7 @@
     "spriteFootprint": "all directions use shared center, shared radius, and shared mouth-wedge rule",
     "spriteGeometry": "radial Pac-Man generated from one circle-like pixel model",
     "spriteOriginTuning": "sprite y origin lowered by one pixel and x origin shifted left by three pixels for hallway centering",
-    "spriteCopyFix": "copies all 576 bytes for nine sprite frames including the stationary ghost",
+    "spriteCopyFix": "copies all 576 bytes for nine sprite frames including the ghost body frame",
     "speedTuning": "two raster frames per interpolated pixel"
   },
   "joystickControl": {
