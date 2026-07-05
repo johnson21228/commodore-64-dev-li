@@ -178,7 +178,7 @@ def main() -> int:
         return fail("intent must preserve radial vertical mouth sprite art")
 
     for snippet in [
-        "Milestone F.8: ghost runtime state and reset",
+        "Milestone F.9: ghost legal movement",
         "START_DIR_PTR =",
         "START_TARGET_CELL_X =",
         "START_TARGET_CELL_Y =",
@@ -471,6 +471,23 @@ def main() -> int:
         "sta $d003",
         "check_ghost_collision:",
         "jsr check_ghost_collision",
+        "GHOST_SPEED_TICKS",
+        "ghost_motion_counter:",
+        "update_ghost_movement:",
+        "try_ghost_current_direction:",
+        "choose_ghost_fallback_direction:",
+        "choose_ghost_fallback_from_left:",
+        "choose_ghost_fallback_from_right:",
+        "choose_ghost_fallback_from_up:",
+        "choose_ghost_fallback_from_down:",
+        "try_ghost_move_left:",
+        "try_ghost_move_right:",
+        "try_ghost_move_up:",
+        "try_ghost_move_down:",
+        "load_ghost_legal_mask:",
+        "ldx ghost_cell_y",
+        "ldy ghost_cell_x",
+        "jsr update_ghost_movement",
     ]
     for snippet in required_ghost_snippets:
         if snippet not in asm_text:
@@ -481,24 +498,36 @@ def main() -> int:
     ghosts = intent["ghosts"]
     if ghosts.get("implementedCount") != 1:
         return fail("F.8 must implement exactly one stationary ghost")
+    if ghosts.get("stationary") is not False:
+        return fail("F.9 ghost must no longer be stationary")
+
     for key in [
-        "stationary",
         "currentCellState",
         "directionState",
         "spritePositionFromCurrentCell",
         "collisionUsesCurrentCell",
         "resetAfterPacmanExpiration",
+        "legalMovement",
+        "movementUsesBoardLegalMasks",
+        "currentDirectionFirst",
+        "reverseOnlyAfterPerpendicularBlocked",
     ]:
         if ghosts.get(key) is not True:
             print(f"ERROR: generated_intent ghosts.{key} is not true")
             return 1
+
+    if ghosts.get("movementDeferred") is not False:
+        return fail("F.9 ghost movement must be implemented, not deferred")
+    if ghosts.get("speedTicks") != 32:
+        return fail("F.9 ghost speedTicks must be 32")
+    if ghosts.get("fallbackTurnPolicy") != "try perpendicular turns before reversing":
+        return fail("F.9 ghost fallback must try perpendicular turns before reversing")
 
     if ghosts.get("collisionTriggersExpiration") is not True:
         return fail("F.8 ghost collision must trigger expiration")
     if ghosts.get("overlayDoesNotConsumeDots") is not True:
         return fail("F.8 ghost must be an overlay, not a dot consumer")
     for key in [
-        "movementDeferred",
         "speedDeferred",
         "animationDeferred",
         "eyesDeferred",
@@ -510,7 +539,7 @@ def main() -> int:
             return 1
 
 
-    print("OK: C64 Lab 010 uses buffered turns, compact rendering, scoring, lives, and F.8 ghost runtime state and reset.")
+    print("OK: C64 Lab 010 uses buffered turns, compact rendering, scoring, lives, and F.9 ghost legal movement.")
     return 0
 
 
