@@ -130,6 +130,41 @@
   "ghosts": {
     "enabled": true,
     "implementedCount": 1,
+    "plannedActorCount": 4,
+    "activeActorCount": 1,
+    "captiveActorCount": 3,
+    "actorModel": "four persistent ghost actors; one released runtime ghost implemented, three captive actors planned",
+    "actorStates": [
+      "captive",
+      "exiting",
+      "released"
+    ],
+    "ghostIdentities": [
+      {
+        "name": "Blinky",
+        "color": "red",
+        "initialState": "released",
+        "runtimeImplemented": true
+      },
+      {
+        "name": "Pinky",
+        "color": "pink",
+        "initialState": "captive",
+        "runtimeImplemented": false
+      },
+      {
+        "name": "Inky",
+        "color": "cyan",
+        "initialState": "captive",
+        "runtimeImplemented": false
+      },
+      {
+        "name": "Clyde",
+        "color": "orange",
+        "initialState": "captive",
+        "runtimeImplemented": false
+      }
+    ],
     "firstGhostStart": {
       "x": 13,
       "y": 8

@@ -2136,6 +2136,17 @@ def main(argv: list[str]) -> int:
         "ghosts": {
             "enabled": True,
             "implementedCount": 1,
+            "plannedActorCount": 4,
+            "activeActorCount": 1,
+            "captiveActorCount": 3,
+            "actorModel": "four persistent ghost actors; one released runtime ghost implemented, three captive actors planned",
+            "actorStates": ["captive", "exiting", "released"],
+            "ghostIdentities": [
+                {"name": "Blinky", "color": "red", "initialState": "released", "runtimeImplemented": True},
+                {"name": "Pinky", "color": "pink", "initialState": "captive", "runtimeImplemented": False},
+                {"name": "Inky", "color": "cyan", "initialState": "captive", "runtimeImplemented": False},
+                {"name": "Clyde", "color": "orange", "initialState": "captive", "runtimeImplemented": False}
+            ],
             "firstGhostStart": {"x": ghost_start_x, "y": ghost_start_y},
             "appearance": "single-color hardware sprite 1",
             "stationary": False,

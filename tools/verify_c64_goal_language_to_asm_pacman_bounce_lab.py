@@ -511,7 +511,19 @@ def main() -> int:
         return fail("intent must describe F.8 ghost appearance/collision")
     ghosts = intent["ghosts"]
     if ghosts.get("implementedCount") != 1:
-        return fail("F.8 must implement exactly one stationary ghost")
+        return fail("F.11a preserves exactly one implemented moving ghost runtime")
+    if ghosts.get("plannedActorCount") != 4:
+        return fail("F.11a must declare four planned ghost actors")
+    if ghosts.get("activeActorCount") != 1:
+        return fail("F.11a must declare one active implemented ghost actor")
+    if ghosts.get("captiveActorCount") != 3:
+        return fail("F.11a must declare three captive planned ghost actors")
+    if ghosts.get("actorStates") != ["captive", "exiting", "released"]:
+        return fail("F.11a must declare captive/exiting/released ghost states")
+    identities = ghosts.get("ghostIdentities") or []
+    identity_names = [item.get("name") for item in identities if isinstance(item, dict)]
+    if identity_names != ["Blinky", "Pinky", "Inky", "Clyde"]:
+        return fail("F.11a must declare Blinky, Pinky, Inky, and Clyde identities")
     if ghosts.get("stationary") is not False:
         return fail("F.9 ghost must no longer be stationary")
 
