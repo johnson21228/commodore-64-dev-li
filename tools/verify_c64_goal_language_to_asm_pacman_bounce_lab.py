@@ -502,6 +502,23 @@ def main() -> int:
         "ldx ghost_cell_y",
         "ldy ghost_cell_x",
         "jsr update_ghost_movement",
+        "lda #$1f",
+        "position_captive_ghost_sprites:",
+        "PINKY_CAPTIVE_CELL_X",
+        "INKY_CAPTIVE_CELL_X",
+        "CLYDE_CAPTIVE_CELL_X",
+        "sta $d004",
+        "sta $d005",
+        "sta $d006",
+        "sta $d007",
+        "sta $d008",
+        "sta $d009",
+        "sta $07fa",
+        "sta $07fb",
+        "sta $07fc",
+        "sta $d029",
+        "sta $d02a",
+        "sta $d02b",
     ]
     for snippet in required_ghost_snippets:
         if snippet not in asm_text:
@@ -518,12 +535,24 @@ def main() -> int:
         return fail("F.11a must declare one active implemented ghost actor")
     if ghosts.get("captiveActorCount") != 3:
         return fail("F.11a must declare three captive planned ghost actors")
+    if ghosts.get("visibleActorCount") != 4:
+        return fail("F.11b must declare four visible ghost actors")
+    if ghosts.get("captiveVisibleCount") != 3:
+        return fail("F.11b must declare three visible captive ghosts")
+    if ghosts.get("captiveMovementDeferred") is not True:
+        return fail("F.11b must defer captive ghost movement")
+    if ghosts.get("captiveCollisionDeferred") is not True:
+        return fail("F.11b must defer captive ghost collision")
     if ghosts.get("actorStates") != ["captive", "exiting", "released"]:
         return fail("F.11a must declare captive/exiting/released ghost states")
     identities = ghosts.get("ghostIdentities") or []
     identity_names = [item.get("name") for item in identities if isinstance(item, dict)]
     if identity_names != ["Blinky", "Pinky", "Inky", "Clyde"]:
         return fail("F.11a must declare Blinky, Pinky, Inky, and Clyde identities")
+    if [item.get("sprite") for item in identities if isinstance(item, dict)] != [1, 2, 3, 4]:
+        return fail("F.11b must assign ghosts to hardware sprites 1 through 4")
+    if [item.get("visible") for item in identities if isinstance(item, dict)] != [True, True, True, True]:
+        return fail("F.11b must mark all four ghost actors visible")
     if ghosts.get("stationary") is not False:
         return fail("F.9 ghost must no longer be stationary")
 

@@ -133,7 +133,11 @@
     "plannedActorCount": 4,
     "activeActorCount": 1,
     "captiveActorCount": 3,
-    "actorModel": "four persistent ghost actors; one released runtime ghost implemented, three captive actors planned",
+    "actorModel": "four persistent ghost actors; one released runtime ghost implemented, three visible captive actors stationary",
+    "visibleActorCount": 4,
+    "captiveVisibleCount": 3,
+    "captiveMovementDeferred": true,
+    "captiveCollisionDeferred": true,
     "actorStates": [
       "captive",
       "exiting",
@@ -144,32 +148,40 @@
         "name": "Blinky",
         "color": "red",
         "initialState": "released",
-        "runtimeImplemented": true
+        "runtimeImplemented": true,
+        "visible": true,
+        "sprite": 1
       },
       {
         "name": "Pinky",
         "color": "pink",
         "initialState": "captive",
-        "runtimeImplemented": false
+        "runtimeImplemented": false,
+        "visible": true,
+        "sprite": 2
       },
       {
         "name": "Inky",
         "color": "cyan",
         "initialState": "captive",
-        "runtimeImplemented": false
+        "runtimeImplemented": false,
+        "visible": true,
+        "sprite": 3
       },
       {
         "name": "Clyde",
         "color": "orange",
         "initialState": "captive",
-        "runtimeImplemented": false
+        "runtimeImplemented": false,
+        "visible": true,
+        "sprite": 4
       }
     ],
     "firstGhostStart": {
       "x": 13,
       "y": 8
     },
-    "appearance": "single-color hardware sprite 1",
+    "appearance": "single-color hardware sprites 1-4; active Blinky moves, captive Pinky/Inky/Clyde are stationary",
     "stationary": false,
     "currentCellState": true,
     "directionState": true,

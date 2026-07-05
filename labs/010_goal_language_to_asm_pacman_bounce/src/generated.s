@@ -56,6 +56,12 @@ SPRITE_PTR_S_CLOSED = $d7
 SPRITE_PTR_GHOST = $d8
 GHOST_START_CELL_X = $0d
 GHOST_START_CELL_Y = $08
+PINKY_CAPTIVE_CELL_X = $0e
+PINKY_CAPTIVE_CELL_Y = $08
+INKY_CAPTIVE_CELL_X = $0d
+INKY_CAPTIVE_CELL_Y = $09
+CLYDE_CAPTIVE_CELL_X = $0e
+CLYDE_CAPTIVE_CELL_Y = $09
 GHOST_START_DIRECTION = MASK_LEFT
 GHOST_PIXEL_SPEED_TICKS = $04
 START_CELL_X = $0d
@@ -177,7 +183,7 @@ wait_next_frame:
     rts
 
 init_sprite:
-    lda #$03
+    lda #$1f
     sta $d015
     lda #$00
     sta $d017
@@ -189,7 +195,14 @@ init_sprite:
     sta $d027
     lda #$02
     sta $d028
+    lda #$0a
+    sta $d029
+    lda #$03
+    sta $d02a
+    lda #$08
+    sta $d02b
     jsr init_ghost_state
+    jsr position_captive_ghost_sprites
     rts
 
 init_ghost_state:
@@ -239,6 +252,52 @@ update_ghost_sprite_registers:
 ghost_sprite_hi_done:
     lda #SPRITE_PTR_GHOST
     sta $07f9
+    rts
+
+position_captive_ghost_sprites:
+    ldx #PINKY_CAPTIVE_CELL_X
+    lda sprite_x_lo_by_cell,x
+    sta $d004
+    lda sprite_x_hi_by_cell,x
+    beq pinky_x_hi_done
+    lda $d010
+    ora #$04
+    sta $d010
+pinky_x_hi_done:
+    ldx #PINKY_CAPTIVE_CELL_Y
+    lda sprite_y_by_cell,x
+    sta $d005
+
+    ldx #INKY_CAPTIVE_CELL_X
+    lda sprite_x_lo_by_cell,x
+    sta $d006
+    lda sprite_x_hi_by_cell,x
+    beq inky_x_hi_done
+    lda $d010
+    ora #$08
+    sta $d010
+inky_x_hi_done:
+    ldx #INKY_CAPTIVE_CELL_Y
+    lda sprite_y_by_cell,x
+    sta $d007
+
+    ldx #CLYDE_CAPTIVE_CELL_X
+    lda sprite_x_lo_by_cell,x
+    sta $d008
+    lda sprite_x_hi_by_cell,x
+    beq clyde_x_hi_done
+    lda $d010
+    ora #$10
+    sta $d010
+clyde_x_hi_done:
+    ldx #CLYDE_CAPTIVE_CELL_Y
+    lda sprite_y_by_cell,x
+    sta $d009
+
+    lda #SPRITE_PTR_GHOST
+    sta $07fa
+    sta $07fb
+    sta $07fc
     rts
 
 reset_ghost_to_start:
