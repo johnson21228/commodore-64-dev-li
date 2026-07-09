@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "program": "labs/011_goal_language_to_asm_blockout_renderer/dist/p02_domino_top_endpoint_preview.prg",
+  "mode": "P02_DOMINO top-level endpoint preview",
+  "sourceReport": "labs/011_goal_language_to_asm_blockout_renderer/dist/pieces/P02_DOMINO.endpoint_payload_report.json",
+  "selectedPose": {
+    "pieceId": "P02_DOMINO",
+    "rotationId": "x_axis",
+    "x": 1,
+    "y": 2,
+    "z": 0,
+    "occupiedCells": [
+      [
+        1,
+        2,
+        0
+      ],
+      [
+        2,
+        2,
+        0
+      ]
+    ],
+    "projectedLineSegmentCount": 20
+  },
+  "colors": {
+    "pitForeground": "green",
+    "activeBlockForeground": "white",
+    "background": "black",
+    "note": "C64 hi-res bitmap color is cell-based; active-block cells use white foreground."
+  },
+  "memoryLayout": {
+    "loadAddress": "0x801",
+    "sysAddress": "0x80d",
+    "vicBank": 1,
+    "screenAddress": "0x4400",
+    "bitmapAddress": "0x6000"
+  },
+  "pitLineSegments": 56,
+  "pitTouchedCells": 448,
+  "blockTouchedCells": 51,
+  "prgBytes": 30719,
+  "runtimeLineDrawing": false,
+  "previewOnly": true
+}

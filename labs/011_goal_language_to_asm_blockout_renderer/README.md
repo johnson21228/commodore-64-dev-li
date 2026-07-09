@@ -369,3 +369,21 @@ Generated artifact:
 Verifier:
 
 - `tools/verify_blockout_p02_domino_endpoint_payload_report.py`
+
+## P02_DOMINO top-level endpoint preview
+
+The first endpoint/topology visual proof draws a single dynamic block pose:
+
+- `P02_DOMINO`
+- `x_axis`
+- `x=1, y=2, z=0`
+- top level
+- white outline over the green pit
+- preview only, no movement or dirty restore yet
+
+Build:
+
+```bash
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p02_domino_top_endpoint_preview_prg.py
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p02_domino_top_endpoint_preview_prg.py
+```
