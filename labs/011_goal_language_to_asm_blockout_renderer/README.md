@@ -542,3 +542,23 @@ result: CONFLICT
 ```
 
 Next move: compact endpoint/line-command payloads with a small runtime line drawer.
+
+## P04_L true-axis endpoint payload report
+
+This report evaluates the compact payload replacement for the failed full-bitmap true-axis preview.
+
+It keeps:
+
+- A/Q: x-axis rotation;
+- S/W: y-axis rotation;
+- D/E: z-axis rotation;
+- block above / at the pit opening.
+
+It replaces full bitmap records with endpoint/line-command records.
+
+Build:
+
+```bash
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/generate_p04_l_true_axis_endpoint_payload_report.py
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p04_l_true_axis_endpoint_payload_report.py
+```
