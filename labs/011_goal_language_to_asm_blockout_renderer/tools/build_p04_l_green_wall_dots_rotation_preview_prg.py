@@ -76,7 +76,7 @@ def green_wall_dot_records(base) -> tuple[dict[int, int], set[int]]:
                 if not on_wall_boundary:
                     continue
                 px, py = base.project_vertex((x, y, z))
-                draw_dot(records, touched, px, py, radius=1)
+                draw_dot(records, touched, px, py, radius=0)
 
     return records, touched
 
@@ -368,7 +368,7 @@ def main():
         "program":str(OUT_PRG),
         "pieceId":"P04_L",
         "mode":"P04_L green wall-dot pit with white active-block cells",
-        "pitStyle":"green dots at projected side-wall/opening boundary intersections only",
+        "pitStyle":"single-pixel green dots at projected side-wall/opening boundary intersections only",
         "floorDots":False,
         "colorStrategy":"screen cells default green; active-block touched cells are set to white",
         "knownArtifact":"Any green pit dot in an active-block touched 8x8 cell will still become white; this preview reduces collisions by using sparse wall dots only.",

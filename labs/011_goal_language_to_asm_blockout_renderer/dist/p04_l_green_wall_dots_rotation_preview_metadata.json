@@ -3,7 +3,7 @@
   "program": "labs/011_goal_language_to_asm_blockout_renderer/dist/p04_l_green_wall_dots_rotation_preview.prg",
   "pieceId": "P04_L",
   "mode": "P04_L green wall-dot pit with white active-block cells",
-  "pitStyle": "green dots at projected side-wall/opening boundary intersections only",
+  "pitStyle": "single-pixel green dots at projected side-wall/opening boundary intersections only",
   "floorDots": false,
   "colorStrategy": "screen cells default green; active-block touched cells are set to white",
   "knownArtifact": "Any green pit dot in an active-block touched 8x8 cell will still become white; this preview reduces collisions by using sparse wall dots only.",
@@ -37,7 +37,7 @@
           0
         ]
       ],
-      "bitmapRecordCount": 941,
+      "bitmapRecordCount": 652,
       "whiteScreenCellCount": 97
     },
     "1": {
@@ -64,7 +64,7 @@
           0
         ]
       ],
-      "bitmapRecordCount": 978,
+      "bitmapRecordCount": 699,
       "whiteScreenCellCount": 98
     },
     "2": {
@@ -91,7 +91,7 @@
           0
         ]
       ],
-      "bitmapRecordCount": 937,
+      "bitmapRecordCount": 648,
       "whiteScreenCellCount": 99
     },
     "3": {
@@ -118,11 +118,11 @@
           0
         ]
       ],
-      "bitmapRecordCount": 987,
+      "bitmapRecordCount": 707,
       "whiteScreenCellCount": 100
     }
   },
-  "pitTouchedCells": 182,
+  "pitTouchedCells": 140,
   "prgBytes": 30719,
   "runtimeKeyboard": true,
   "runtimeStatefulRotation": true,
