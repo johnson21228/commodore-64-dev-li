@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "manifestType": "blockout_piece_payload_manifest",
+  "pieces": [
+    {
+      "pieceId": "P02_DOMINO",
+      "rawByteMaskReport": "pieces/P02_DOMINO.payload_report.json",
+      "endpointPayloadReport": "pieces/P02_DOMINO.endpoint_payload_report.json",
+      "binaryPayload": null,
+      "includedRotations": [
+        "x_axis",
+        "y_axis"
+      ],
+      "excludedRotations": [
+        "z_axis"
+      ],
+      "poseCount": 400,
+      "estimatedTotalPayloadBytes": 265108,
+      "rawByteMaskEstimatedBytes": 265108,
+      "estimatedEndpointPayloadBytes": 38752,
+      "estimatedGridReferencePayloadBytes": 26400,
+      "endpointDecisionClassification": "WATCH",
+      "gridReferenceDecisionClassification": "WATCH"
+    }
+  ]
+}

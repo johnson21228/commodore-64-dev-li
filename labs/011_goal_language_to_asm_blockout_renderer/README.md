@@ -351,3 +351,21 @@ Generated artifacts:
 Verifier:
 
 - `tools/verify_blockout_p02_domino_payload_report.py`
+
+## P02_DOMINO endpoint payload report
+
+The raw byte/mask payload report was too large for the lean active-payload model.
+
+The endpoint/topology report compares:
+
+- projected endpoint segment records;
+- grid-reference records;
+- the prior raw byte/mask estimate.
+
+Generated artifact:
+
+- `dist/pieces/P02_DOMINO.endpoint_payload_report.json`
+
+Verifier:
+
+- `tools/verify_blockout_p02_domino_endpoint_payload_report.py`
