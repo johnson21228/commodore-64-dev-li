@@ -1,0 +1,1032 @@
+{
+  "schemaVersion": 1,
+  "pieceId": "P04_L",
+  "reportType": "sprite feasibility",
+  "sourcePiece": {
+    "pieceId": "P04_L",
+    "canonicalCubes": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        2,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0
+      ]
+    ],
+    "description": "Four-cube long L from blockout_piece_source.json"
+  },
+  "hardwareFacts": {
+    "standardSpriteWidthPixels": 24,
+    "standardSpriteHeightPixels": 21,
+    "standardSpriteBytes": 64,
+    "hardwareSpritesAvailable": 8,
+    "activeBlockTargetColor": "white",
+    "pitTargetLayer": "green bitmap/static layer"
+  },
+  "summary": {
+    "poseCount": 4,
+    "maxOccupiedSpriteTilesPerPose": 27,
+    "maxRectangularGridSpriteTilesPerPose": 35,
+    "classificationOccupiedOnly": "CONFLICT",
+    "classificationRectangularGrid": "CONFLICT",
+    "maxOccupiedOnlySpriteBytesPerPose": 1728,
+    "maxRectangularGridSpriteBytesPerPose": 2240,
+    "recommendation": "Use sprite overlay for active block as a serious next experiment. Start with full-pose sprite tiles, not edge-per-sprite. Then evaluate reusable line/corner motif sprites after seeing tile-mask repetition."
+  },
+  "primitiveReuseAssessment": {
+    "canRepeatSpritesForLongStraightStretches": true,
+    "repeatSpriteUse": "Possible for repeated horizontal/vertical/near-axis strokes if projected edges are quantized into reusable 24x21 line fragments.",
+    "cornerSprites": "Possible for common elbow/junction/corner motifs, but perspective projection creates multiple slopes and lengths.",
+    "recommendedFirstApproach": "Tile each full active-block pose into sprite masks first; then mine repeated tile masks and line/corner motifs.",
+    "whyNotOneSpritePerCubeEdge": "A cube has 12 edges and a multi-cube block has many exposed/projected edges. The C64 only has 8 hardware sprites, so edge-per-sprite is over budget immediately.",
+    "betterMentalModel": "Sprites are white overlay tiles covering occupied screen regions, not semantic cube-edge objects."
+  },
+  "poses": [
+    {
+      "stateId": "z_rotation_000",
+      "occupiedCells": [
+        [
+          1,
+          1,
+          0
+        ],
+        [
+          2,
+          1,
+          0
+        ],
+        [
+          3,
+          1,
+          0
+        ],
+        [
+          1,
+          2,
+          0
+        ]
+      ],
+      "boundingBox": {
+        "minX": 69,
+        "minY": 41,
+        "maxX": 187,
+        "maxY": 120,
+        "width": 119,
+        "height": 80
+      },
+      "pixels": 987,
+      "segmentAnalysis": {
+        "segmentCount": 36,
+        "slopeBuckets": {
+          "vertical": 12,
+          "diagonal_positive": 8,
+          "horizontal": 14,
+          "diagonal_negative": 2
+        },
+        "minLength": 7.07,
+        "maxLength": 40.0,
+        "avgLength": 28.82
+      },
+      "spriteTileCoverage": {
+        "anchorX": 48,
+        "anchorY": 21,
+        "cols": 6,
+        "rows": 5,
+        "occupiedTileCount": 27,
+        "rectangularTileCount": 30,
+        "uniqueTileMaskCount": 24,
+        "occupiedTiles": [
+          {
+            "tileX": 0,
+            "tileY": 0,
+            "spriteX": 48,
+            "spriteY": 21,
+            "pixelCount": 3
+          },
+          {
+            "tileX": 0,
+            "tileY": 1,
+            "spriteX": 48,
+            "spriteY": 42,
+            "pixelCount": 23
+          },
+          {
+            "tileX": 0,
+            "tileY": 2,
+            "spriteX": 48,
+            "spriteY": 63,
+            "pixelCount": 24
+          },
+          {
+            "tileX": 0,
+            "tileY": 3,
+            "spriteX": 48,
+            "spriteY": 84,
+            "pixelCount": 21
+          },
+          {
+            "tileX": 0,
+            "tileY": 4,
+            "spriteX": 48,
+            "spriteY": 105,
+            "pixelCount": 19
+          },
+          {
+            "tileX": 1,
+            "tileY": 0,
+            "spriteX": 72,
+            "spriteY": 21,
+            "pixelCount": 24
+          },
+          {
+            "tileX": 1,
+            "tileY": 1,
+            "spriteX": 72,
+            "spriteY": 42,
+            "pixelCount": 32
+          },
+          {
+            "tileX": 1,
+            "tileY": 2,
+            "spriteX": 72,
+            "spriteY": 63,
+            "pixelCount": 51
+          },
+          {
+            "tileX": 1,
+            "tileY": 3,
+            "spriteX": 72,
+            "spriteY": 84,
+            "pixelCount": 37
+          },
+          {
+            "tileX": 1,
+            "tileY": 4,
+            "spriteX": 72,
+            "spriteY": 105,
+            "pixelCount": 58
+          },
+          {
+            "tileX": 2,
+            "tileY": 0,
+            "spriteX": 96,
+            "spriteY": 21,
+            "pixelCount": 24
+          },
+          {
+            "tileX": 2,
+            "tileY": 1,
+            "spriteX": 96,
+            "spriteY": 42,
+            "pixelCount": 63
+          },
+          {
+            "tileX": 2,
+            "tileY": 2,
+            "spriteX": 96,
+            "spriteY": 63,
+            "pixelCount": 67
+          },
+          {
+            "tileX": 2,
+            "tileY": 3,
+            "spriteX": 96,
+            "spriteY": 84,
+            "pixelCount": 65
+          },
+          {
+            "tileX": 2,
+            "tileY": 4,
+            "spriteX": 96,
+            "spriteY": 105,
+            "pixelCount": 59
+          },
+          {
+            "tileX": 3,
+            "tileY": 0,
+            "spriteX": 120,
+            "spriteY": 21,
+            "pixelCount": 24
+          },
+          {
+            "tileX": 3,
+            "tileY": 1,
+            "spriteX": 120,
+            "spriteY": 42,
+            "pixelCount": 33
+          },
+          {
+            "tileX": 3,
+            "tileY": 2,
+            "spriteX": 120,
+            "spriteY": 63,
+            "pixelCount": 44
+          },
+          {
+            "tileX": 3,
+            "tileY": 3,
+            "spriteX": 120,
+            "spriteY": 84,
+            "pixelCount": 25
+          },
+          {
+            "tileX": 4,
+            "tileY": 0,
+            "spriteX": 144,
+            "spriteY": 21,
+            "pixelCount": 24
+          },
+          {
+            "tileX": 4,
+            "tileY": 1,
+            "spriteX": 144,
+            "spriteY": 42,
+            "pixelCount": 54
+          },
+          {
+            "tileX": 4,
+            "tileY": 2,
+            "spriteX": 144,
+            "spriteY": 63,
+            "pixelCount": 44
+          },
+          {
+            "tileX": 4,
+            "tileY": 3,
+            "spriteX": 144,
+            "spriteY": 84,
+            "pixelCount": 25
+          },
+          {
+            "tileX": 5,
+            "tileY": 0,
+            "spriteX": 168,
+            "spriteY": 21,
+            "pixelCount": 20
+          },
+          {
+            "tileX": 5,
+            "tileY": 1,
+            "spriteX": 168,
+            "spriteY": 42,
+            "pixelCount": 48
+          },
+          {
+            "tileX": 5,
+            "tileY": 2,
+            "spriteX": 168,
+            "spriteY": 63,
+            "pixelCount": 65
+          },
+          {
+            "tileX": 5,
+            "tileY": 3,
+            "spriteX": 168,
+            "spriteY": 84,
+            "pixelCount": 11
+          }
+        ]
+      },
+      "classificationByOccupiedTiles": "CONFLICT",
+      "classificationByRectangularGrid": "CONFLICT",
+      "estimatedSpriteBytesOccupiedOnly": 1728,
+      "estimatedSpriteBytesRectangularGrid": 1920
+    },
+    {
+      "stateId": "z_rotation_090",
+      "occupiedCells": [
+        [
+          3,
+          1,
+          0
+        ],
+        [
+          3,
+          2,
+          0
+        ],
+        [
+          3,
+          3,
+          0
+        ],
+        [
+          2,
+          1,
+          0
+        ]
+      ],
+      "boundingBox": {
+        "minX": 108,
+        "minY": 41,
+        "maxX": 187,
+        "maxY": 159,
+        "width": 80,
+        "height": 119
+      },
+      "pixels": 987,
+      "segmentAnalysis": {
+        "segmentCount": 36,
+        "slopeBuckets": {
+          "vertical": 14,
+          "diagonal_positive": 6,
+          "horizontal": 12,
+          "diagonal_negative": 4
+        },
+        "minLength": 7.07,
+        "maxLength": 40.0,
+        "avgLength": 28.82
+      },
+      "spriteTileCoverage": {
+        "anchorX": 96,
+        "anchorY": 21,
+        "cols": 4,
+        "rows": 7,
+        "occupiedTileCount": 25,
+        "rectangularTileCount": 28,
+        "uniqueTileMaskCount": 23,
+        "occupiedTiles": [
+          {
+            "tileX": 0,
+            "tileY": 0,
+            "spriteX": 96,
+            "spriteY": 21,
+            "pixelCount": 12
+          },
+          {
+            "tileX": 0,
+            "tileY": 1,
+            "spriteX": 96,
+            "spriteY": 42,
+            "pixelCount": 47
+          },
+          {
+            "tileX": 0,
+            "tileY": 2,
+            "spriteX": 96,
+            "spriteY": 63,
+            "pixelCount": 52
+          },
+          {
+            "tileX": 0,
+            "tileY": 3,
+            "spriteX": 96,
+            "spriteY": 84,
+            "pixelCount": 9
+          },
+          {
+            "tileX": 1,
+            "tileY": 0,
+            "spriteX": 120,
+            "spriteY": 21,
+            "pixelCount": 24
+          },
+          {
+            "tileX": 1,
+            "tileY": 1,
+            "spriteX": 120,
+            "spriteY": 42,
+            "pixelCount": 33
+          },
+          {
+            "tileX": 1,
+            "tileY": 2,
+            "spriteX": 120,
+            "spriteY": 63,
+            "pixelCount": 44
+          },
+          {
+            "tileX": 1,
+            "tileY": 3,
+            "spriteX": 120,
+            "spriteY": 84,
+            "pixelCount": 44
+          },
+          {
+            "tileX": 1,
+            "tileY": 4,
+            "spriteX": 120,
+            "spriteY": 105,
+            "pixelCount": 21
+          },
+          {
+            "tileX": 1,
+            "tileY": 5,
+            "spriteX": 120,
+            "spriteY": 126,
+            "pixelCount": 21
+          },
+          {
+            "tileX": 1,
+            "tileY": 6,
+            "spriteX": 120,
+            "spriteY": 147,
+            "pixelCount": 1
+          },
+          {
+            "tileX": 2,
+            "tileY": 0,
+            "spriteX": 144,
+            "spriteY": 21,
+            "pixelCount": 24
+          },
+          {
+            "tileX": 2,
+            "tileY": 1,
+            "spriteX": 144,
+            "spriteY": 42,
+            "pixelCount": 54
+          },
+          {
+            "tileX": 2,
+            "tileY": 2,
+            "spriteX": 144,
+            "spriteY": 63,
+            "pixelCount": 47
+          },
+          {
+            "tileX": 2,
+            "tileY": 3,
+            "spriteX": 144,
+            "spriteY": 84,
+            "pixelCount": 45
+          },
+          {
+            "tileX": 2,
+            "tileY": 4,
+            "spriteX": 144,
+            "spriteY": 105,
+            "pixelCount": 67
+          },
+          {
+            "tileX": 2,
+            "tileY": 5,
+            "spriteX": 144,
+            "spriteY": 126,
+            "pixelCount": 44
+          },
+          {
+            "tileX": 2,
+            "tileY": 6,
+            "spriteX": 144,
+            "spriteY": 147,
+            "pixelCount": 42
+          },
+          {
+            "tileX": 3,
+            "tileY": 0,
+            "spriteX": 168,
+            "spriteY": 21,
+            "pixelCount": 20
+          },
+          {
+            "tileX": 3,
+            "tileY": 1,
+            "spriteX": 168,
+            "spriteY": 42,
+            "pixelCount": 48
+          },
+          {
+            "tileX": 3,
+            "tileY": 2,
+            "spriteX": 168,
+            "spriteY": 63,
+            "pixelCount": 68
+          },
+          {
+            "tileX": 3,
+            "tileY": 3,
+            "spriteX": 168,
+            "spriteY": 84,
+            "pixelCount": 51
+          },
+          {
+            "tileX": 3,
+            "tileY": 4,
+            "spriteX": 168,
+            "spriteY": 105,
+            "pixelCount": 77
+          },
+          {
+            "tileX": 3,
+            "tileY": 5,
+            "spriteX": 168,
+            "spriteY": 126,
+            "pixelCount": 48
+          },
+          {
+            "tileX": 3,
+            "tileY": 6,
+            "spriteX": 168,
+            "spriteY": 147,
+            "pixelCount": 44
+          }
+        ]
+      },
+      "classificationByOccupiedTiles": "CONFLICT",
+      "classificationByRectangularGrid": "CONFLICT",
+      "estimatedSpriteBytesOccupiedOnly": 1600,
+      "estimatedSpriteBytesRectangularGrid": 1792
+    },
+    {
+      "stateId": "z_rotation_180",
+      "occupiedCells": [
+        [
+          1,
+          3,
+          0
+        ],
+        [
+          2,
+          3,
+          0
+        ],
+        [
+          3,
+          3,
+          0
+        ],
+        [
+          3,
+          2,
+          0
+        ]
+      ],
+      "boundingBox": {
+        "minX": 69,
+        "minY": 80,
+        "maxX": 187,
+        "maxY": 159,
+        "width": 119,
+        "height": 80
+      },
+      "pixels": 987,
+      "segmentAnalysis": {
+        "segmentCount": 36,
+        "slopeBuckets": {
+          "vertical": 12,
+          "diagonal_negative": 8,
+          "horizontal": 14,
+          "diagonal_positive": 2
+        },
+        "minLength": 7.07,
+        "maxLength": 40.0,
+        "avgLength": 28.82
+      },
+      "spriteTileCoverage": {
+        "anchorX": 48,
+        "anchorY": 63,
+        "cols": 6,
+        "rows": 5,
+        "occupiedTileCount": 23,
+        "rectangularTileCount": 30,
+        "uniqueTileMaskCount": 23,
+        "occupiedTiles": [
+          {
+            "tileX": 0,
+            "tileY": 2,
+            "spriteX": 48,
+            "spriteY": 105,
+            "pixelCount": 9
+          },
+          {
+            "tileX": 0,
+            "tileY": 3,
+            "spriteX": 48,
+            "spriteY": 126,
+            "pixelCount": 21
+          },
+          {
+            "tileX": 0,
+            "tileY": 4,
+            "spriteX": 48,
+            "spriteY": 147,
+            "pixelCount": 17
+          },
+          {
+            "tileX": 1,
+            "tileY": 2,
+            "spriteX": 72,
+            "spriteY": 105,
+            "pixelCount": 57
+          },
+          {
+            "tileX": 1,
+            "tileY": 3,
+            "spriteX": 72,
+            "spriteY": 126,
+            "pixelCount": 34
+          },
+          {
+            "tileX": 1,
+            "tileY": 4,
+            "spriteX": 72,
+            "spriteY": 147,
+            "pixelCount": 34
+          },
+          {
+            "tileX": 2,
+            "tileY": 2,
+            "spriteX": 96,
+            "spriteY": 105,
+            "pixelCount": 66
+          },
+          {
+            "tileX": 2,
+            "tileY": 3,
+            "spriteX": 96,
+            "spriteY": 126,
+            "pixelCount": 64
+          },
+          {
+            "tileX": 2,
+            "tileY": 4,
+            "spriteX": 96,
+            "spriteY": 147,
+            "pixelCount": 47
+          },
+          {
+            "tileX": 3,
+            "tileY": 1,
+            "spriteX": 120,
+            "spriteY": 84,
+            "pixelCount": 20
+          },
+          {
+            "tileX": 3,
+            "tileY": 2,
+            "spriteX": 120,
+            "spriteY": 105,
+            "pixelCount": 67
+          },
+          {
+            "tileX": 3,
+            "tileY": 3,
+            "spriteX": 120,
+            "spriteY": 126,
+            "pixelCount": 44
+          },
+          {
+            "tileX": 3,
+            "tileY": 4,
+            "spriteX": 120,
+            "spriteY": 147,
+            "pixelCount": 25
+          },
+          {
+            "tileX": 4,
+            "tileY": 0,
+            "spriteX": 144,
+            "spriteY": 63,
+            "pixelCount": 26
+          },
+          {
+            "tileX": 4,
+            "tileY": 1,
+            "spriteX": 144,
+            "spriteY": 84,
+            "pixelCount": 45
+          },
+          {
+            "tileX": 4,
+            "tileY": 2,
+            "spriteX": 144,
+            "spriteY": 105,
+            "pixelCount": 71
+          },
+          {
+            "tileX": 4,
+            "tileY": 3,
+            "spriteX": 144,
+            "spriteY": 126,
+            "pixelCount": 44
+          },
+          {
+            "tileX": 4,
+            "tileY": 4,
+            "spriteX": 144,
+            "spriteY": 147,
+            "pixelCount": 46
+          },
+          {
+            "tileX": 5,
+            "tileY": 0,
+            "spriteX": 168,
+            "spriteY": 63,
+            "pixelCount": 31
+          },
+          {
+            "tileX": 5,
+            "tileY": 1,
+            "spriteX": 168,
+            "spriteY": 84,
+            "pixelCount": 50
+          },
+          {
+            "tileX": 5,
+            "tileY": 2,
+            "spriteX": 168,
+            "spriteY": 105,
+            "pixelCount": 77
+          },
+          {
+            "tileX": 5,
+            "tileY": 3,
+            "spriteX": 168,
+            "spriteY": 126,
+            "pixelCount": 48
+          },
+          {
+            "tileX": 5,
+            "tileY": 4,
+            "spriteX": 168,
+            "spriteY": 147,
+            "pixelCount": 44
+          }
+        ]
+      },
+      "classificationByOccupiedTiles": "CONFLICT",
+      "classificationByRectangularGrid": "CONFLICT",
+      "estimatedSpriteBytesOccupiedOnly": 1472,
+      "estimatedSpriteBytesRectangularGrid": 1920
+    },
+    {
+      "stateId": "z_rotation_270",
+      "occupiedCells": [
+        [
+          1,
+          1,
+          0
+        ],
+        [
+          1,
+          2,
+          0
+        ],
+        [
+          1,
+          3,
+          0
+        ],
+        [
+          2,
+          3,
+          0
+        ]
+      ],
+      "boundingBox": {
+        "minX": 69,
+        "minY": 41,
+        "maxX": 148,
+        "maxY": 159,
+        "width": 80,
+        "height": 119
+      },
+      "pixels": 987,
+      "segmentAnalysis": {
+        "segmentCount": 36,
+        "slopeBuckets": {
+          "vertical": 14,
+          "diagonal_positive": 4,
+          "horizontal": 12,
+          "diagonal_negative": 6
+        },
+        "minLength": 7.07,
+        "maxLength": 40.0,
+        "avgLength": 28.82
+      },
+      "spriteTileCoverage": {
+        "anchorX": 48,
+        "anchorY": 21,
+        "cols": 5,
+        "rows": 7,
+        "occupiedTileCount": 27,
+        "rectangularTileCount": 35,
+        "uniqueTileMaskCount": 26,
+        "occupiedTiles": [
+          {
+            "tileX": 0,
+            "tileY": 0,
+            "spriteX": 48,
+            "spriteY": 21,
+            "pixelCount": 3
+          },
+          {
+            "tileX": 0,
+            "tileY": 1,
+            "spriteX": 48,
+            "spriteY": 42,
+            "pixelCount": 23
+          },
+          {
+            "tileX": 0,
+            "tileY": 2,
+            "spriteX": 48,
+            "spriteY": 63,
+            "pixelCount": 24
+          },
+          {
+            "tileX": 0,
+            "tileY": 3,
+            "spriteX": 48,
+            "spriteY": 84,
+            "pixelCount": 21
+          },
+          {
+            "tileX": 0,
+            "tileY": 4,
+            "spriteX": 48,
+            "spriteY": 105,
+            "pixelCount": 24
+          },
+          {
+            "tileX": 0,
+            "tileY": 5,
+            "spriteX": 48,
+            "spriteY": 126,
+            "pixelCount": 21
+          },
+          {
+            "tileX": 0,
+            "tileY": 6,
+            "spriteX": 48,
+            "spriteY": 147,
+            "pixelCount": 17
+          },
+          {
+            "tileX": 1,
+            "tileY": 0,
+            "spriteX": 72,
+            "spriteY": 21,
+            "pixelCount": 24
+          },
+          {
+            "tileX": 1,
+            "tileY": 1,
+            "spriteX": 72,
+            "spriteY": 42,
+            "pixelCount": 32
+          },
+          {
+            "tileX": 1,
+            "tileY": 2,
+            "spriteX": 72,
+            "spriteY": 63,
+            "pixelCount": 51
+          },
+          {
+            "tileX": 1,
+            "tileY": 3,
+            "spriteX": 72,
+            "spriteY": 84,
+            "pixelCount": 37
+          },
+          {
+            "tileX": 1,
+            "tileY": 4,
+            "spriteX": 72,
+            "spriteY": 105,
+            "pixelCount": 67
+          },
+          {
+            "tileX": 1,
+            "tileY": 5,
+            "spriteX": 72,
+            "spriteY": 126,
+            "pixelCount": 34
+          },
+          {
+            "tileX": 1,
+            "tileY": 6,
+            "spriteX": 72,
+            "spriteY": 147,
+            "pixelCount": 34
+          },
+          {
+            "tileX": 2,
+            "tileY": 0,
+            "spriteX": 96,
+            "spriteY": 21,
+            "pixelCount": 13
+          },
+          {
+            "tileX": 2,
+            "tileY": 1,
+            "spriteX": 96,
+            "spriteY": 42,
+            "pixelCount": 57
+          },
+          {
+            "tileX": 2,
+            "tileY": 2,
+            "spriteX": 96,
+            "spriteY": 63,
+            "pixelCount": 57
+          },
+          {
+            "tileX": 2,
+            "tileY": 3,
+            "spriteX": 96,
+            "spriteY": 84,
+            "pixelCount": 59
+          },
+          {
+            "tileX": 2,
+            "tileY": 4,
+            "spriteX": 96,
+            "spriteY": 105,
+            "pixelCount": 90
+          },
+          {
+            "tileX": 2,
+            "tileY": 5,
+            "spriteX": 96,
+            "spriteY": 126,
+            "pixelCount": 64
+          },
+          {
+            "tileX": 2,
+            "tileY": 6,
+            "spriteX": 96,
+            "spriteY": 147,
+            "pixelCount": 47
+          },
+          {
+            "tileX": 3,
+            "tileY": 4,
+            "spriteX": 120,
+            "spriteY": 105,
+            "pixelCount": 57
+          },
+          {
+            "tileX": 3,
+            "tileY": 5,
+            "spriteX": 120,
+            "spriteY": 126,
+            "pixelCount": 44
+          },
+          {
+            "tileX": 3,
+            "tileY": 6,
+            "spriteX": 120,
+            "spriteY": 147,
+            "pixelCount": 25
+          },
+          {
+            "tileX": 4,
+            "tileY": 4,
+            "spriteX": 144,
+            "spriteY": 105,
+            "pixelCount": 14
+          },
+          {
+            "tileX": 4,
+            "tileY": 5,
+            "spriteX": 144,
+            "spriteY": 126,
+            "pixelCount": 21
+          },
+          {
+            "tileX": 4,
+            "tileY": 6,
+            "spriteX": 144,
+            "spriteY": 147,
+            "pixelCount": 27
+          }
+        ]
+      },
+      "classificationByOccupiedTiles": "CONFLICT",
+      "classificationByRectangularGrid": "CONFLICT",
+      "estimatedSpriteBytesOccupiedOnly": 1728,
+      "estimatedSpriteBytesRectangularGrid": 2240
+    }
+  ],
+  "nextExperiment": {
+    "name": "green pit bitmap plus white P04_L sprite overlay",
+    "goal": "Avoid hi-res bitmap 8x8 color-cell contamination and remove active block full-screen redraw.",
+    "firstRuntimeScope": [
+      "draw green pit once in bitmap",
+      "load one P04_L sprite-tile pose",
+      "enable white sprites",
+      "swap sprite payloads on rotation keys"
+    ],
+    "knownRisks": [
+      "If a pose needs more than 8 sprite tiles, it exceeds hardware sprite count without multiplexing or smaller projection.",
+      "Sprite X positions beyond 255 require the VIC sprite X high-bit register.",
+      "Repeated line/corner primitives need quantization before they become reliable."
+    ]
+  }
+}

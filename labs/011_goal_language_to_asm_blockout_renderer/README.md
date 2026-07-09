@@ -458,3 +458,26 @@ Build:
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p04_l_rotation_cycle_preview_prg.py
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p04_l_rotation_cycle_preview_prg.py
 ```
+
+## P04_L sprite feasibility report
+
+This report evaluates whether the active `P04_L` block can be drawn as white sprites over a green bitmap pit.
+
+It measures each visible rotation state against standard C64 sprite limits:
+
+- 24x21 pixels;
+- 64 bytes per sprite;
+- eight hardware sprites.
+
+It also records the reuse hypothesis:
+
+- repeated sprite motifs may work for long straight stretches;
+- reusable corner sprites may work for corner/junction motifs;
+- first proof should tile the complete active-block mask, not use one sprite per cube edge.
+
+Build:
+
+```bash
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/generate_p04_l_sprite_feasibility_report.py
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p04_l_sprite_feasibility_report.py
+```
