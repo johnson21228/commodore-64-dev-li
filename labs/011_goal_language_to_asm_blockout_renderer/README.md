@@ -609,3 +609,27 @@ python3 labs/011_goal_language_to_asm_blockout_renderer/tools/generate_p04_l_tru
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p04_l_true_axis_endpoint_3x3_pit_preview_prg.py
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p04_l_true_axis_endpoint_3x3_pit_preview_prg.py
 ```
+
+## P03_ELBOW true-axis endpoint 3x3 green-line pit preview
+
+This preview switches to a maximum-width-2 three-cube L block in a 3x3x10 pit.
+
+Controls:
+
+- A/Q rotate about x;
+- S/W rotate about y;
+- D/E rotate about z.
+
+Rendering:
+
+- pit: green projected side-wall/opening grid lines;
+- floor: no interior floor grid;
+- active block: endpoint-drawn white outline.
+
+Build:
+
+```bash
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/generate_p03_elbow_true_axis_endpoint_3x3_pit_payload_report.py
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p03_elbow_true_axis_endpoint_3x3_green_line_pit_preview_prg.py
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p03_elbow_true_axis_endpoint_3x3_green_line_pit_preview_prg.py
+```

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "program": "labs/011_goal_language_to_asm_blockout_renderer/dist/p03_elbow_true_axis_endpoint_3x3_green_line_pit_preview.prg",
+  "pieceId": "P03_ELBOW",
+  "mode": "P03_ELBOW true-axis endpoint 3x3 green-line pit preview",
+  "shortcutRemoved": true,
+  "abovePit": true,
+  "pitDimensions": {
+    "widthCells": 3,
+    "heightCells": 3,
+    "depthCells": 10
+  },
+  "maxBlockFootprintWidth": 2,
+  "axisControls": {
+    "A": "+x",
+    "Q": "-x",
+    "S": "+y",
+    "W": "-y",
+    "D": "+z",
+    "E": "-z"
+  },
+  "orientationCount": 12,
+  "payloadSource": "labs/011_goal_language_to_asm_blockout_renderer/dist/pieces/P03_ELBOW.true_axis_endpoint_3x3_green_line_pit_payload_report.json",
+  "endpointPayloadClassification": "PATCH",
+  "estimatedEndpointPayloadBytes": 1492,
+  "runtimeLineDrawing": true,
+  "runtimeTruth": "C64 runtime performs key-driven orientation table lookup and draws P03_ELBOW endpoint line commands over a green 3x3x10 pit.",
+  "pitStyle": "3x3x10 green projected side-wall/opening grid lines; no interior floor grid",
+  "floorDots": false,
+  "floorLines": false,
+  "colorStrategy": "screen cells default green; active line pixels set their 8x8 cells white",
+  "knownArtifact": "Any green pit dot in an active-line 8x8 cell becomes white; sparse wall dots reduce collisions.",
+  "sizes": {
+    "codeBytes": 764,
+    "payloadBytes": 1356,
+    "transitionBytes": 72,
+    "pitRecordBytes": 3945,
+    "lookupTableBytes": 1824,
+    "programUsedBytes": 8006,
+    "availablePrgImageBytes": 30717
+  },
+  "prgBytes": 30719,
+  "runtimeKeyboard": true,
+  "runtimeStatefulRotation": true,
+  "previewOnly": true
+}
