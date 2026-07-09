@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="90" height="82" viewBox="0 0 90 82" role="img" aria-labelledby="title desc">
+  <title id="title">Lab 011 off-side solid red cube proof</title>
+  <desc id="desc">A top-down perspective pit with a solid red shaded cube face proof.</desc>
+  <style>
+    .bg { fill: #11131a; }
+    .pit_top { stroke: #f7d85c; stroke-width: 1.6; opacity: 0.85; vector-effect: non-scaling-stroke; }
+    .pit_side { stroke: #66d9ef; stroke-width: 1.1; opacity: 0.55; vector-effect: non-scaling-stroke; }
+    .pit_depth { stroke: #ff7a7a; stroke-width: 1.2; opacity: 0.75; vector-effect: non-scaling-stroke; }
+    .pit_grid { stroke: #9aa0a6; stroke-width: 1; opacity: 0.45; vector-effect: non-scaling-stroke; }
+    .cube { stroke: #ffcccc; stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+    .red_light { fill: #ff4a3d; }
+    .red_mid { fill: #d92f2b; }
+    .red_mid_dark { fill: #b32124; }
+    .red_dark { fill: #8f171d; }
+    .red_deep { fill: #661016; }
+    .label { fill: #ffe3e3; font: 10px monospace; }
+    .small { fill: #b8bec8; font: 8px monospace; }
+  </style>
+  <rect class="bg" x="0" y="0" width="90" height="82" />
+  <polygon class="cube north_wall red_dark" points="38,33 62,33 55,28 28,28" />
+  <polygon class="cube east_wall red_mid" points="62,33 62,50 55,48 55,28" />
+  <polygon class="cube south_wall red_deep" points="62,50 38,50 28,48 55,48" />
+  <polygon class="cube west_wall red_mid_dark" points="38,50 38,33 28,28 28,48" />
+  <polygon class="cube top_face red_light" points="28,28 55,28 55,48 28,48" />
+  <text class="label" x="8" y="14">off-side cube · solid red shaded faces</text>
+  <text class="small" x="8" y="28">cube is off-center in the governed perspective pit</text>
+</svg>

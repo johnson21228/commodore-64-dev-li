@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="224" height="188" viewBox="0 0 224 188" role="img" aria-labelledby="title desc">
+  <title id="title">Lab 011 gameboard projection preview</title>
+  <desc id="desc">A top-down perspective pit generated from renderer_intent.json through pit_line_segments.json.</desc>
+  <style>
+    .bg { fill: #11131a; }
+    .top { stroke: #f7d85c; stroke-width: 2; vector-effect: non-scaling-stroke; }
+    .side { stroke: #66d9ef; stroke-width: 1.3; opacity: 0.78; vector-effect: non-scaling-stroke; }
+    .depth { stroke: #ff7a7a; stroke-width: 1.8; opacity: 0.92; vector-effect: non-scaling-stroke; }
+    .grid { stroke: #9aa0a6; stroke-width: 1; opacity: 0.55; vector-effect: non-scaling-stroke; }
+    .label { fill: #e8eaed; font: 10px monospace; }
+    .small { fill: #b8bec8; font: 8px monospace; }
+  </style>
+  <rect class="bg" x="0" y="0" width="224" height="188" />
+  <line class="top" x1="24" y1="24" x2="24" y2="156" />
+  <line class="top" x1="59" y1="24" x2="59" y2="156" />
+  <line class="top" x1="94" y1="24" x2="94" y2="156" />
+  <line class="top" x1="130" y1="24" x2="130" y2="156" />
+  <line class="top" x1="165" y1="24" x2="165" y2="156" />
+  <line class="top" x1="200" y1="24" x2="200" y2="156" />
+  <line class="top" x1="24" y1="24" x2="200" y2="24" />
+  <line class="top" x1="24" y1="50" x2="200" y2="50" />
+  <line class="top" x1="24" y1="77" x2="200" y2="77" />
+  <line class="top" x1="24" y1="103" x2="200" y2="103" />
+  <line class="top" x1="24" y1="130" x2="200" y2="130" />
+  <line class="top" x1="24" y1="156" x2="200" y2="156" />
+  <line class="side" x1="44" y1="40" x2="180" y2="40" />
+  <line class="side" x1="180" y1="40" x2="180" y2="140" />
+  <line class="side" x1="180" y1="140" x2="44" y2="140" />
+  <line class="side" x1="44" y1="140" x2="44" y2="40" />
+  <line class="side" x1="60" y1="52" x2="164" y2="52" />
+  <line class="side" x1="164" y1="52" x2="164" y2="128" />
+  <line class="side" x1="164" y1="128" x2="60" y2="128" />
+  <line class="side" x1="60" y1="128" x2="60" y2="52" />
+  <line class="side" x1="73" y1="62" x2="151" y2="62" />
+  <line class="side" x1="151" y1="62" x2="151" y2="118" />
+  <line class="side" x1="151" y1="118" x2="73" y2="118" />
+  <line class="side" x1="73" y1="118" x2="73" y2="62" />
+  <line class="side" x1="83" y1="70" x2="141" y2="70" />
+  <line class="side" x1="141" y1="70" x2="141" y2="110" />
+  <line class="side" x1="141" y1="110" x2="83" y2="110" />
+  <line class="side" x1="83" y1="110" x2="83" y2="70" />
+  <line class="depth" x1="24" y1="24" x2="83" y2="70" />
+  <line class="depth" x1="24" y1="156" x2="83" y2="110" />
+  <line class="depth" x1="59" y1="24" x2="95" y2="70" />
+  <line class="depth" x1="59" y1="156" x2="95" y2="110" />
+  <line class="depth" x1="94" y1="24" x2="106" y2="70" />
+  <line class="depth" x1="94" y1="156" x2="106" y2="110" />
+  <line class="depth" x1="130" y1="24" x2="118" y2="70" />
+  <line class="depth" x1="130" y1="156" x2="118" y2="110" />
+  <line class="depth" x1="165" y1="24" x2="129" y2="70" />
+  <line class="depth" x1="165" y1="156" x2="129" y2="110" />
+  <line class="depth" x1="200" y1="24" x2="141" y2="70" />
+  <line class="depth" x1="200" y1="156" x2="141" y2="110" />
+  <line class="depth" x1="24" y1="50" x2="83" y2="78" />
+  <line class="depth" x1="200" y1="50" x2="141" y2="78" />
+  <line class="depth" x1="24" y1="77" x2="83" y2="86" />
+  <line class="depth" x1="200" y1="77" x2="141" y2="86" />
+  <line class="depth" x1="24" y1="103" x2="83" y2="94" />
+  <line class="depth" x1="200" y1="103" x2="141" y2="94" />
+  <line class="depth" x1="24" y1="130" x2="83" y2="102" />
+  <line class="depth" x1="200" y1="130" x2="141" y2="102" />
+  <text class="label" x="8" y="14">Lab 011 top-down perspective pit</text>
+  <text class="small" x="8" y="28">5x5x12 pit · top_down_perspective_rings · generated from governed line segments</text>
+</svg>

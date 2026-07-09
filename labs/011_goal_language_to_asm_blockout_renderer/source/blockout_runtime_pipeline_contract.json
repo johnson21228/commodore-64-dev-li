@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "labId": "011_goal_language_to_asm_blockout_renderer",
+  "name": "Blockout active-piece payload and locked-occupancy runtime pipeline",
+  "coordinateSystem": {
+    "pitWidth": 5,
+    "pitHeight": 5,
+    "pitDepth": 10,
+    "zDirection": "increases_downward_toward_floor"
+  },
+  "activePieceLifecycle": {
+    "pieceExistsOnlyWhileActive": true,
+    "visualRole": "dynamic_white_wireframe_overlay",
+    "state": [
+      "pieceId",
+      "rotationId",
+      "x",
+      "y",
+      "z",
+      "currentPoseRecordPointer",
+      "previousDirtyPointer"
+    ],
+    "onLock": [
+      "restore active overlay from static layer",
+      "expand active piece pose into occupied cells",
+      "write occupied cells into lockedOccupancy",
+      "discard active piece instance",
+      "spawn or load next active piece"
+    ]
+  },
+  "lockedOccupancyModel": {
+    "authoritativeTruth": "cell_occupancy_grid",
+    "notModeledAs": "locked_piece_objects",
+    "cellFields": [
+      "occupied",
+      "color",
+      "optional_sourcePieceId",
+      "optional_pieceInstanceId"
+    ],
+    "uses": [
+      "collision",
+      "layer_clear",
+      "downward_shift",
+      "locked_rendering"
+    ],
+    "provenanceIsOptional": true
+  },
+  "renderingLayers": {
+    "pitLayer": "permanent_green_grid_tunnel",
+    "lockedLayer": "solid_or_colored_occupied_cells",
+    "activeLayer": "temporary_white_wireframe_overlay",
+    "staticLayerDefinition": "pit_layer_plus_locked_layer",
+    "activeRestoreSource": "current_static_layer"
+  },
+  "piecePayloadFileIO": {
+    "designTarget": "one_compact_payload_file_per_piece_family",
+    "activeMemoryBoundary": "only_current_piece_payload_loaded_or_copied_into_ACTIVE_PIECE_TABLE",
+    "stages": [
+      "embedded_payload_contract",
+      "copy_payload_to_active_table",
+      "file_io_payload_load"
+    ]
+  },
+  "sourcePipeline": [
+    "li_design_contract",
+    "source/blockout_piece_source.json",
+    "source/blockout_pose_rules.json",
+    "source/blockout_pit_source.json",
+    "source/blockout_runtime_pipeline_contract.json",
+    "generator",
+    "dist/blockout_runtime.prg",
+    "dist/pieces/<pieceId>.bin",
+    "dist/pieces_manifest.json"
+  ],
+  "offlineGenerationResponsibilities": [
+    "piece rotations",
+    "legal pose tables",
+    "pose occupied cells",
+    "active exposed outline edges",
+    "projection",
+    "line rasterization",
+    "bitmap byte offsets",
+    "bitmap masks",
+    "dirty bitmap offsets",
+    "touched color cells",
+    "per-piece compact payloads",
+    "payload size reports"
+  ],
+  "runtimeResponsibilities": [
+    "load_or_copy_current_piece_payload",
+    "track_active_pose",
+    "remember_previous_dirty_pointer",
+    "compute_candidate_translation_or_rotation_id",
+    "small_bounds_and_collision_checks",
+    "restore_previous_dirty_from_static_layer",
+    "draw_current_active_records",
+    "lock_active_cubes_into_occupied_cells",
+    "update_or_rebuild_static_layer_on_lock_or_clear"
+  ],
+  "runtimeNonGoals": [
+    "3d_rotation_matrix_math",
+    "projection_math",
+    "line_rasterization_for_active_piece",
+    "bitmap_mask_discovery",
+    "all_shapes_resident_payload_storage"
+  ],
+  "spritePolicy": {
+    "allowedUses": [
+      "next_piece_preview",
+      "cursor_or_origin_marker",
+      "lock_flash",
+      "hud_rotation_hint"
+    ],
+    "primaryActivePieceRenderer": "bitmap_dirty_overlay_records",
+    "spritesArePrimaryPieceRenderer": false
+  },
+  "layerClearRule": {
+    "completedLayer": "all_25_cells_occupied_at_depth_z",
+    "withZIncreasingDownward": [
+      "remove cells where z == clearedLayer",
+      "for occupied cells where z < clearedLayer, increment z by 1",
+      "cells outside pit depth are removed"
+    ]
+  }
+}

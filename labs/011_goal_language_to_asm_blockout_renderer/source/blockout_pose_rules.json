@@ -1,0 +1,120 @@
+{
+  "kind": "blockout_pose_rules",
+  "version": 1,
+  "description": "Pose and rotation rules for placing defined piece rotations inside the 5x5x10 pit.",
+  "poseSchema": {
+    "pieceId": "string; must exist in blockout_piece_source.json",
+    "rotationId": "string; must exist for selected piece",
+    "position": {
+      "x": "integer pit-cell coordinate",
+      "y": "integer pit-cell coordinate",
+      "z": "integer depth/fall coordinate"
+    }
+  },
+  "coordinateSystem": {
+    "x": "pit left/right",
+    "y": "pit front/back",
+    "z": "pit depth/fall axis",
+    "unit": "pit cell"
+  },
+  "pit": {
+    "width": 5,
+    "height": 5,
+    "depth": 10
+  },
+  "rotationRules": {
+    "runtimePolicy": "choose_precomputed_rotation_id",
+    "noRuntimeMatrixMathOnC64": true,
+    "rotationCandidateFlow": [
+      "select next rotationId for the active piece",
+      "load that rotation's normalized local cube set",
+      "compute or read extent",
+      "test current pose against extent and pit bounds",
+      "future: test collision with locked occupancy",
+      "accept only if legal; otherwise keep previous rotation"
+    ],
+    "normalizationRule": "after rotation, translate local cubes so min x/y/z is 0",
+    "legality": {
+      "preserveCubeCount": true,
+      "requireFaceContiguousAfterRotation": true,
+      "maxExtentAnyAxis": 3,
+      "forbidFull3x3Footprint": true,
+      "mustFitPitFootprint": true
+    },
+    "rotationControls": {
+      "firstOverlayProof": "rotation may be selected/tested but active movement remains simple",
+      "futureKeys": {
+        "rotateX": "cycle to next orientation around x-like family when available",
+        "rotateY": "cycle to next orientation around y-like family when available",
+        "rotateZ": "cycle to next orientation around z-like family when available"
+      }
+    },
+    "rejectionRule": "if candidate rotation would place any cube outside the pit or future locked occupancy, reject rotation and preserve current pose"
+  },
+  "currentOverlayPhase": {
+    "name": "active_wireframe_overlay_proof",
+    "activePieceRendering": "white_wireframe",
+    "lockedBlocks": "not_implemented",
+    "gravity": "not_implemented",
+    "collisionWithLockedBlocks": "not_implemented",
+    "zPolicy": {
+      "mode": "fixed_test_layer",
+      "allowedZ": [
+        0
+      ],
+      "reason": "first overlay proves dirty restore/draw without drop physics"
+    },
+    "legalPose": [
+      "pieceId exists",
+      "rotationId exists for pieceId",
+      "x/y/z are integers",
+      "0 <= x <= pit.width - rotation.extent.width",
+      "0 <= y <= pit.height - rotation.extent.height",
+      "z in allowedZ"
+    ]
+  },
+  "futureGameplayPhase": {
+    "name": "falling_piece_with_locked_blocks",
+    "legalPose": [
+      "selected piece exists",
+      "selected rotation exists",
+      "all world cubes are inside pit bounds",
+      "no world cube overlaps locked occupancy",
+      "rotation is accepted only if rotated world cubes remain legal",
+      "drop is accepted only if next z is legal"
+    ],
+    "landingRule": [
+      "if next drop pose is illegal because of bottom or locked occupancy, current pose becomes locked",
+      "locked cubes merge into static layer",
+      "active dirty overlay is cleared"
+    ]
+  },
+  "dirtyRenderDependency": {
+    "input": [
+      "piece source",
+      "rotationId",
+      "pose"
+    ],
+    "derived": [
+      "world occupied cubes",
+      "exposed outline edges",
+      "projected line pixels",
+      "bitmap byte offsets and masks",
+      "touched screen/color cells"
+    ],
+    "runtimeLoop": [
+      "restore previous active dirty records from static layer",
+      "draw current active dirty records",
+      "save current dirty records as previous"
+    ]
+  },
+  "firstOverlayPose": {
+    "pieceId": "P02_DOMINO",
+    "rotationId": "x_axis",
+    "position": {
+      "x": 1,
+      "y": 1,
+      "z": 0
+    }
+  }
+}

@@ -1,0 +1,975 @@
+{
+  "kind": "blockout_piece_source",
+  "version": 2,
+  "constraints": {
+    "minCubeCount": 1,
+    "maxCubeCount": 4,
+    "maxExtentAnyAxis": 3,
+    "forbidFull3x3Footprint": true,
+    "requireFaceContiguous": true,
+    "requireNormalizedRotations": true,
+    "pitFootprint": {
+      "width": 5,
+      "height": 5
+    }
+  },
+  "units": {
+    "cell": "one pit cube",
+    "coordinates": "integer local piece coordinates [x,y,z]",
+    "fallAxis": "z",
+    "pitPlane": "x/y",
+    "originRule": "rotation definitions are normalized so min x/y/z is 0"
+  },
+  "rendering": {
+    "activePieceStyle": {
+      "bitmap": "wireframe",
+      "color": "white",
+      "drawPriority": "after_pit_and_locked_blocks",
+      "c64HiResColorRule": "any touched 8x8 cell may become white while the active piece is present"
+    },
+    "lockedPieceStyle": {
+      "bitmap": "future_colored_fill_or_colored_wire",
+      "drawPriority": "after_pit_before_active_piece",
+      "status": "not_implemented_in_pit_only_base"
+    },
+    "outlineRule": {
+      "source": "occupied cube set",
+      "algorithm": [
+        "find exposed faces by checking missing face-neighbor cubes",
+        "collect face boundary edges",
+        "deduplicate shared exposed edges",
+        "project only exposed outline edges",
+        "do not draw internal cube-to-cube seams"
+      ]
+    },
+    "dirtyContract": {
+      "activeMove": [
+        "restore previous active dirty bitmap bytes from static layer",
+        "restore previous active dirty screen/color cells from static layer",
+        "draw current active wireframe records",
+        "remember current dirty bitmap byte offsets and touched color cells"
+      ],
+      "dirtyKeys": [
+        "bitmapByteOffset",
+        "screenCellOffset",
+        "colorCellOffset"
+      ],
+      "staticLayer": [
+        "pit",
+        "locked_blocks_when_landed"
+      ],
+      "activeLayer": [
+        "active_piece_wireframe"
+      ]
+    }
+  },
+  "pieces": [
+    {
+      "pieceId": "P01_MONO",
+      "label": "single cube",
+      "description": "One cube; debug and baseline piece.",
+      "canonicalCubes": [
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "rotations": [
+        {
+          "rotationId": "unit",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "pieceId": "P02_DOMINO",
+      "label": "two-cube domino",
+      "description": "Two contiguous cubes in a straight line.",
+      "canonicalCubes": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "rotations": [
+        {
+          "rotationId": "x_axis",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "rotationId": "y_axis",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ]
+          ]
+        },
+        {
+          "rotationId": "z_axis",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "pieceId": "P03_LINE",
+      "label": "three-cube line",
+      "description": "Three contiguous cubes in a straight line.",
+      "canonicalCubes": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          0
+        ]
+      ],
+      "rotations": [
+        {
+          "rotationId": "x_axis",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "rotationId": "y_axis",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              2,
+              0
+            ]
+          ]
+        },
+        {
+          "rotationId": "z_axis",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              0,
+              0,
+              2
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "pieceId": "P03_ELBOW",
+      "label": "three-cube elbow",
+      "description": "An L/corner made from two cubes in one direction and one cube turning a corner.",
+      "canonicalCubes": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ]
+      ],
+      "rotations": [
+        {
+          "rotationId": "xy_ne",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ]
+          ]
+        },
+        {
+          "rotationId": "xy_nw",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0
+            ]
+          ]
+        },
+        {
+          "rotationId": "xz_up_x",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "rotationId": "yz_up_y",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "pieceId": "P04_SQUARE",
+      "label": "four-cube square slab",
+      "description": "Flat 2x2 square slab.",
+      "canonicalCubes": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          1,
+          0
+        ]
+      ],
+      "rotations": [
+        {
+          "rotationId": "xy_slab",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              1,
+              1,
+              0
+            ]
+          ]
+        },
+        {
+          "rotationId": "xz_slab",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              1,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "rotationId": "yz_slab",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              0,
+              1,
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "pieceId": "P04_T",
+      "label": "four-cube T",
+      "description": "Three-cube bar with one cube attached to the middle.",
+      "canonicalCubes": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          1,
+          1,
+          0
+        ]
+      ],
+      "rotations": [
+        {
+          "rotationId": "xy_t_up",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0
+            ]
+          ]
+        },
+        {
+          "rotationId": "xy_t_down",
+          "cubes": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              2,
+              1,
+              0
+            ]
+          ]
+        },
+        {
+          "rotationId": "xz_t_up",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "rotationId": "yz_t_up",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              2,
+              0
+            ],
+            [
+              0,
+              1,
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "pieceId": "P04_L",
+      "label": "four-cube long L",
+      "description": "Three-cube bar with one cube attached at an end.",
+      "canonicalCubes": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ]
+      ],
+      "rotations": [
+        {
+          "rotationId": "xy_l_left",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ]
+          ]
+        },
+        {
+          "rotationId": "xy_l_right",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0
+            ],
+            [
+              2,
+              1,
+              0
+            ]
+          ]
+        },
+        {
+          "rotationId": "xz_l_left",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "rotationId": "yz_l_left",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              2,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "pieceId": "P04_S",
+      "label": "four-cube zig-zag",
+      "description": "Two adjacent pairs offset by one cell.",
+      "canonicalCubes": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          1,
+          0
+        ]
+      ],
+      "rotations": [
+        {
+          "rotationId": "xy_s",
+          "cubes": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              1,
+              1,
+              0
+            ]
+          ]
+        },
+        {
+          "rotationId": "xy_z",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              2,
+              1,
+              0
+            ]
+          ]
+        },
+        {
+          "rotationId": "xz_s",
+          "cubes": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              1,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "rotationId": "yz_s",
+          "cubes": [
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              2,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              0,
+              1,
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "pieceId": "P04_CORNER_3D",
+      "label": "four-cube 3D corner",
+      "description": "One root cube with arms along x, y, and z.",
+      "canonicalCubes": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "rotations": [
+        {
+          "rotationId": "xyz_corner",
+          "cubes": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "rotationId": "xyz_corner_mirror_x",
+          "cubes": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              1,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "rotationId": "xyz_corner_mirror_y",
+          "cubes": [
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "rotationId": "xyz_corner_mirror_z",
+          "cubes": [
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              1,
+              0,
+              1
+            ],
+            [
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "firstOverlayTarget": {
+    "pieceId": "P02_DOMINO",
+    "rotationId": "x_axis",
+    "position": {
+      "x": 1,
+      "y": 1,
+      "z": 0
+    },
+    "control": "later_WASD_after_dirty_renderer",
+    "render": "white_wireframe_overlay"
+  }
+}

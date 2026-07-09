@@ -1,0 +1,235 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="992" height="184" viewBox="0 0 992 184" role="img" aria-labelledby="title desc">
+  <title id="title">Lab 011 same-depth moving cube preview</title>
+  <desc id="desc">Same-depth red cube positions across the perspective pit.</desc>
+  <style>
+    .bg { fill: #11131a; }
+    .pit_top { stroke: #f7d85c; stroke-width: 1.2; opacity: 0.75; vector-effect: non-scaling-stroke; }
+    .pit_side { stroke: #66d9ef; stroke-width: 0.9; opacity: 0.45; vector-effect: non-scaling-stroke; }
+    .pit_depth { stroke: #ff7a7a; stroke-width: 0.9; opacity: 0.6; vector-effect: non-scaling-stroke; }
+    .pit_grid { stroke: #9aa0a6; stroke-width: 0.8; opacity: 0.4; vector-effect: non-scaling-stroke; }
+    .cube { stroke: #ffcccc; stroke-width: 1.1; vector-effect: non-scaling-stroke; }
+    .red_light { fill: #ff4a3d; }
+    .red_mid { fill: #d92f2b; }
+    .red_mid_dark { fill: #b32124; }
+    .red_dark { fill: #8f171d; }
+    .red_deep { fill: #661016; }
+    .small { fill: #ffe3e3; font: 9px monospace; }
+  </style>
+  <rect class="bg" x="0" y="0" width="992" height="184" />
+  <line class="pit_top" x1="52" y1="24" x2="52" y2="156" />
+  <line class="pit_top" x1="87" y1="24" x2="87" y2="156" />
+  <line class="pit_top" x1="122" y1="24" x2="122" y2="156" />
+  <line class="pit_top" x1="158" y1="24" x2="158" y2="156" />
+  <line class="pit_top" x1="193" y1="24" x2="193" y2="156" />
+  <line class="pit_top" x1="228" y1="24" x2="228" y2="156" />
+  <line class="pit_top" x1="52" y1="24" x2="228" y2="24" />
+  <line class="pit_top" x1="52" y1="50" x2="228" y2="50" />
+  <line class="pit_top" x1="52" y1="77" x2="228" y2="77" />
+  <line class="pit_top" x1="52" y1="103" x2="228" y2="103" />
+  <line class="pit_top" x1="52" y1="130" x2="228" y2="130" />
+  <line class="pit_top" x1="52" y1="156" x2="228" y2="156" />
+  <line class="pit_side" x1="72" y1="40" x2="208" y2="40" />
+  <line class="pit_side" x1="208" y1="40" x2="208" y2="140" />
+  <line class="pit_side" x1="208" y1="140" x2="72" y2="140" />
+  <line class="pit_side" x1="72" y1="140" x2="72" y2="40" />
+  <line class="pit_side" x1="88" y1="52" x2="192" y2="52" />
+  <line class="pit_side" x1="192" y1="52" x2="192" y2="128" />
+  <line class="pit_side" x1="192" y1="128" x2="88" y2="128" />
+  <line class="pit_side" x1="88" y1="128" x2="88" y2="52" />
+  <line class="pit_side" x1="101" y1="62" x2="179" y2="62" />
+  <line class="pit_side" x1="179" y1="62" x2="179" y2="118" />
+  <line class="pit_side" x1="179" y1="118" x2="101" y2="118" />
+  <line class="pit_side" x1="101" y1="118" x2="101" y2="62" />
+  <line class="pit_side" x1="111" y1="70" x2="169" y2="70" />
+  <line class="pit_side" x1="169" y1="70" x2="169" y2="110" />
+  <line class="pit_side" x1="169" y1="110" x2="111" y2="110" />
+  <line class="pit_side" x1="111" y1="110" x2="111" y2="70" />
+  <line class="pit_depth" x1="52" y1="24" x2="111" y2="70" />
+  <line class="pit_depth" x1="52" y1="156" x2="111" y2="110" />
+  <line class="pit_depth" x1="87" y1="24" x2="123" y2="70" />
+  <line class="pit_depth" x1="87" y1="156" x2="123" y2="110" />
+  <line class="pit_depth" x1="122" y1="24" x2="134" y2="70" />
+  <line class="pit_depth" x1="122" y1="156" x2="134" y2="110" />
+  <line class="pit_depth" x1="158" y1="24" x2="146" y2="70" />
+  <line class="pit_depth" x1="158" y1="156" x2="146" y2="110" />
+  <line class="pit_depth" x1="193" y1="24" x2="157" y2="70" />
+  <line class="pit_depth" x1="193" y1="156" x2="157" y2="110" />
+  <line class="pit_depth" x1="228" y1="24" x2="169" y2="70" />
+  <line class="pit_depth" x1="228" y1="156" x2="169" y2="110" />
+  <line class="pit_depth" x1="52" y1="50" x2="111" y2="78" />
+  <line class="pit_depth" x1="228" y1="50" x2="169" y2="78" />
+  <line class="pit_depth" x1="52" y1="77" x2="111" y2="86" />
+  <line class="pit_depth" x1="228" y1="77" x2="169" y2="86" />
+  <line class="pit_depth" x1="52" y1="103" x2="111" y2="94" />
+  <line class="pit_depth" x1="228" y1="103" x2="169" y2="94" />
+  <line class="pit_depth" x1="52" y1="130" x2="111" y2="102" />
+  <line class="pit_depth" x1="228" y1="130" x2="169" y2="102" />
+  <polygon class="cube north_wall red_dark" points="82,65 106,65 99,60 72,60" />
+  <polygon class="cube east_wall red_mid" points="106,65 106,82 99,80 99,60" />
+  <polygon class="cube south_wall red_deep" points="106,82 82,82 72,80 99,80" />
+  <polygon class="cube west_wall red_mid_dark" points="82,82 82,65 72,60 72,80" />
+  <polygon class="cube top_face red_light" points="72,60 99,60 99,80 72,80" />
+  <text class="small" x="8" y="172">frame 0: x=0, y=1, z=3, spans=71</text>
+  <line class="pit_top" x1="300" y1="24" x2="300" y2="156" />
+  <line class="pit_top" x1="335" y1="24" x2="335" y2="156" />
+  <line class="pit_top" x1="370" y1="24" x2="370" y2="156" />
+  <line class="pit_top" x1="406" y1="24" x2="406" y2="156" />
+  <line class="pit_top" x1="441" y1="24" x2="441" y2="156" />
+  <line class="pit_top" x1="476" y1="24" x2="476" y2="156" />
+  <line class="pit_top" x1="300" y1="24" x2="476" y2="24" />
+  <line class="pit_top" x1="300" y1="50" x2="476" y2="50" />
+  <line class="pit_top" x1="300" y1="77" x2="476" y2="77" />
+  <line class="pit_top" x1="300" y1="103" x2="476" y2="103" />
+  <line class="pit_top" x1="300" y1="130" x2="476" y2="130" />
+  <line class="pit_top" x1="300" y1="156" x2="476" y2="156" />
+  <line class="pit_side" x1="320" y1="40" x2="456" y2="40" />
+  <line class="pit_side" x1="456" y1="40" x2="456" y2="140" />
+  <line class="pit_side" x1="456" y1="140" x2="320" y2="140" />
+  <line class="pit_side" x1="320" y1="140" x2="320" y2="40" />
+  <line class="pit_side" x1="336" y1="52" x2="440" y2="52" />
+  <line class="pit_side" x1="440" y1="52" x2="440" y2="128" />
+  <line class="pit_side" x1="440" y1="128" x2="336" y2="128" />
+  <line class="pit_side" x1="336" y1="128" x2="336" y2="52" />
+  <line class="pit_side" x1="349" y1="62" x2="427" y2="62" />
+  <line class="pit_side" x1="427" y1="62" x2="427" y2="118" />
+  <line class="pit_side" x1="427" y1="118" x2="349" y2="118" />
+  <line class="pit_side" x1="349" y1="118" x2="349" y2="62" />
+  <line class="pit_side" x1="359" y1="70" x2="417" y2="70" />
+  <line class="pit_side" x1="417" y1="70" x2="417" y2="110" />
+  <line class="pit_side" x1="417" y1="110" x2="359" y2="110" />
+  <line class="pit_side" x1="359" y1="110" x2="359" y2="70" />
+  <line class="pit_depth" x1="300" y1="24" x2="359" y2="70" />
+  <line class="pit_depth" x1="300" y1="156" x2="359" y2="110" />
+  <line class="pit_depth" x1="335" y1="24" x2="371" y2="70" />
+  <line class="pit_depth" x1="335" y1="156" x2="371" y2="110" />
+  <line class="pit_depth" x1="370" y1="24" x2="382" y2="70" />
+  <line class="pit_depth" x1="370" y1="156" x2="382" y2="110" />
+  <line class="pit_depth" x1="406" y1="24" x2="394" y2="70" />
+  <line class="pit_depth" x1="406" y1="156" x2="394" y2="110" />
+  <line class="pit_depth" x1="441" y1="24" x2="405" y2="70" />
+  <line class="pit_depth" x1="441" y1="156" x2="405" y2="110" />
+  <line class="pit_depth" x1="476" y1="24" x2="417" y2="70" />
+  <line class="pit_depth" x1="476" y1="156" x2="417" y2="110" />
+  <line class="pit_depth" x1="300" y1="50" x2="359" y2="78" />
+  <line class="pit_depth" x1="476" y1="50" x2="417" y2="78" />
+  <line class="pit_depth" x1="300" y1="77" x2="359" y2="86" />
+  <line class="pit_depth" x1="476" y1="77" x2="417" y2="86" />
+  <line class="pit_depth" x1="300" y1="103" x2="359" y2="94" />
+  <line class="pit_depth" x1="476" y1="103" x2="417" y2="94" />
+  <line class="pit_depth" x1="300" y1="130" x2="359" y2="102" />
+  <line class="pit_depth" x1="476" y1="130" x2="417" y2="102" />
+  <polygon class="cube north_wall red_dark" points="354,65 376,65 374,60 347,60" />
+  <polygon class="cube east_wall red_mid" points="376,65 376,82 374,80 374,60" />
+  <polygon class="cube south_wall red_deep" points="376,82 354,82 347,80 374,80" />
+  <polygon class="cube west_wall red_mid_dark" points="354,82 354,65 347,60 347,80" />
+  <polygon class="cube top_face red_light" points="347,60 374,60 374,80 347,80" />
+  <text class="small" x="256" y="172">frame 1: x=1, y=1, z=3, spans=71</text>
+  <line class="pit_top" x1="548" y1="24" x2="548" y2="156" />
+  <line class="pit_top" x1="583" y1="24" x2="583" y2="156" />
+  <line class="pit_top" x1="618" y1="24" x2="618" y2="156" />
+  <line class="pit_top" x1="654" y1="24" x2="654" y2="156" />
+  <line class="pit_top" x1="689" y1="24" x2="689" y2="156" />
+  <line class="pit_top" x1="724" y1="24" x2="724" y2="156" />
+  <line class="pit_top" x1="548" y1="24" x2="724" y2="24" />
+  <line class="pit_top" x1="548" y1="50" x2="724" y2="50" />
+  <line class="pit_top" x1="548" y1="77" x2="724" y2="77" />
+  <line class="pit_top" x1="548" y1="103" x2="724" y2="103" />
+  <line class="pit_top" x1="548" y1="130" x2="724" y2="130" />
+  <line class="pit_top" x1="548" y1="156" x2="724" y2="156" />
+  <line class="pit_side" x1="568" y1="40" x2="704" y2="40" />
+  <line class="pit_side" x1="704" y1="40" x2="704" y2="140" />
+  <line class="pit_side" x1="704" y1="140" x2="568" y2="140" />
+  <line class="pit_side" x1="568" y1="140" x2="568" y2="40" />
+  <line class="pit_side" x1="584" y1="52" x2="688" y2="52" />
+  <line class="pit_side" x1="688" y1="52" x2="688" y2="128" />
+  <line class="pit_side" x1="688" y1="128" x2="584" y2="128" />
+  <line class="pit_side" x1="584" y1="128" x2="584" y2="52" />
+  <line class="pit_side" x1="597" y1="62" x2="675" y2="62" />
+  <line class="pit_side" x1="675" y1="62" x2="675" y2="118" />
+  <line class="pit_side" x1="675" y1="118" x2="597" y2="118" />
+  <line class="pit_side" x1="597" y1="118" x2="597" y2="62" />
+  <line class="pit_side" x1="607" y1="70" x2="665" y2="70" />
+  <line class="pit_side" x1="665" y1="70" x2="665" y2="110" />
+  <line class="pit_side" x1="665" y1="110" x2="607" y2="110" />
+  <line class="pit_side" x1="607" y1="110" x2="607" y2="70" />
+  <line class="pit_depth" x1="548" y1="24" x2="607" y2="70" />
+  <line class="pit_depth" x1="548" y1="156" x2="607" y2="110" />
+  <line class="pit_depth" x1="583" y1="24" x2="619" y2="70" />
+  <line class="pit_depth" x1="583" y1="156" x2="619" y2="110" />
+  <line class="pit_depth" x1="618" y1="24" x2="630" y2="70" />
+  <line class="pit_depth" x1="618" y1="156" x2="630" y2="110" />
+  <line class="pit_depth" x1="654" y1="24" x2="642" y2="70" />
+  <line class="pit_depth" x1="654" y1="156" x2="642" y2="110" />
+  <line class="pit_depth" x1="689" y1="24" x2="653" y2="70" />
+  <line class="pit_depth" x1="689" y1="156" x2="653" y2="110" />
+  <line class="pit_depth" x1="724" y1="24" x2="665" y2="70" />
+  <line class="pit_depth" x1="724" y1="156" x2="665" y2="110" />
+  <line class="pit_depth" x1="548" y1="50" x2="607" y2="78" />
+  <line class="pit_depth" x1="724" y1="50" x2="665" y2="78" />
+  <line class="pit_depth" x1="548" y1="77" x2="607" y2="86" />
+  <line class="pit_depth" x1="724" y1="77" x2="665" y2="86" />
+  <line class="pit_depth" x1="548" y1="103" x2="607" y2="94" />
+  <line class="pit_depth" x1="724" y1="103" x2="665" y2="94" />
+  <line class="pit_depth" x1="548" y1="130" x2="607" y2="102" />
+  <line class="pit_depth" x1="724" y1="130" x2="665" y2="102" />
+  <polygon class="cube north_wall red_dark" points="624,65 648,65 650,60 622,60" />
+  <polygon class="cube east_wall red_mid" points="648,65 648,82 650,80 650,60" />
+  <polygon class="cube south_wall red_deep" points="648,82 624,82 622,80 650,80" />
+  <polygon class="cube west_wall red_mid_dark" points="624,82 624,65 622,60 622,80" />
+  <polygon class="cube top_face red_light" points="622,60 650,60 650,80 622,80" />
+  <text class="small" x="504" y="172">frame 2: x=2, y=1, z=3, spans=71</text>
+  <line class="pit_top" x1="796" y1="24" x2="796" y2="156" />
+  <line class="pit_top" x1="831" y1="24" x2="831" y2="156" />
+  <line class="pit_top" x1="866" y1="24" x2="866" y2="156" />
+  <line class="pit_top" x1="902" y1="24" x2="902" y2="156" />
+  <line class="pit_top" x1="937" y1="24" x2="937" y2="156" />
+  <line class="pit_top" x1="972" y1="24" x2="972" y2="156" />
+  <line class="pit_top" x1="796" y1="24" x2="972" y2="24" />
+  <line class="pit_top" x1="796" y1="50" x2="972" y2="50" />
+  <line class="pit_top" x1="796" y1="77" x2="972" y2="77" />
+  <line class="pit_top" x1="796" y1="103" x2="972" y2="103" />
+  <line class="pit_top" x1="796" y1="130" x2="972" y2="130" />
+  <line class="pit_top" x1="796" y1="156" x2="972" y2="156" />
+  <line class="pit_side" x1="816" y1="40" x2="952" y2="40" />
+  <line class="pit_side" x1="952" y1="40" x2="952" y2="140" />
+  <line class="pit_side" x1="952" y1="140" x2="816" y2="140" />
+  <line class="pit_side" x1="816" y1="140" x2="816" y2="40" />
+  <line class="pit_side" x1="832" y1="52" x2="936" y2="52" />
+  <line class="pit_side" x1="936" y1="52" x2="936" y2="128" />
+  <line class="pit_side" x1="936" y1="128" x2="832" y2="128" />
+  <line class="pit_side" x1="832" y1="128" x2="832" y2="52" />
+  <line class="pit_side" x1="845" y1="62" x2="923" y2="62" />
+  <line class="pit_side" x1="923" y1="62" x2="923" y2="118" />
+  <line class="pit_side" x1="923" y1="118" x2="845" y2="118" />
+  <line class="pit_side" x1="845" y1="118" x2="845" y2="62" />
+  <line class="pit_side" x1="855" y1="70" x2="913" y2="70" />
+  <line class="pit_side" x1="913" y1="70" x2="913" y2="110" />
+  <line class="pit_side" x1="913" y1="110" x2="855" y2="110" />
+  <line class="pit_side" x1="855" y1="110" x2="855" y2="70" />
+  <line class="pit_depth" x1="796" y1="24" x2="855" y2="70" />
+  <line class="pit_depth" x1="796" y1="156" x2="855" y2="110" />
+  <line class="pit_depth" x1="831" y1="24" x2="867" y2="70" />
+  <line class="pit_depth" x1="831" y1="156" x2="867" y2="110" />
+  <line class="pit_depth" x1="866" y1="24" x2="878" y2="70" />
+  <line class="pit_depth" x1="866" y1="156" x2="878" y2="110" />
+  <line class="pit_depth" x1="902" y1="24" x2="890" y2="70" />
+  <line class="pit_depth" x1="902" y1="156" x2="890" y2="110" />
+  <line class="pit_depth" x1="937" y1="24" x2="901" y2="70" />
+  <line class="pit_depth" x1="937" y1="156" x2="901" y2="110" />
+  <line class="pit_depth" x1="972" y1="24" x2="913" y2="70" />
+  <line class="pit_depth" x1="972" y1="156" x2="913" y2="110" />
+  <line class="pit_depth" x1="796" y1="50" x2="855" y2="78" />
+  <line class="pit_depth" x1="972" y1="50" x2="913" y2="78" />
+  <line class="pit_depth" x1="796" y1="77" x2="855" y2="86" />
+  <line class="pit_depth" x1="972" y1="77" x2="913" y2="86" />
+  <line class="pit_depth" x1="796" y1="103" x2="855" y2="94" />
+  <line class="pit_depth" x1="972" y1="103" x2="913" y2="94" />
+  <line class="pit_depth" x1="796" y1="130" x2="855" y2="102" />
+  <line class="pit_depth" x1="972" y1="130" x2="913" y2="102" />
+  <polygon class="cube north_wall red_dark" points="896,65 918,65 925,60 898,60" />
+  <polygon class="cube east_wall red_mid" points="918,65 918,82 925,80 925,60" />
+  <polygon class="cube south_wall red_deep" points="918,82 896,82 898,80 925,80" />
+  <polygon class="cube west_wall red_mid_dark" points="896,82 896,65 898,60 898,80" />
+  <polygon class="cube top_face red_light" points="898,60 925,60 925,80 898,80" />
+  <text class="small" x="752" y="172">frame 3: x=3, y=1, z=3, spans=71</text>
+</svg>
