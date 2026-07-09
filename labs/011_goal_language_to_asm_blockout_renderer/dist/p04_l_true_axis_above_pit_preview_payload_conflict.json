@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "pieceId": "P04_L",
+  "mode": "true axis above-pit full-bitmap preview",
+  "result": "CONFLICT",
+  "reason": "Full pre-rendered bitmap-record payload for all true x/y/z orientations exceeded the C64 PRG image budget.",
+  "observedProgramBytes": 43695,
+  "availablePrgImageBytes": 30719,
+  "orientationCount": 24,
+  "shortcutRemoved": true,
+  "abovePit": true,
+  "axisControls": {
+    "A": "+x",
+    "Q": "-x",
+    "S": "+y",
+    "W": "-y",
+    "D": "+z",
+    "E": "-z"
+  },
+  "failedArtifact": "labs/011_goal_language_to_asm_blockout_renderer/dist/p04_l_true_axis_above_pit_preview.prg",
+  "nextMove": "Replace full bitmap-record payloads with compact endpoint/line-command payloads and a small runtime line drawer.",
+  "liPlusPlusMeaning": "Workbench should generate the 24-orientation graph and compact endpoint payloads; the C64 runtime should only look up orientation transitions and draw prepared line commands."
+}

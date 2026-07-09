@@ -48,3 +48,17 @@ any green pit dot in a white active-block 8x8 cell becomes white
 ```
 
 But the sparse wall-dot pit reduces the collision surface.
+
+## Payload conflict finding
+
+The true-axis above-pit full-bitmap preview expanded `P04_L` from the earlier four-state z shortcut to 24 real x/y/z orientations.
+
+That full pre-rendered bitmap-record payload exceeded the C64 PRG image budget:
+
+```text
+observedProgramBytes: 43695
+availablePrgImageBytes: 30719
+result: CONFLICT
+```
+
+Decision: do not continue with full bitmap-record payloads for true-axis rotation. The next move is compact endpoint/line-command payloads plus a small runtime line drawer.

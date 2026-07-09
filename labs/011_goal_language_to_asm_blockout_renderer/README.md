@@ -529,3 +529,16 @@ Build:
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p04_l_true_axis_above_pit_preview_prg.py
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p04_l_true_axis_above_pit_preview_prg.py
 ```
+
+### P04_L true-axis payload conflict
+
+The first true-axis above-pit attempt proved that the four-state z-only preview was a shortcut, but it also showed that full pre-rendered bitmap-record payloads do not scale.
+
+```text
+P04_L true x/y/z orientations: 24
+full bitmap-record program size: 43695 bytes
+available PRG image budget: 30719 bytes
+result: CONFLICT
+```
+
+Next move: compact endpoint/line-command payloads with a small runtime line drawer.
