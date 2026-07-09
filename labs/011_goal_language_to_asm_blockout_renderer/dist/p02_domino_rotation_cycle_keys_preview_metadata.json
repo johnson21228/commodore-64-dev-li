@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "program": "labs/011_goal_language_to_asm_blockout_renderer/dist/p02_domino_rotation_cycle_keys_preview.prg",
+  "mode": "P02_DOMINO stateful rotation-cycle keys preview",
+  "controls": {
+    "A": "apply x-axis rotation step",
+    "Q": "apply x-axis rotation step",
+    "S": "apply y-axis rotation step",
+    "W": "apply y-axis rotation step",
+    "D": "apply z-axis rotation step",
+    "E": "apply z-axis rotation step"
+  },
+  "transitionModel": {
+    "A/Q x-axis rotation": "x stays x; y <-> z",
+    "S/W y-axis rotation": "y stays y; x <-> z",
+    "D/E z-axis rotation": "z stays z; x <-> y"
+  },
+  "states": {
+    "0": {
+      "name": "x_axis",
+      "occupiedCells": [
+        [
+          1,
+          2,
+          0
+        ],
+        [
+          2,
+          2,
+          0
+        ]
+      ],
+      "recordCount": 1237,
+      "recordBytes": 3711
+    },
+    "1": {
+      "name": "y_axis",
+      "occupiedCells": [
+        [
+          2,
+          1,
+          0
+        ],
+        [
+          2,
+          2,
+          0
+        ]
+      ],
+      "recordCount": 1310,
+      "recordBytes": 3930
+    },
+    "2": {
+      "name": "z_axis",
+      "occupiedCells": [
+        [
+          2,
+          2,
+          0
+        ],
+        [
+          2,
+          2,
+          1
+        ]
+      ],
+      "recordCount": 1191,
+      "recordBytes": 3573
+    }
+  },
+  "importantDominoSymmetryNote": "A domino has only three visible axis orientations in this preview. Directed +/- states collapse visually. Asymmetric blocks will show more unique steps.",
+  "lineLanguage": {
+    "pit": "white subtle dashed lines",
+    "activeBlock": "solid white outline"
+  },
+  "memoryLayout": {
+    "loadAddress": "0x801",
+    "sysAddress": "0x80d",
+    "screenAddress": "0x4400",
+    "bitmapAddress": "0x6000",
+    "tableAddresses": {
+      "x_axis": "0x9e0",
+      "y_axis": "0x185f",
+      "z_axis": "0x27b9"
+    },
+    "machineCodeBytes": 458,
+    "programBytesBeforeImagePad": 11695
+  },
+  "prgBytes": 30719,
+  "runtimeKeyboard": true,
+  "runtimeStatefulRotation": true,
+  "runtimeLineDrawing": false,
+  "previewOnly": true
+}

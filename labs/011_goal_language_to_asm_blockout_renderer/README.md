@@ -419,3 +419,20 @@ Build:
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p02_domino_full_rotation_keys_preview_prg.py
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p02_domino_full_rotation_keys_preview_prg.py
 ```
+
+## P02_DOMINO stateful rotation-cycle keys preview
+
+Rotation keys apply a state transition instead of selecting a fixed orientation:
+
+- `A` / `Q`: apply x-axis rotation step;
+- `S` / `W`: apply y-axis rotation step;
+- `D` / `E`: apply z-axis rotation step.
+
+For the domino, directed plus/minus states collapse visually into three axis orientations. Asymmetric blocks will show more unique steps.
+
+Build:
+
+```bash
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p02_domino_rotation_cycle_keys_preview_prg.py
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p02_domino_rotation_cycle_keys_preview_prg.py
+```
