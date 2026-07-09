@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "program": "labs/011_goal_language_to_asm_blockout_renderer/dist/p03_elbow_true_axis_endpoint_3x3_green_line_pit_only_preview.prg",
+  "pieceId": "P03_ELBOW",
+  "mode": "P03_ELBOW 3x3 green-line pit-only diagnostic preview",
+  "shortcutRemoved": true,
+  "abovePit": true,
+  "pitDimensions": {
+    "widthCells": 3,
+    "heightCells": 3,
+    "depthCells": 10
+  },
+  "maxBlockFootprintWidth": 2,
+  "axisControls": {
+    "A": "+x",
+    "Q": "-x",
+    "S": "+y",
+    "W": "-y",
+    "D": "+z",
+    "E": "-z"
+  },
+  "orientationCount": 12,
+  "payloadSource": "labs/011_goal_language_to_asm_blockout_renderer/dist/pieces/P03_ELBOW.true_axis_endpoint_3x3_green_line_pit_payload_report.json",
+  "endpointPayloadClassification": "PATCH",
+  "estimatedEndpointPayloadBytes": 1492,
+  "runtimeLineDrawing": false,
+  "pitOnly": true,
+  "activeBlockDrawn": false,
+  "runtimeTruth": "C64 renders only the green 3x3x10 pit lines. Active block draw is intentionally skipped for color proof.",
+  "pitStyle": "3x3x10 green projected side-wall/opening grid lines; no interior floor grid",
+  "floorDots": false,
+  "floorLines": false,
+  "colorStrategy": "screen cells default green; active line pixels set their 8x8 cells white",
+  "knownArtifact": "Pit-only diagnostic has no active-block white color-cell writes; all pit bitmap bits should display as green.",
+  "sizes": {
+    "codeBytes": 754,
+    "payloadBytes": 1356,
+    "transitionBytes": 72,
+    "pitRecordBytes": 3945,
+    "lookupTableBytes": 1824,
+    "programUsedBytes": 7990,
+    "availablePrgImageBytes": 30717
+  },
+  "prgBytes": 30719,
+  "runtimeKeyboard": true,
+  "runtimeStatefulRotation": true,
+  "previewOnly": true
+}

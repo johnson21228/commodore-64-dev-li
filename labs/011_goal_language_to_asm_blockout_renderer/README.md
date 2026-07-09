@@ -633,3 +633,21 @@ python3 labs/011_goal_language_to_asm_blockout_renderer/tools/generate_p03_elbow
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p03_elbow_true_axis_endpoint_3x3_green_line_pit_preview_prg.py
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p03_elbow_true_axis_endpoint_3x3_green_line_pit_preview_prg.py
 ```
+
+## P03_ELBOW 3x3 green-line pit-only diagnostic
+
+This PRG skips active block drawing to prove whether the pit itself is rendered green.
+
+Rendering:
+
+- clear bitmap;
+- set screen color cells green;
+- draw 3x3x10 projected green pit grid lines;
+- do not draw the active block.
+
+Build:
+
+```bash
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p03_elbow_true_axis_endpoint_3x3_green_line_pit_only_preview_prg.py
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p03_elbow_true_axis_endpoint_3x3_green_line_pit_only_preview_prg.py
+```
