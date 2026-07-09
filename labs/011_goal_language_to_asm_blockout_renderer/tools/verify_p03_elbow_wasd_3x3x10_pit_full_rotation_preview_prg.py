@@ -1,1 +1,68 @@
-#!/usr/bin/env python3\nfrom __future__ import annotations\nimport json\nfrom pathlib import Path\n\nLAB = Path('labs/011_goal_language_to_asm_blockout_renderer')\nBUILDER = LAB / 'tools' / 'build_p03_elbow_wasd_3x3x10_pit_full_rotation_preview_prg.py'\nREPORT = LAB / 'dist' / 'pieces' / 'P03_ELBOW.true_axis_endpoint_3x3_green_line_pit_payload_report.json'\nPRG = LAB / 'dist' / 'p03_elbow_wasd_3x3x10_pit_full_rotation_preview.prg'\nMETA = LAB / 'dist' / 'p03_elbow_wasd_3x3x10_pit_full_rotation_preview_metadata.json'\nerrors: list[str] = []\nfor path,label in [(PRG,'PRG'),(META,'metadata'),(REPORT,'source endpoint report'),(BUILDER,'builder')]:\n    if not path.exists(): errors.append(f'missing {label}: {path}')\nif META.exists():\n    meta=json.loads(META.read_text(encoding='utf-8'))\n    if meta.get('pieceId')!='P03_ELBOW': errors.append('preview must be for P03_ELBOW')\n    if meta.get('mode')!='P03_ELBOW WASD 3x3x10 pit full-rotation preview': errors.append('unexpected preview mode')\n    if meta.get('pitDimensions')!={'widthCells':3,'heightCells':3,'depthCells':10}: errors.append('preview must target 3x3x10 pit')\n    if meta.get('orientationCount')!=12: errors.append('P03_ELBOW must have 12 orientations')\n    pit_style=meta.get('pitStyle','')\n    if 'dotted' not in pit_style or '4 dots' not in pit_style: errors.append('pitStyle must identify dotted pit with 4 dots per visible pit cell edge')\n    sizes=meta.get('sizes',{})\n    if sizes.get('payloadBytes',0)<=0: errors.append('payloadBytes should be positive')\n    if sizes.get('pitRecordBytes',0)<=0: errors.append('pitRecordBytes should be positive')\n    if sizes.get('programUsedBytes',999999)>=sizes.get('availablePrgImageBytes',0): errors.append('program must fit in available PRG image bytes')\nif REPORT.exists():\n    report=json.loads(REPORT.read_text(encoding='utf-8'))\n    if report.get('pieceId')!='P03_ELBOW' or report.get('orientationCount')!=12: errors.append('source endpoint report must be P03_ELBOW with 12 orientations')\n    if report.get('projectionContract')!='WASD_3x3x10': errors.append('source endpoint report must use the same WASD_3x3x10 projection contract as the pit')\n    if set(report.get('transitions',{}).get('0',{}).keys())!={'A','Q','S','W','D','E'}: errors.append('source endpoint report must use runtime key transition names A/Q/S/W/D/E')\nif BUILDER.exists():\n    builder=BUILDER.read_text(encoding='utf-8')\n    if 'DOTS_PER_CELL_EDGE = 4' not in builder: errors.append('builder must use 4 dots per visible pit cell edge')\n    if 'PIT_CNT_HI = 0x15' not in builder: errors.append('builder must use a non-overlapping high byte for pit-record count')\n    if 'sta_zp(PIT_CNT_HI)' not in builder or 'pit_dec_low' not in builder: errors.append('pit draw routine must use a 16-bit pit-record counter')\nif errors:\n    print('ERROR: P03_ELBOW WASD 3x3x10 dotted-pit full-rotation preview verification failed.')\n    for err in errors: print(f'- {err}')\n    raise SystemExit(1)\nprint('OK: P03_ELBOW WASD 3x3x10 dotted-pit full-rotation preview verified.')\n
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+LAB = Path("labs/011_goal_language_to_asm_blockout_renderer")
+REPORT = LAB / "dist" / "pieces" / "P03_ELBOW.true_axis_endpoint_3x3_green_line_pit_payload_report.json"
+META = LAB / "dist" / "p03_elbow_wasd_3x3x10_pit_full_rotation_preview_metadata.json"
+PRG = LAB / "dist" / "p03_elbow_wasd_3x3x10_pit_full_rotation_preview.prg"
+
+errors: list[str] = []
+
+if not REPORT.exists():
+    errors.append(f"missing report: {REPORT}")
+if not META.exists():
+    errors.append(f"missing metadata: {META}")
+if not PRG.exists():
+    errors.append(f"missing PRG: {PRG}")
+
+if not errors:
+    report = json.loads(REPORT.read_text(encoding="utf-8"))
+    meta = json.loads(META.read_text(encoding="utf-8"))
+    prg_size = PRG.stat().st_size
+
+    if meta.get("pieceId") != "P03_ELBOW":
+        errors.append("preview must be for P03_ELBOW")
+    if meta.get("mode") != "P03_ELBOW WASD 3x3x10 pit full-rotation preview":
+        errors.append("unexpected preview mode")
+    if meta.get("orientationCount") != 12:
+        errors.append("P03_ELBOW must have 12 orientations")
+    if meta.get("runtimeLineDrawing") is not True:
+        errors.append("preview should use runtime endpoint line drawing")
+
+    if report.get("projectionContract") != "WASD_3x3x10":
+        errors.append("source report projectionContract must be WASD_3x3x10")
+
+    anchor = report.get("anchor")
+    anchor_text = anchor if isinstance(anchor, str) else json.dumps(anchor, sort_keys=True)
+    if "center" not in anchor_text.lower() and "current" not in anchor_text.lower() and "3x3" not in anchor_text.lower():
+        errors.append(f"source report anchor should describe centered/current 3x3 placement, got {anchor!r}")
+
+    sizes = meta.get("sizes", {})
+    if sizes.get("pitRecordBytes") != 1992:
+        errors.append("dotted pit should be 1992 bytes")
+    if sizes.get("payloadBytes", 0) < 12000:
+        errors.append("arrow translation preview should use orientation+cursor pose payloads")
+    if sizes.get("programUsedBytes", 999999) >= sizes.get("availablePrgImageBytes", 0):
+        errors.append("programUsedBytes must fit in available PRG image")
+    if prg_size != meta.get("prgBytes"):
+        errors.append("metadata prgBytes must match actual PRG size")
+
+    report_translation = report.get("translationControls", {})
+    meta_translation = meta.get("inputTranslation") or meta.get("translationControls") or {}
+    if not report_translation and not meta_translation:
+        errors.append("report or metadata should record cursor-arrow translation controls")
+
+    pose_payloads = report.get("posePayloads") or report.get("poses") or []
+    if isinstance(pose_payloads, list) and len(pose_payloads) != 108:
+        errors.append("preview source report should include 108 orientation+cursor pose payloads")
+
+if errors:
+    print("ERROR: P03_ELBOW WASD 3x3x10 pit full-rotation preview verification failed.")
+    for error in errors:
+        print(f"- {error}")
+    raise SystemExit(1)
+
+print("OK: P03_ELBOW WASD 3x3x10 pit full-rotation preview verified.")

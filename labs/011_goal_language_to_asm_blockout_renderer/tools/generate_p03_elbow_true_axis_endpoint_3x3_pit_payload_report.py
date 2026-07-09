@@ -14,6 +14,8 @@ PIT_H = 3
 PIT_VISUAL_DEPTH = 10
 DEPTH_T_BY_Z = [0.00, 0.34, 0.56, 0.71, 0.81, 0.88, 0.93, 0.96, 0.98, 0.99, 1.00]
 PIECE_CELLS = [(0, 0, 0), (1, 0, 0), (0, 1, 0)]
+POSE_W = 3
+POSE_H = 3
 
 def project(x: float, y: float, z: float) -> tuple[int, int]:
     play_y0 = 2
@@ -87,20 +89,24 @@ def build_orientations():
             transitions[str(idx)][key] = seen[nxt]
     return order, transitions
 
-def place_in_current_pit(cells):
-    maxx = max(x for x, y, z in cells)
-    maxy = max(y for x, y, z in cells)
-    maxz = max(z for x, y, z in cells)
-    width = maxx + 1
-    height = maxy + 1
-    ox = (PIT_W - width) // 2
-    oy = (PIT_H - height) // 2
-    oz = 0
-    placed = tuple(sorted((x + ox, y + oy, z + oz) for x, y, z in cells))
+def dims(cells):
+    return (
+        max(x for x, y, z in cells) + 1,
+        max(y for x, y, z in cells) + 1,
+        max(z for x, y, z in cells) + 1,
+    )
+
+def place_in_current_pit(cells, cursor_x: int = 0, cursor_y: int = 0):
+    width, height, depth = dims(cells)
+    max_ox = max(0, PIT_W - width)
+    max_oy = max(0, PIT_H - height)
+    ox = max(0, min(cursor_x, max_ox))
+    oy = max(0, min(cursor_y, max_oy))
+    placed = tuple(sorted((x + ox, y + oy, z) for x, y, z in cells))
     for x, y, z in placed:
         if not (0 <= x < PIT_W and 0 <= y < PIT_H and 0 <= z < PIT_VISUAL_DEPTH):
             raise RuntimeError(f"placed P03 cell outside 3x3x10 pit: {(x, y, z)}")
-    return placed
+    return placed, ox, oy, max_ox, max_oy
 
 def cube_edges_for_cells(cells):
     edge_set = set()
@@ -150,75 +156,119 @@ def bbox(segs):
         xs += [s["x1"], s["x2"]]
         ys += [s["y1"], s["y2"]]
     return {
-        "minX": min(xs),
-        "minY": min(ys),
-        "maxX": max(xs),
-        "maxY": max(ys),
+        "minX": min(xs), "minY": min(ys),
+        "maxX": max(xs), "maxY": max(ys),
         "width": max(xs) - min(xs) + 1,
         "height": max(ys) - min(ys) + 1,
     }
 
+def orientation_record(idx, cells):
+    placed, ox, oy, max_ox, max_oy = place_in_current_pit(cells, 0, 0)
+    segs = project_edges(placed)
+    buckets = {}
+    for s in segs:
+        buckets[slope_bucket(s)] = buckets.get(slope_bucket(s), 0) + 1
+    lens = [length(s) for s in segs]
+    width, height, depth = dims(cells)
+    return {
+        "orientationId": idx,
+        "normalizedCells": [list(c) for c in cells],
+        "placedCells": [list(c) for c in placed],
+        "legalCursor": {"maxX": max_ox, "maxY": max_oy},
+        "dimensions": {"widthCells": width, "heightCells": height, "depthCells": depth},
+        "projectedLineSegmentCount": len(segs),
+        "estimatedEndpointBytes": 1 + len(segs) * 4,
+        "boundingBox": bbox(segs),
+        "slopeBuckets": buckets,
+        "minLength": round(min(lens), 2),
+        "maxLength": round(max(lens), 2),
+        "avgLength": round(sum(lens) / len(lens), 2),
+        "segments": segs,
+    }
+
+def pose_payload_record(pose_id, orientation_id, cells, cursor_x, cursor_y):
+    placed, ox, oy, max_ox, max_oy = place_in_current_pit(cells, cursor_x, cursor_y)
+    segs = project_edges(placed)
+    return {
+        "poseId": pose_id,
+        "orientationId": orientation_id,
+        "cursorX": cursor_x,
+        "cursorY": cursor_y,
+        "clampedX": ox,
+        "clampedY": oy,
+        "legalCursor": {"maxX": max_ox, "maxY": max_oy},
+        "placedCells": [list(c) for c in placed],
+        "projectedLineSegmentCount": len(segs),
+        "estimatedEndpointBytes": 1 + len(segs) * 4,
+        "boundingBox": bbox(segs),
+        "segments": segs,
+    }
+
 def main():
     orientations, transitions = build_orientations()
-    records = []
+    orientation_records = [orientation_record(idx, cells) for idx, cells in enumerate(orientations)]
+
+    pose_payloads = []
+    pose_id = 0
+    for orientation_id, cells in enumerate(orientations):
+        for cursor_y in range(POSE_H):
+            for cursor_x in range(POSE_W):
+                pose_payloads.append(pose_payload_record(pose_id, orientation_id, cells, cursor_x, cursor_y))
+                pose_id += 1
+
     all_buckets = {}
     total_segments = 0
     max_segments = 0
-    for idx, cells in enumerate(orientations):
-        placed = place_in_current_pit(cells)
-        segs = project_edges(placed)
-        buckets = {}
-        for s in segs:
+    for record in pose_payloads:
+        total_segments += record["projectedLineSegmentCount"]
+        max_segments = max(max_segments, record["projectedLineSegmentCount"])
+        for s in record["segments"]:
             b = slope_bucket(s)
-            buckets[b] = buckets.get(b, 0) + 1
             all_buckets[b] = all_buckets.get(b, 0) + 1
-        lens = [length(s) for s in segs]
-        total_segments += len(segs)
-        max_segments = max(max_segments, len(segs))
-        records.append({
-            "orientationId": idx,
-            "normalizedCells": [list(c) for c in cells],
-            "placedCells": [list(c) for c in placed],
-            "projectedLineSegmentCount": len(segs),
-            "estimatedEndpointBytes": 1 + len(segs) * 4,
-            "boundingBox": bbox(segs),
-            "slopeBuckets": buckets,
-            "minLength": round(min(lens), 2),
-            "maxLength": round(max(lens), 2),
-            "avgLength": round(sum(lens) / len(lens), 2),
-            "segments": segs,
-        })
-    orientation_payload_bytes = sum(1 + len(o["segments"]) * 4 for o in records)
+
+    orientation_payload_bytes = sum(1 + len(o["segments"]) * 4 for o in orientation_records)
+    pose_payload_bytes = sum(1 + len(p["segments"]) * 4 for p in pose_payloads)
     report = {
-        "schemaVersion": 2,
+        "schemaVersion": 3,
         "pieceId": "P03_ELBOW",
         "reportType": "true-axis endpoint payload report",
         "renderingProblem": "Generate active-block endpoint line payload using the same WASD 3x3x10 projection contract as the pit.",
         "previousConflict": "Origin-pinned block payload did not follow current pit size/projection.",
-        "payloadStrategy": "precomputed endpoint line commands; C64 runtime only table-selects orientation payloads and draws lines",
+        "payloadStrategy": "precomputed endpoint line commands; C64 runtime table-selects orientation+cursor pose payloads and draws lines",
         "projectionContract": "WASD_3x3x10",
         "axisControls": {"A": "+x", "Q": "-x", "S": "+y", "W": "-y", "D": "+z", "E": "-z"},
+        "translationControls": {
+            "cursorLeft": {"getinCodeHex": "0x9D", "delta": [-1, 0]},
+            "cursorRight": {"getinCodeHex": "0x1D", "delta": [1, 0]},
+            "cursorUp": {"getinCodeHex": "0x91", "delta": [0, -1]},
+            "cursorDown": {"getinCodeHex": "0x11", "delta": [0, 1]},
+        },
         "abovePit": False,
         "pitDimensions": {"widthCells": PIT_W, "heightCells": PIT_H, "depthCells": PIT_VISUAL_DEPTH},
         "pitStyle": "green dotted pit, 4 dots per visible pit cell edge",
         "floorLines": False,
-        "anchor": "centered-in-current-3x3-pit",
-        "orientationCount": len(records),
+        "anchor": "runtime-cursor-in-current-3x3-pit",
+        "poseGrid": {"width": POSE_W, "height": POSE_H, "poseCount": len(pose_payloads), "indexFormula": "orientationId*9 + cursorY*3 + cursorX"},
+        "orientationCount": len(orientation_records),
         "summary": {
-            "orientationCount": len(records),
+            "orientationCount": len(orientation_records),
+            "orientationProjectedLineSegments": sum(o["projectedLineSegmentCount"] for o in orientation_records),
             "totalProjectedLineSegments": total_segments,
-            "maxProjectedLineSegmentsPerOrientation": max_segments,
+            "maxProjectedLineSegmentsPerOrientation": max(o["projectedLineSegmentCount"] for o in orientation_records),
+            "maxProjectedLineSegmentsPerPose": max_segments,
             "orientationPayloadBytes": orientation_payload_bytes,
-            "transitionTableBytes": len(records) * 6,
-            "orientationOffsetTableBytes": len(records) * 2,
+            "posePayloadBytes": pose_payload_bytes,
+            "transitionTableBytes": len(orientation_records) * 6,
+            "orientationOffsetTableBytes": len(pose_payloads) * 2,
             "globalHeaderBytes": 16,
-            "estimatedTotalEndpointPayloadBytes": orientation_payload_bytes + len(records) * 8 + 16,
+            "estimatedTotalEndpointPayloadBytes": pose_payload_bytes + len(pose_payloads) * 2 + len(orientation_records) * 6 + 16,
             "classification": "PATCH",
             "slopeBuckets": all_buckets,
-            "recommendation": "Proceed: P03_ELBOW endpoint payload now shares WASD_3x3x10 projection with the pit.",
+            "recommendation": "Proceed: P03_ELBOW endpoint payload now shares WASD_3x3x10 projection and supports cursor translation.",
         },
         "transitions": transitions,
-        "orientations": records,
+        "orientations": orientation_records,
+        "posePayloads": pose_payloads,
         "liPlusPlusMeaning": {
             "intelligenceLivesUpstream": True,
             "runtimeStaysLean": True,

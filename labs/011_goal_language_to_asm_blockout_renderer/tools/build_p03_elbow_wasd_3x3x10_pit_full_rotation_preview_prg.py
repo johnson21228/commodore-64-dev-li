@@ -42,6 +42,8 @@ YCUR = 0x11
 PLOT_WHITE = 0x12
 PLOT_PTR_LO = 0x13
 PLOT_PTR_HI = 0x14
+XPOS = 0x16
+YPOS = 0x17
 
 def bitmap_offset(x: int, y: int) -> int:
     return (y // 8) * 320 + (x // 8) * 8 + (y % 8)
@@ -198,6 +200,8 @@ def build_code(symbols: dict[str, int], orientation_count: int, pit_record_count
     def bcc(label): a.emit(0x90); a.rel_patch(label)
     def bcs(label): a.emit(0xB0); a.rel_patch(label)
     def bpl(label): a.emit(0x10); a.rel_patch(label)
+    def dec_zp(zp): a.emit(0xC6, zp)  # DEC zp
+    def inc_zp(zp): a.emit(0xE6, zp)  # INC zp
     def jsr(label): a.emit(0x20); a.abs_patch(label)
     def jmp(label): a.emit(0x4C); a.abs_patch(label)
 
@@ -207,18 +211,29 @@ def build_code(symbols: dict[str, int], orientation_count: int, pit_record_count
     lda_imm(0x3B); sta_abs(0xD011)
     lda_imm(0x08); sta_abs(0xD016)
     lda_imm(0x18); sta_abs(0xD018)
-    lda_imm(0); sta_zp(ORIENT)
+    lda_imm(0); sta_zp(ORIENT); sta_zp(XPOS); sta_zp(YPOS)
     jsr("draw_frame")
 
     a.label("main")
     a.emit(0x20, 0xE4, 0xFF)  # GETIN
-    cmp_imm(0); beq("main")
+    cmp_imm(0); bne("input_nonzero")
+    jmp("main")
+    a.label("input_nonzero")
     cmp_imm(ord("A")); beq("key_a")
     cmp_imm(ord("Q")); beq("key_q")
     cmp_imm(ord("S")); beq("key_s")
     cmp_imm(ord("W")); beq("key_w")
     cmp_imm(ord("D")); beq("key_d")
     cmp_imm(ord("E")); beq("key_e")
+    # Cursor keys use absolute JMP trampolines so 6502 relative branches stay in range.
+    cmp_imm(0x9D); bne("not_cursor_left"); jmp("key_left")
+    a.label("not_cursor_left")
+    cmp_imm(0x1D); bne("not_cursor_right"); jmp("key_right")
+    a.label("not_cursor_right")
+    cmp_imm(0x91); bne("not_cursor_up"); jmp("key_up")
+    a.label("not_cursor_up")
+    cmp_imm(0x11); bne("not_cursor_down"); jmp("key_down")
+    a.label("not_cursor_down")
     jmp("main")
 
     def key_handler(label: str, table_name: str) -> None:
@@ -238,6 +253,28 @@ def build_code(symbols: dict[str, int], orientation_count: int, pit_record_count
     ]:
         key_handler(label, table)
 
+    def move_handler(label: str, zp: int, direction: int) -> None:
+        a.label(label)
+        lda_zp(zp)
+        if direction < 0:
+            bne(f"{label}_can_dec")
+            jmp("main")
+            a.label(f"{label}_can_dec")
+            dec_zp(zp)
+        else:
+            cmp_imm(2)
+            bne(f"{label}_can_inc")
+            jmp("main")
+            a.label(f"{label}_can_inc")
+            inc_zp(zp)
+        jsr("draw_frame")
+        jmp("main")
+
+    move_handler("key_left", XPOS, -1)
+    move_handler("key_right", XPOS, 1)
+    move_handler("key_up", YPOS, -1)
+    move_handler("key_down", YPOS, 1)
+
     a.label("draw_frame")
     jsr("clear_bitmap")
     jsr("fill_screen_green")
@@ -248,7 +285,17 @@ def build_code(symbols: dict[str, int], orientation_count: int, pit_record_count
     a.emit(0x60)
 
     a.label("load_orientation_payload")
-    lda_zp(ORIENT); a.emit(0xAA)
+    # poseIndex = orientation*9 + y*3 + x
+    lda_zp(ORIENT)
+    a.emit(0x0A); a.emit(0x0A); a.emit(0x0A)  # A = orientation*8
+    a.emit(0x18); a.emit(0x65, ORIENT)        # A = orientation*9
+    sta_zp(TMP)
+    lda_zp(YPOS)
+    a.emit(0x0A)                              # A = y*2
+    a.emit(0x18); a.emit(0x65, YPOS)          # A = y*3
+    a.emit(0x18); a.emit(0x65, TMP)
+    a.emit(0x18); a.emit(0x65, XPOS)
+    a.emit(0xAA)  # TAX
     a.emit(0xBD, symbols["payload_lo"] & 0xFF, (symbols["payload_lo"] >> 8) & 0xFF); sta_zp(PTR_LO)
     a.emit(0xBD, symbols["payload_hi"] & 0xFF, (symbols["payload_hi"] >> 8) & 0xFF); sta_zp(PTR_HI)
     ldy_imm(0)
@@ -455,9 +502,10 @@ def basic_stub() -> bytes:
     return bytes([0x0C, 0x08, 0x0A, 0x00, 0x9E, 0x32, 0x30, 0x36, 0x31, 0x00, 0x00, 0x00])
 
 def make_payloads(report):
-    orientations = report["orientations"]
+    # Prefer posePayloads when present: orientationId*9 + cursorY*3 + cursorX.
+    items = report.get("posePayloads") or report["orientations"]
     payloads = []
-    for item in orientations:
+    for item in items:
         segs = item["segments"]
         if len(segs) > 255:
             raise RuntimeError("line count too high for one-byte count")
@@ -624,7 +672,7 @@ def main():
         "endpointPayloadClassification": report["summary"]["classification"],
         "estimatedEndpointPayloadBytes": report["summary"]["estimatedTotalEndpointPayloadBytes"],
         "runtimeLineDrawing": True,
-        "runtimeTruth": "C64 draws a green dotted WASD 3x3x10 pit, then key-driven P03_ELBOW endpoint payload generated from the same projection contract.",
+        "runtimeTruth": "C64 draws a green dotted WASD 3x3x10 pit, then key-driven P03_ELBOW endpoint payload generated from orientation+cursor pose tables.",
         "pitStyle": "green dotted WASD 3x3x10 pit, 4 dots per visible pit cell edge",
         "floorDots": False,
         "floorLines": False,
