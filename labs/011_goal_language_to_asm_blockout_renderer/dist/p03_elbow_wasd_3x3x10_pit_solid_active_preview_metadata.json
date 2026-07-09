@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "program": "labs/011_goal_language_to_asm_blockout_renderer/dist/p03_elbow_wasd_3x3x10_pit_solid_active_preview.prg",
+  "pieceId": "P03_ELBOW",
+  "mode": "P03_ELBOW WASD 3x3x10 pit solid-active preview",
+  "shortcutRemoved": true,
+  "abovePit": true,
+  "pitDimensions": {
+    "widthCells": 3,
+    "heightCells": 3,
+    "depthCells": 10
+  },
+  "maxBlockFootprintWidth": 2,
+  "axisControls": {
+    "A": "+x",
+    "Q": "-x",
+    "S": "+y",
+    "W": "-y",
+    "D": "+z",
+    "E": "-z"
+  },
+  "orientationCount": 12,
+  "payloadSource": "labs/011_goal_language_to_asm_blockout_renderer/dist/pieces/P03_ELBOW.true_axis_endpoint_3x3_green_line_pit_payload_report.json",
+  "endpointPayloadClassification": "PATCH",
+  "estimatedEndpointPayloadBytes": 12508,
+  "runtimeLineDrawing": false,
+  "activeSolidBoxes": true,
+  "activeBoxPayloadBytes": 1404,
+  "runtimeTruth": "C64 draws a green dotted WASD 3x3x10 pit, then key-driven P03_ELBOW solid active screen-cell boxes generated from placedCells.",
+  "pitStyle": "green dotted WASD 3x3x10 pit, 4 dots per visible pit cell edge",
+  "floorDots": false,
+  "floorLines": false,
+  "colorStrategy": "screen cells default green; active solid boxes fill bitmap cells and set their 8x8 cells white",
+  "knownArtifact": "Solid active boxes are coarse 8x8-cell diagnostic fills; this proves active block visibility before face-accurate fills.",
+  "sizes": {
+    "codeBytes": 1093,
+    "payloadBytes": 12204,
+    "activeBoxPayloadBytes": 1404,
+    "transitionBytes": 72,
+    "pitRecordBytes": 1992,
+    "lookupTableBytes": 2004,
+    "programUsedBytes": 19229,
+    "availablePrgImageBytes": 30717
+  },
+  "prgBytes": 30719,
+  "runtimeKeyboard": true,
+  "runtimeStatefulRotation": true,
+  "previewOnly": true
+}
