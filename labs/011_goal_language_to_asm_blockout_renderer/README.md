@@ -402,3 +402,20 @@ Build:
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p02_domino_white_dashed_pit_preview_prg.py
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p02_domino_white_dashed_pit_preview_prg.py
 ```
+
+## P02_DOMINO full rotation keys preview
+
+This preview adds original-game-style rotation keys for the dynamic block:
+
+- `A` / `Q`: x-axis orientation;
+- `S` / `W`: y-axis orientation;
+- `D` / `E`: z-axis orientation.
+
+It is an ASAP interactive proof. It uses the dashed-white pit and solid-white dynamic block line grammar.
+
+Build:
+
+```bash
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p02_domino_full_rotation_keys_preview_prg.py
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p02_domino_full_rotation_keys_preview_prg.py
+```

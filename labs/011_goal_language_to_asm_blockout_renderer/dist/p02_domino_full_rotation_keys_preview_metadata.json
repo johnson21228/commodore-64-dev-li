@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 2,
+  "program": "labs/011_goal_language_to_asm_blockout_renderer/dist/p02_domino_full_rotation_keys_preview.prg",
+  "mode": "P02_DOMINO full rotation keys preview",
+  "controls": {
+    "A": "x_axis orientation",
+    "Q": "x_axis orientation",
+    "S": "y_axis orientation",
+    "W": "y_axis orientation",
+    "D": "z_axis orientation",
+    "E": "z_axis orientation"
+  },
+  "note": "ASAP interactive proof. Keys select the three unique domino orientations. This is not final gameplay rotation state or lean endpoint runtime yet.",
+  "lineLanguage": {
+    "pit": "white subtle dashed lines",
+    "activeBlock": "solid white outline"
+  },
+  "orientations": {
+    "x_axis": {
+      "occupiedCells": [
+        [
+          1,
+          2,
+          0
+        ],
+        [
+          2,
+          2,
+          0
+        ]
+      ],
+      "recordBytes": 3711,
+      "recordCount": 1237
+    },
+    "y_axis": {
+      "occupiedCells": [
+        [
+          2,
+          1,
+          0
+        ],
+        [
+          2,
+          2,
+          0
+        ]
+      ],
+      "recordBytes": 3930,
+      "recordCount": 1310
+    },
+    "z_axis": {
+      "occupiedCells": [
+        [
+          2,
+          2,
+          0
+        ],
+        [
+          2,
+          2,
+          1
+        ]
+      ],
+      "recordBytes": 3573,
+      "recordCount": 1191
+    }
+  },
+  "memoryLayout": {
+    "loadAddress": "0x801",
+    "sysAddress": "0x80d",
+    "screenAddress": "0x4400",
+    "bitmapAddress": "0x6000",
+    "endAddress": "0x8000",
+    "recordTableAddresses": {
+      "records_x": "0x970",
+      "records_y": "0x17ef",
+      "records_z": "0x2749"
+    },
+    "machineCodeBytes": 354,
+    "programBytesBeforeImagePad": 11583
+  },
+  "prgBytes": 30719,
+  "runtimeKeyboard": true,
+  "runtimeLineDrawing": false,
+  "previewOnly": true
+}
