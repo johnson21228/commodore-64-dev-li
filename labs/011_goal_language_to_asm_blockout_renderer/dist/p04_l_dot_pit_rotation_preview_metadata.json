@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "program": "labs/011_goal_language_to_asm_blockout_renderer/dist/p04_l_dot_pit_rotation_preview.prg",
+  "pieceId": "P04_L",
+  "mode": "P04_L dot-only pit rotation preview",
+  "pitStyle": "dots-only at projected pit grid intersections",
+  "reason": "Reduce visual conflict and 8x8 color-cell contamination by minimizing pit pixels under active block cells.",
+  "controls": {
+    "A/S/D": "advance one visible 90-degree step",
+    "Q/W/E": "reverse one visible 90-degree step"
+  },
+  "cycle": "0 -> 1 -> 2 -> 3 -> 0",
+  "states": {
+    "0": {
+      "rotationDegrees": 0,
+      "occupiedCells": [
+        [
+          1,
+          1,
+          0
+        ],
+        [
+          2,
+          1,
+          0
+        ],
+        [
+          3,
+          1,
+          0
+        ],
+        [
+          1,
+          2,
+          0
+        ]
+      ],
+      "recordCount": 1033,
+      "recordBytes": 3099
+    },
+    "1": {
+      "rotationDegrees": 90,
+      "occupiedCells": [
+        [
+          3,
+          1,
+          0
+        ],
+        [
+          3,
+          2,
+          0
+        ],
+        [
+          3,
+          3,
+          0
+        ],
+        [
+          2,
+          1,
+          0
+        ]
+      ],
+      "recordCount": 1060,
+      "recordBytes": 3180
+    },
+    "2": {
+      "rotationDegrees": 180,
+      "occupiedCells": [
+        [
+          1,
+          3,
+          0
+        ],
+        [
+          2,
+          3,
+          0
+        ],
+        [
+          3,
+          3,
+          0
+        ],
+        [
+          3,
+          2,
+          0
+        ]
+      ],
+      "recordCount": 1038,
+      "recordBytes": 3114
+    },
+    "3": {
+      "rotationDegrees": 270,
+      "occupiedCells": [
+        [
+          1,
+          1,
+          0
+        ],
+        [
+          1,
+          2,
+          0
+        ],
+        [
+          1,
+          3,
+          0
+        ],
+        [
+          2,
+          3,
+          0
+        ]
+      ],
+      "recordCount": 1089,
+      "recordBytes": 3267
+    }
+  },
+  "dotPitByteRecords": 664,
+  "comparisonToLinePit": "The dot pit has sparse reference points rather than continuous dashed/solid pit lines.",
+  "prgBytes": 30719,
+  "runtimeKeyboard": true,
+  "runtimeStatefulRotation": true,
+  "runtimeLineDrawing": false,
+  "previewOnly": true
+}

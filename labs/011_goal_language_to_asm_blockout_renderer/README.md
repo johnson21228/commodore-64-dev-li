@@ -481,3 +481,17 @@ Build:
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/generate_p04_l_sprite_feasibility_report.py
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p04_l_sprite_feasibility_report.py
 ```
+
+## P04_L dot-only pit rotation preview
+
+This preview tests a sparse pit representation:
+
+- pit: dots at projected grid intersections;
+- active block: solid white outline.
+
+Build:
+
+```bash
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p04_l_dot_pit_rotation_preview_prg.py
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p04_l_dot_pit_rotation_preview_prg.py
+```
