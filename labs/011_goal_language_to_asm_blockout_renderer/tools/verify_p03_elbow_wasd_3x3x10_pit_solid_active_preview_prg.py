@@ -32,6 +32,8 @@ if not errors:
         errors.append("solid-active preview should not use runtime line drawing for the active piece")
     if meta.get("activeSolidBoxes") is not True:
         errors.append("solid-active preview must declare activeSolidBoxes")
+    if meta.get("activeBoxWireframe") is not True:
+        errors.append("solid-active preview must declare activeBoxWireframe")
     if meta.get("activeBoxPayloadBytes", 0) < 1000:
         errors.append("active box payload should be present for all orientation+cursor poses")
     if report.get("projectionContract") != "WASD_3x3x10":

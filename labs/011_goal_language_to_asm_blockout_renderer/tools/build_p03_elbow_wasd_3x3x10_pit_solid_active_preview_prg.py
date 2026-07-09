@@ -355,13 +355,35 @@ def build_code(symbols: dict[str, int], orientation_count: int, pit_record_count
     lda_zp(COL_CUR); a.emit(0xAA)
     lda_zp(PLOT_PTR_LO); a.emit(0x18); a.emit(0x7D, symbols["col8_lo"] & 0xFF, (symbols["col8_lo"] >> 8) & 0xFF); sta_zp(PLOT_PTR_LO)
     lda_zp(PLOT_PTR_HI); a.emit(0x7D, symbols["col8_hi"] & 0xFF, (symbols["col8_hi"] >> 8) & 0xFF); sta_zp(PLOT_PTR_HI)
-    lda_imm(0xFF)
-    ldy_imm(0)
-    a.label("fill_active_bitmap_byte_loop")
-    a.emit(0x91, PLOT_PTR_LO)
-    a.emit(0xC8)
-    a.emit(0xC0, 0x08)  # CPY #8
-    bne("fill_active_bitmap_byte_loop")
+
+    # Build an 8-bit fill mask for a white cell with black left/right wireframe cuts.
+    lda_imm(0xFF); sta_zp(MASK_ZP)
+    lda_zp(COL_CUR); a.emit(0xC5, BOX_C0); bne("active_not_left_edge")
+    lda_zp(MASK_ZP); a.emit(0x29, 0x7F); sta_zp(MASK_ZP)
+    a.label("active_not_left_edge")
+    lda_zp(COL_CUR); a.emit(0xC5, BOX_C1); bne("active_not_right_edge")
+    lda_zp(MASK_ZP); a.emit(0x29, 0xFE); sta_zp(MASK_ZP)
+    a.label("active_not_right_edge")
+
+    # Top and bottom box rows are black-cut for a coarse wireframe around each active cube box.
+    lda_zp(ROW_CUR); a.emit(0xC5, BOX_R0); bne("active_row0_not_top")
+    lda_imm(0x00); jmp("active_store_byte0")
+    a.label("active_row0_not_top")
+    lda_zp(MASK_ZP)
+    a.label("active_store_byte0")
+    ldy_imm(0); a.emit(0x91, PLOT_PTR_LO)
+
+    for byte_index in range(1, 7):
+        lda_zp(MASK_ZP)
+        ldy_imm(byte_index)
+        a.emit(0x91, PLOT_PTR_LO)
+
+    lda_zp(ROW_CUR); a.emit(0xC5, BOX_R1); bne("active_row7_not_bottom")
+    lda_imm(0x00); jmp("active_store_byte7")
+    a.label("active_row7_not_bottom")
+    lda_zp(MASK_ZP)
+    a.label("active_store_byte7")
+    ldy_imm(7); a.emit(0x91, PLOT_PTR_LO)
 
     lda_zp(ROW_CUR); a.emit(0xAA)
     a.emit(0xBD, symbols["screencellrow_lo"] & 0xFF, (symbols["screencellrow_lo"] >> 8) & 0xFF); sta_zp(PLOT_PTR_LO)
@@ -857,13 +879,15 @@ def main():
         "estimatedEndpointPayloadBytes": report["summary"]["estimatedTotalEndpointPayloadBytes"],
         "runtimeLineDrawing": False,
         "activeSolidBoxes": True,
+        "activeBoxWireframe": True,
+        "activeBoxWireframeStrategy": "black 1-pixel cuts on top/bottom/left/right edges of each coarse 8x8 active box",
         "activeBoxPayloadBytes": sizes.get("activeBoxPayloadBytes"),
         "runtimeTruth": "C64 draws a green dotted WASD 3x3x10 pit, then key-driven P03_ELBOW solid active screen-cell boxes generated from placedCells.",
         "pitStyle": "green dotted WASD 3x3x10 pit, 4 dots per visible pit cell edge",
         "floorDots": False,
         "floorLines": False,
         "colorStrategy": "screen cells default green; active solid boxes fill bitmap cells and set their 8x8 cells white",
-        "knownArtifact": "Solid active boxes are coarse 8x8-cell diagnostic fills; this proves active block visibility before face-accurate fills.",
+        "knownArtifact": "Solid active boxes are coarse 8x8-cell diagnostic fills with black wireframe cuts around each placed cube box; next step is face-accurate fills.",
         "sizes": sizes,
         "prgBytes": len(image),
         "runtimeKeyboard": True,
