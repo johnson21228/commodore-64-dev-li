@@ -585,3 +585,27 @@ Build:
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p04_l_true_axis_endpoint_preview_prg.py
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p04_l_true_axis_endpoint_preview_prg.py
 ```
+
+## P04_L true-axis endpoint 3x3 pit preview
+
+This preview switches the endpoint runtime proof to a 3x3x10 pit.
+
+Controls:
+
+- A/Q rotate about x;
+- S/W rotate about y;
+- D/E rotate about z.
+
+Rendering:
+
+- pit: 3x3x10, more single-pixel green side-wall/opening dots;
+- floor: no interior floor dots;
+- active block: endpoint-drawn white outline.
+
+Build:
+
+```bash
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/generate_p04_l_true_axis_endpoint_3x3_pit_payload_report.py
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p04_l_true_axis_endpoint_3x3_pit_preview_prg.py
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p04_l_true_axis_endpoint_3x3_pit_preview_prg.py
+```
