@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "program": "labs/011_goal_language_to_asm_blockout_renderer/dist/p03_elbow_visible_green_pit_diagnostic.prg",
+  "pieceId": "P03_ELBOW",
+  "mode": "P03_ELBOW visible green 3x3x10 pit diagnostic",
+  "shortcutRemoved": true,
+  "abovePit": true,
+  "pitDimensions": {
+    "widthCells": 3,
+    "heightCells": 3,
+    "depthCells": 10
+  },
+  "maxBlockFootprintWidth": 2,
+  "axisControls": {
+    "A": "+x",
+    "Q": "-x",
+    "S": "+y",
+    "W": "-y",
+    "D": "+z",
+    "E": "-z"
+  },
+  "orientationCount": 12,
+  "payloadSource": "labs/011_goal_language_to_asm_blockout_renderer/dist/pieces/P03_ELBOW.true_axis_endpoint_3x3_green_line_pit_payload_report.json",
+  "endpointPayloadClassification": "PATCH",
+  "estimatedEndpointPayloadBytes": 1492,
+  "runtimeLineDrawing": false,
+  "pitOnly": true,
+  "activeBlockDrawn": false,
+  "runtimeTruth": "C64 renders only the green 3x3x10 pit lines. Active block draw is intentionally skipped for color proof.",
+  "pitStyle": "VISIBLE diagnostic 3x3x10 green pit: enlarged top grid, side-wall rails, depth rings",
+  "floorDots": false,
+  "floorLines": false,
+  "colorStrategy": "screen cells default green; active line pixels set their 8x8 cells white",
+  "knownArtifact": "No active-block draw. This diagnostic must show a readable green pit if bitmap/color setup is correct.",
+  "sizes": {
+    "codeBytes": 754,
+    "payloadBytes": 1356,
+    "transitionBytes": 72,
+    "pitRecordBytes": 7875,
+    "lookupTableBytes": 1824,
+    "programUsedBytes": 11920,
+    "availablePrgImageBytes": 30717
+  },
+  "prgBytes": 30719,
+  "runtimeKeyboard": true,
+  "runtimeStatefulRotation": true,
+  "previewOnly": true
+}

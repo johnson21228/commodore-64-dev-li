@@ -651,3 +651,14 @@ Build:
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p03_elbow_true_axis_endpoint_3x3_green_line_pit_only_preview_prg.py
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p03_elbow_true_axis_endpoint_3x3_green_line_pit_only_preview_prg.py
 ```
+
+## Visible green 3x3x10 pit diagnostic
+
+This diagnostic skips active block drawing and uses an enlarged screen projection to prove the green pit can be rendered as a readable wireframe.
+
+Build:
+
+```bash
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p03_elbow_visible_green_pit_diagnostic_prg.py
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p03_elbow_visible_green_pit_diagnostic_prg.py
+```
