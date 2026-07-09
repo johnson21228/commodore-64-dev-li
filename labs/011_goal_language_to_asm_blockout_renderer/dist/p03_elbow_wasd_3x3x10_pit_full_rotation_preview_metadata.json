@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "program": "labs/011_goal_language_to_asm_blockout_renderer/dist/p03_elbow_wasd_3x3x10_pit_full_rotation_preview.prg",
+  "pieceId": "P03_ELBOW",
+  "mode": "P03_ELBOW WASD 3x3x10 pit full-rotation preview",
+  "shortcutRemoved": true,
+  "abovePit": true,
+  "pitDimensions": {
+    "widthCells": 3,
+    "heightCells": 3,
+    "depthCells": 10
+  },
+  "maxBlockFootprintWidth": 2,
+  "axisControls": {
+    "A": "+x",
+    "Q": "-x",
+    "S": "+y",
+    "W": "-y",
+    "D": "+z",
+    "E": "-z"
+  },
+  "orientationCount": 12,
+  "payloadSource": "labs/011_goal_language_to_asm_blockout_renderer/dist/pieces/P03_ELBOW.true_axis_endpoint_3x3_green_line_pit_payload_report.json",
+  "endpointPayloadClassification": "PATCH",
+  "estimatedEndpointPayloadBytes": 1492,
+  "runtimeLineDrawing": true,
+  "runtimeTruth": "C64 draws the known-good WASD 3x3x10 pit records, then key-driven P03_ELBOW endpoint full rotation.",
+  "pitStyle": "known-good WASD compact bitmap-record pit, changed from 5x5x10 to 3x3x10",
+  "floorDots": false,
+  "floorLines": false,
+  "colorStrategy": "screen cells default green; active line pixels set their 8x8 cells white",
+  "knownArtifact": "Pit geometry now comes from the WASD known-good compact pit renderer. Active block may still recolor overlapping 8x8 cells white.",
+  "sizes": {
+    "codeBytes": 764,
+    "payloadBytes": 1356,
+    "transitionBytes": 72,
+    "pitRecordBytes": 6378,
+    "lookupTableBytes": 1824,
+    "programUsedBytes": 10439,
+    "availablePrgImageBytes": 30717
+  },
+  "prgBytes": 30719,
+  "runtimeKeyboard": true,
+  "runtimeStatefulRotation": true,
+  "previewOnly": true
+}

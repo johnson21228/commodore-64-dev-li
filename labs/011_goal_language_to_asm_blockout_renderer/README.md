@@ -662,3 +662,20 @@ Build:
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p03_elbow_visible_green_pit_diagnostic_prg.py
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p03_elbow_visible_green_pit_diagnostic_prg.py
 ```
+
+## P03_ELBOW WASD 3x3x10 pit full-rotation preview
+
+This preview uses the known-good WASD compact pit renderer, changes the pit footprint to 3x3x10, and overlays the `P03_ELBOW` three-cube L with full true-axis rotation.
+
+Controls:
+
+- A/Q rotate about x;
+- S/W rotate about y;
+- D/E rotate about z.
+
+Build:
+
+```bash
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p03_elbow_wasd_3x3x10_pit_full_rotation_preview_prg.py
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p03_elbow_wasd_3x3x10_pit_full_rotation_preview_prg.py
+```
