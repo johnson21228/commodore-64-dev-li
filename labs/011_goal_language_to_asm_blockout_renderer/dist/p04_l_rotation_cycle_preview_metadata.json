@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "program": "labs/011_goal_language_to_asm_blockout_renderer/dist/p04_l_rotation_cycle_preview.prg",
+  "pieceId": "P04_L",
+  "mode": "P04_L visible four-state rotation-cycle preview",
+  "sourcePiece": {
+    "pieceId": "P04_L",
+    "canonicalCubes": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        2,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0
+      ]
+    ],
+    "description": "Four-cube long L from existing blockout_piece_source.json"
+  },
+  "controls": {
+    "A/S/D": "advance one visible 90-degree step",
+    "Q/W/E": "reverse one visible 90-degree step"
+  },
+  "states": {
+    "0": {
+      "rotationDegrees": 0,
+      "occupiedCells": [
+        [
+          1,
+          1,
+          0
+        ],
+        [
+          2,
+          1,
+          0
+        ],
+        [
+          3,
+          1,
+          0
+        ],
+        [
+          1,
+          2,
+          0
+        ]
+      ],
+      "recordCount": 1393,
+      "recordBytes": 4179
+    },
+    "1": {
+      "rotationDegrees": 90,
+      "occupiedCells": [
+        [
+          3,
+          1,
+          0
+        ],
+        [
+          3,
+          2,
+          0
+        ],
+        [
+          3,
+          3,
+          0
+        ],
+        [
+          2,
+          1,
+          0
+        ]
+      ],
+      "recordCount": 1438,
+      "recordBytes": 4314
+    },
+    "2": {
+      "rotationDegrees": 180,
+      "occupiedCells": [
+        [
+          1,
+          3,
+          0
+        ],
+        [
+          2,
+          3,
+          0
+        ],
+        [
+          3,
+          3,
+          0
+        ],
+        [
+          3,
+          2,
+          0
+        ]
+      ],
+      "recordCount": 1387,
+      "recordBytes": 4161
+    },
+    "3": {
+      "rotationDegrees": 270,
+      "occupiedCells": [
+        [
+          1,
+          1,
+          0
+        ],
+        [
+          1,
+          2,
+          0
+        ],
+        [
+          1,
+          3,
+          0
+        ],
+        [
+          2,
+          3,
+          0
+        ]
+      ],
+      "recordCount": 1444,
+      "recordBytes": 4332
+    }
+  },
+  "cycle": "0 -> 1 -> 2 -> 3 -> 0",
+  "lineLanguage": {
+    "pit": "white subtle dashed lines",
+    "activeBlock": "solid white outline"
+  },
+  "note": "ASAP visual proof that an asymmetric L-shaped block keeps rotating around. This uses z-plane four-state visual rotation before generalized 3D axis rotation.",
+  "memoryLayout": {
+    "loadAddress": "0x801",
+    "sysAddress": "0x80d",
+    "screenAddress": "0x4400",
+    "bitmapAddress": "0x6000",
+    "tableAddresses": {
+      "0": "0x9b0",
+      "1": "0x1a03",
+      "2": "0x2add",
+      "3": "0x3b1e"
+    },
+    "machineCodeBytes": 417,
+    "programBytesBeforeImagePad": 17419
+  },
+  "prgBytes": 30719,
+  "runtimeKeyboard": true,
+  "runtimeStatefulRotation": true,
+  "runtimeLineDrawing": false,
+  "previewOnly": true
+}

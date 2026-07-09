@@ -436,3 +436,25 @@ Build:
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p02_domino_rotation_cycle_keys_preview_prg.py
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p02_domino_rotation_cycle_keys_preview_prg.py
 ```
+
+## P04_L four-state rotation-cycle preview
+
+This preview switches the full-revolution proof from the symmetric domino to the existing `P04_L` piece.
+
+Controls:
+
+- `A` / `S` / `D`: advance one visible 90-degree step;
+- `Q` / `W` / `E`: reverse one visible 90-degree step.
+
+Cycle:
+
+```text
+0 -> 1 -> 2 -> 3 -> 0
+```
+
+Build:
+
+```bash
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p04_l_rotation_cycle_preview_prg.py
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p04_l_rotation_cycle_preview_prg.py
+```
