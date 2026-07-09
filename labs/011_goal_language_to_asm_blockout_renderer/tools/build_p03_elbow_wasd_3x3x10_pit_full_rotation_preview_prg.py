@@ -22,7 +22,7 @@ ORIENT = 0x02
 PTR_LO = 0xFB
 PTR_HI = 0xFC
 CNT = 0xFD
-PIT_CNT_HI = 0x02  # high byte for static pit-record count only
+PIT_CNT_HI = 0x15  # high byte for static pit-record count only; do not overlap ORIENT
 TMP = 0xFE
 MASK_ZP = 0x03
 X0 = 0x04
@@ -68,11 +68,13 @@ def load_base_projection():
     return module
 
 def pit_dot_records() -> dict[int, int]:
-    # Known-good WASD pit renderer baseline, changed only to 3x3x10.
-    # Source geometry model: build_wasd_5x5_cube_control_prg.py
+    # Green dotted pit renderer, using the same WASD 3x3x10 projection contract
+    # as the active P03 endpoint payload. Dots are intentionally sparse to reduce
+    # C64 hi-res 8x8 color-cell collisions with the white active piece.
     PIT_W = 3
     PIT_H = 3
     PIT_VISUAL_DEPTH = 10
+    DOTS_PER_CELL_EDGE = 4
     DEPTH_T_BY_Z = [0.00, 0.34, 0.56, 0.71, 0.81, 0.88, 0.93, 0.96, 0.98, 0.99, 1.00]
     VISIBLE_RING_ZS = [0, 1, 2, 3, 4, 5, 6, 8, 10]
 
@@ -82,69 +84,53 @@ def pit_dot_records() -> dict[int, int]:
         pit_size = play_y1 - play_y0
         play_x0 = 30
         play_x1 = play_x0 + pit_size
-
         z_clamped = max(0.0, min(float(PIT_VISUAL_DEPTH), float(z)))
         z0 = int(z_clamped)
         z1 = min(PIT_VISUAL_DEPTH, z0 + 1)
         frac = z_clamped - z0
         t = DEPTH_T_BY_Z[z0] + (DEPTH_T_BY_Z[z1] - DEPTH_T_BY_Z[z0]) * frac
-
         near_w = play_x1 - play_x0
         near_h = play_y1 - play_y0
         far_w = 72
         far_h = 72
-
         width = near_w + (far_w - near_w) * t
         height = near_h + (far_h - near_h) * t
-
         cx = (play_x0 + play_x1) / 2
         cy = (play_y0 + play_y1) / 2
-
         left = cx - width / 2
         top = cy - height / 2
-
         return round(left + x * width / PIT_W), round(top + y * height / PIT_H)
-
-    def line_pixels(x1: int, y1: int, x2: int, y2: int):
-        dx = abs(x2 - x1)
-        dy = -abs(y2 - y1)
-        sx = 1 if x1 < x2 else -1
-        sy = 1 if y1 < y2 else -1
-        err = dx + dy
-        x, y = x1, y1
-        while True:
-            if 0 <= x <= 319 and 0 <= y <= 199:
-                yield x, y
-            if x == x2 and y == y2:
-                break
-            e2 = 2 * err
-            if e2 >= dy:
-                err += dy
-                x += sx
-            if e2 <= dx:
-                err += dx
-                y += sy
-
-    def add_line(bitmap: bytearray, x1: int, y1: int, x2: int, y2: int) -> None:
-        for x, y in line_pixels(x1, y1, x2, y2):
-            off = bitmap_offset(x, y)
-            bitmap[off] |= (1 << (7 - (x % 8)))
 
     bitmap = bytearray(8000)
 
+    def put_dot(px: int, py: int) -> None:
+        if 0 <= px <= 319 and 0 <= py <= 199:
+            off = bitmap_offset(px, py)
+            bitmap[off] |= (1 << (7 - (px % 8)))
+
+    def add_edge_dots(a: tuple[float, float, float], b: tuple[float, float, float]) -> None:
+        ax, ay, az = a
+        bx, by, bz = b
+        for i in range(1, DOTS_PER_CELL_EDGE + 1):
+            t = i / (DOTS_PER_CELL_EDGE + 1)
+            px, py = project(ax + (bx - ax) * t, ay + (by - ay) * t, az + (bz - az) * t)
+            put_dot(px, py)
+
     for z in VISIBLE_RING_ZS:
-        add_line(bitmap, *project(0, 0, z), *project(PIT_W, 0, z))
-        add_line(bitmap, *project(PIT_W, 0, z), *project(PIT_W, PIT_H, z))
-        add_line(bitmap, *project(PIT_W, PIT_H, z), *project(0, PIT_H, z))
-        add_line(bitmap, *project(0, PIT_H, z), *project(0, 0, z))
+        for x in range(PIT_W):
+            add_edge_dots((x, 0, z), (x + 1, 0, z))
+            add_edge_dots((x, PIT_H, z), (x + 1, PIT_H, z))
+        for y in range(PIT_H):
+            add_edge_dots((0, y, z), (0, y + 1, z))
+            add_edge_dots((PIT_W, y, z), (PIT_W, y + 1, z))
 
-    for x in range(PIT_W + 1):
-        add_line(bitmap, *project(x, 0, 0), *project(x, 0, PIT_VISUAL_DEPTH))
-        add_line(bitmap, *project(x, PIT_H, 0), *project(x, PIT_H, PIT_VISUAL_DEPTH))
-
-    for y in range(PIT_H + 1):
-        add_line(bitmap, *project(0, y, 0), *project(0, y, PIT_VISUAL_DEPTH))
-        add_line(bitmap, *project(PIT_W, y, 0), *project(PIT_W, y, PIT_VISUAL_DEPTH))
+    for z in range(PIT_VISUAL_DEPTH):
+        for x in range(PIT_W + 1):
+            add_edge_dots((x, 0, z), (x, 0, z + 1))
+            add_edge_dots((x, PIT_H, z), (x, PIT_H, z + 1))
+        for y in range(PIT_H + 1):
+            add_edge_dots((0, y, z), (0, y, z + 1))
+            add_edge_dots((PIT_W, y, z), (PIT_W, y, z + 1))
 
     records: dict[int, int] = {}
     for off, value in enumerate(bitmap):
@@ -638,12 +624,12 @@ def main():
         "endpointPayloadClassification": report["summary"]["classification"],
         "estimatedEndpointPayloadBytes": report["summary"]["estimatedTotalEndpointPayloadBytes"],
         "runtimeLineDrawing": True,
-        "runtimeTruth": "C64 draws the known-good WASD 3x3x10 pit records, then key-driven P03_ELBOW endpoint full rotation.",
-        "pitStyle": "known-good WASD compact bitmap-record pit, changed from 5x5x10 to 3x3x10",
+        "runtimeTruth": "C64 draws a green dotted WASD 3x3x10 pit, then key-driven P03_ELBOW endpoint payload generated from the same projection contract.",
+        "pitStyle": "green dotted WASD 3x3x10 pit, 4 dots per visible pit cell edge",
         "floorDots": False,
         "floorLines": False,
         "colorStrategy": "screen cells default green; active line pixels set their 8x8 cells white",
-        "knownArtifact": "Pit geometry now comes from the WASD known-good compact pit renderer. Active block may still recolor overlapping 8x8 cells white.",
+        "knownArtifact": "Pit uses sparse green dots to reduce, not eliminate, C64 hi-res 8x8 color-cell collisions with the white active block.",
         "sizes": sizes,
         "prgBytes": len(image),
         "runtimeKeyboard": True,

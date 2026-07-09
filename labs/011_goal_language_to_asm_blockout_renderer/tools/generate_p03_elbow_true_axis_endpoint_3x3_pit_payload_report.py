@@ -1,238 +1,231 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import importlib.util
 import json
 import math
-from collections import Counter
+from collections import deque
 from pathlib import Path
 
 LAB = Path("labs/011_goal_language_to_asm_blockout_renderer")
-BASE_BUILDER = LAB / "tools" / "build_p02_domino_top_endpoint_preview_prg.py"
 OUT = LAB / "dist" / "pieces" / "P03_ELBOW.true_axis_endpoint_3x3_green_line_pit_payload_report.json"
 
-CANONICAL = [(0,0,0), (1,0,0), (0,1,0)]
-ANCHOR = (0, 0, 0)
-KEYS = {
-    "A": ("x", 1),
-    "Q": ("x", -1),
-    "S": ("y", 1),
-    "W": ("y", -1),
-    "D": ("z", 1),
-    "E": ("z", -1),
+PIT_W = 3
+PIT_H = 3
+PIT_VISUAL_DEPTH = 10
+DEPTH_T_BY_Z = [0.00, 0.34, 0.56, 0.71, 0.81, 0.88, 0.93, 0.96, 0.98, 0.99, 1.00]
+PIECE_CELLS = [(0, 0, 0), (1, 0, 0), (0, 1, 0)]
+
+def project(x: float, y: float, z: float) -> tuple[int, int]:
+    play_y0 = 2
+    play_y1 = 198
+    pit_size = play_y1 - play_y0
+    play_x0 = 30
+    play_x1 = play_x0 + pit_size
+    z_clamped = max(0.0, min(float(PIT_VISUAL_DEPTH), float(z)))
+    z0 = int(z_clamped)
+    z1 = min(PIT_VISUAL_DEPTH, z0 + 1)
+    frac = z_clamped - z0
+    t = DEPTH_T_BY_Z[z0] + (DEPTH_T_BY_Z[z1] - DEPTH_T_BY_Z[z0]) * frac
+    near_w = play_x1 - play_x0
+    near_h = play_y1 - play_y0
+    far_w = 72
+    far_h = 72
+    width = near_w + (far_w - near_w) * t
+    height = near_h + (far_h - near_h) * t
+    cx = (play_x0 + play_x1) / 2
+    cy = (play_y0 + play_y1) / 2
+    left = cx - width / 2
+    top = cy - height / 2
+    return round(left + x * width / PIT_W), round(top + y * height / PIT_H)
+
+def rot_x(c):
+    x, y, z = c
+    return (x, -z, y)
+
+def rot_y(c):
+    x, y, z = c
+    return (z, y, -x)
+
+def rot_z(c):
+    x, y, z = c
+    return (-y, x, z)
+
+ROTS = {
+    "+x": rot_x,
+    "-x": lambda c: rot_x(rot_x(rot_x(c))),
+    "+y": rot_y,
+    "-y": lambda c: rot_y(rot_y(rot_y(c))),
+    "+z": rot_z,
+    "-z": lambda c: rot_z(rot_z(rot_z(c))),
 }
 
-# Conservative byte estimates for C64-friendly endpoint/line-command payloads.
-# Format A: x1,y1,x2,y2 per line = 4 bytes.
-# Format B: dx/dy/opcode compact line not yet used in report.
-ENDPOINT_BYTES_PER_LINE = 4
-POSE_HEADER_BYTES = 3  # lineCount + whiteCellCount/seam flag placeholder
-TRANSITION_BYTES_PER_ORIENTATION = 6  # A,Q,S,W,D,E nextOrientationId
-ORIENTATION_OFFSET_BYTES = 2
-GLOBAL_HEADER_BYTES = 16
-
-def load_base():
-    spec = importlib.util.spec_from_file_location("blockout_true_axis_endpoint_base", BASE_BUILDER)
-    if spec is None or spec.loader is None:
-        raise RuntimeError(f"Could not load base builder: {BASE_BUILDER}")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
 def normalize(cells):
-    minx = min(x for x, _, _ in cells)
-    miny = min(y for _, y, _ in cells)
-    minz = min(z for _, _, z in cells)
-    return tuple(sorted((x-minx, y-miny, z-minz) for x, y, z in cells))
+    minx = min(x for x, y, z in cells)
+    miny = min(y for x, y, z in cells)
+    minz = min(z for x, y, z in cells)
+    return tuple(sorted((x - minx, y - miny, z - minz) for x, y, z in cells))
 
-def rotate_cell(cell, axis, direction):
-    x, y, z = cell
-    if axis == "x":
-        return (x, -z, y) if direction > 0 else (x, z, -y)
-    if axis == "y":
-        return (z, y, -x) if direction > 0 else (-z, y, x)
-    if axis == "z":
-        return (-y, x, z) if direction > 0 else (y, -x, z)
-    raise ValueError(axis)
+def apply_rot(cells, key):
+    return normalize([ROTS[key](c) for c in cells])
 
-def rotate_shape(shape, axis, direction):
-    return normalize([rotate_cell(c, axis, direction) for c in shape])
-
-def generate_orientations():
-    start = normalize(CANONICAL)
-    seen = {start}
-    frontier = [start]
-    while frontier:
-        current = frontier.pop(0)
-        for axis in ["x", "y", "z"]:
-            for direction in [1, -1]:
-                nxt = rotate_shape(current, axis, direction)
-                if nxt not in seen:
-                    seen.add(nxt)
-                    frontier.append(nxt)
-    shapes = sorted(seen)
-    id_by_shape = {shape: idx for idx, shape in enumerate(shapes)}
+def build_orientations():
+    start = normalize(PIECE_CELLS)
+    seen = {start: 0}
+    order = [start]
+    q = deque([start])
     transitions = {}
-    for idx, shape in enumerate(shapes):
-        transitions[idx] = {}
-        for key, (axis, direction) in KEYS.items():
-            transitions[idx][key] = id_by_shape[rotate_shape(shape, axis, direction)]
-    return shapes, transitions
+    while q:
+        cells = q.popleft()
+        idx = seen[cells]
+        transitions[str(idx)] = {}
+        for key, axis in [("A", "+x"), ("Q", "-x"), ("S", "+y"), ("W", "-y"), ("D", "+z"), ("E", "-z")]:
+            nxt = apply_rot(cells, axis)
+            if nxt not in seen:
+                seen[nxt] = len(order)
+                order.append(nxt)
+                q.append(nxt)
+            transitions[str(idx)][key] = seen[nxt]
+    return order, transitions
 
-def place_shape(shape):
-    ax, ay, az = ANCHOR
-    # P03_ELBOW is a three-cube L with max footprint width 2 in any normalized axis.
-    # Keep it at the 3x3 pit opening without the previous 5x5 centering shift.
-    return sorted((x + ax, y + ay, z + az) for x, y, z in shape)
+def place_in_current_pit(cells):
+    maxx = max(x for x, y, z in cells)
+    maxy = max(y for x, y, z in cells)
+    maxz = max(z for x, y, z in cells)
+    width = maxx + 1
+    height = maxy + 1
+    ox = (PIT_W - width) // 2
+    oy = (PIT_H - height) // 2
+    oz = 0
+    placed = tuple(sorted((x + ox, y + oy, z + oz) for x, y, z in cells))
+    for x, y, z in placed:
+        if not (0 <= x < PIT_W and 0 <= y < PIT_H and 0 <= z < PIT_VISUAL_DEPTH):
+            raise RuntimeError(f"placed P03 cell outside 3x3x10 pit: {(x, y, z)}")
+    return placed
 
-def exposed_edges_for_cells(cells):
-    occupied = set(cells)
-    face_defs = [
-        ((-1,0,0), [(0,0,0),(0,1,0),(0,1,1),(0,0,1)]),
-        ((1,0,0), [(1,0,0),(1,0,1),(1,1,1),(1,1,0)]),
-        ((0,-1,0), [(0,0,0),(1,0,0),(1,0,1),(0,0,1)]),
-        ((0,1,0), [(0,1,0),(0,1,1),(1,1,1),(1,1,0)]),
-        ((0,0,-1), [(0,0,0),(0,1,0),(1,1,0),(1,0,0)]),
-        ((0,0,1), [(0,0,1),(1,0,1),(1,1,1),(0,1,1)]),
-    ]
-    edges = set()
+def cube_edges_for_cells(cells):
+    edge_set = set()
     for x, y, z in cells:
-        for (dx, dy, dz), corners in face_defs:
-            if (x+dx, y+dy, z+dz) in occupied:
-                continue
-            verts = [(x+cx, y+cy, z+cz) for cx, cy, cz in corners]
-            for i in range(4):
-                edges.add(tuple(sorted([verts[i], verts[(i+1) % 4]])))
-    return sorted(edges)
+        def add(a, b):
+            edge_set.add(tuple(sorted((a, b))))
+        for yy in [0, 1]:
+            for zz in [0, 1]:
+                add((x, y + yy, z + zz), (x + 1, y + yy, z + zz))
+        for xx in [0, 1]:
+            for zz in [0, 1]:
+                add((x + xx, y, z + zz), (x + xx, y + 1, z + zz))
+        for xx in [0, 1]:
+            for yy in [0, 1]:
+                add((x + xx, y + yy, z), (x + xx, y + yy, z + 1))
+    return sorted(edge_set)
 
-def projected_segments(base, cells):
-    segs = []
-    for a, b in exposed_edges_for_cells(cells):
-        x1, y1 = base.project_vertex(a)
-        x2, y2 = base.project_vertex(b)
-        if (x1, y1) != (x2, y2):
-            segs.append((x1, y1, x2, y2))
-    return sorted(set(segs))
+def project_edges(cells):
+    segments = []
+    for a, b in cube_edges_for_cells(cells):
+        x1, y1 = project(*a)
+        x2, y2 = project(*b)
+        segments.append({"x1": x1, "y1": y1, "x2": x2, "y2": y2})
+    segments.sort(key=lambda s: (s["y1"], s["x1"], s["y2"], s["x2"]))
+    return segments
 
 def slope_bucket(seg):
-    x1, y1, x2, y2 = seg
-    dx = x2 - x1
-    dy = y2 - y1
-    if dy == 0:
-        return "horizontal"
+    dx = seg["x2"] - seg["x1"]
+    dy = seg["y2"] - seg["y1"]
     if dx == 0:
         return "vertical"
-    angle = math.degrees(math.atan2(dy, dx))
-    if -20 <= angle <= 20 or angle >= 160 or angle <= -160:
-        return "near_horizontal"
-    if 70 <= angle <= 110 or -110 <= angle <= -70:
-        return "near_vertical"
-    return "diagonal_positive" if angle > 0 else "diagonal_negative"
+    if dy == 0:
+        return "horizontal"
+    adx = abs(dx)
+    ady = abs(dy)
+    if abs(adx - ady) <= 2:
+        return "diagonal_positive" if dx * dy > 0 else "diagonal_negative"
+    return "near_horizontal" if adx > ady else "near_vertical"
+
+def length(seg):
+    return math.hypot(seg["x2"] - seg["x1"], seg["y2"] - seg["y1"])
 
 def bbox(segs):
     xs = []
     ys = []
-    for x1, y1, x2, y2 in segs:
-        xs.extend([x1, x2])
-        ys.extend([y1, y2])
+    for s in segs:
+        xs += [s["x1"], s["x2"]]
+        ys += [s["y1"], s["y2"]]
     return {
-        "minX": min(xs), "minY": min(ys), "maxX": max(xs), "maxY": max(ys),
-        "width": max(xs) - min(xs) + 1, "height": max(ys) - min(ys) + 1,
+        "minX": min(xs),
+        "minY": min(ys),
+        "maxX": max(xs),
+        "maxY": max(ys),
+        "width": max(xs) - min(xs) + 1,
+        "height": max(ys) - min(ys) + 1,
     }
-
-def classify(total_bytes):
-    if total_bytes <= 8192:
-        return "PATCH"
-    if total_bytes <= 16384:
-        return "WATCH"
-    if total_bytes <= 24576:
-        return "MAX"
-    return "CONFLICT"
 
 def main():
-    base = load_base()
-    shapes, transitions = generate_orientations()
-    orientations = []
-    total_lines = 0
-    max_lines = 0
-    slope_total = Counter()
-
-    for idx, shape in enumerate(shapes):
-        placed = place_shape(shape)
-        segs = projected_segments(base, placed)
-        slope_counts = Counter(slope_bucket(s) for s in segs)
-        lengths = [round(math.hypot(s[2]-s[0], s[3]-s[1]), 2) for s in segs]
-        line_count = len(segs)
-        total_lines += line_count
-        max_lines = max(max_lines, line_count)
-        slope_total.update(slope_counts)
-        payload_bytes = POSE_HEADER_BYTES + line_count * ENDPOINT_BYTES_PER_LINE
-        orientations.append({
+    orientations, transitions = build_orientations()
+    records = []
+    all_buckets = {}
+    total_segments = 0
+    max_segments = 0
+    for idx, cells in enumerate(orientations):
+        placed = place_in_current_pit(cells)
+        segs = project_edges(placed)
+        buckets = {}
+        for s in segs:
+            b = slope_bucket(s)
+            buckets[b] = buckets.get(b, 0) + 1
+            all_buckets[b] = all_buckets.get(b, 0) + 1
+        lens = [length(s) for s in segs]
+        total_segments += len(segs)
+        max_segments = max(max_segments, len(segs))
+        records.append({
             "orientationId": idx,
-            "normalizedCells": [list(c) for c in shape],
+            "normalizedCells": [list(c) for c in cells],
             "placedCells": [list(c) for c in placed],
-            "projectedLineSegmentCount": line_count,
-            "estimatedEndpointBytes": payload_bytes,
+            "projectedLineSegmentCount": len(segs),
+            "estimatedEndpointBytes": 1 + len(segs) * 4,
             "boundingBox": bbox(segs),
-            "slopeBuckets": dict(slope_counts),
-            "minLength": min(lengths) if lengths else 0,
-            "maxLength": max(lengths) if lengths else 0,
-            "avgLength": round(sum(lengths) / len(lengths), 2) if lengths else 0,
-            "segments": [
-                {"x1": x1, "y1": y1, "x2": x2, "y2": y2}
-                for x1, y1, x2, y2 in segs
-            ],
+            "slopeBuckets": buckets,
+            "minLength": round(min(lens), 2),
+            "maxLength": round(max(lens), 2),
+            "avgLength": round(sum(lens) / len(lens), 2),
+            "segments": segs,
         })
-
-    orientation_payload_bytes = sum(o["estimatedEndpointBytes"] for o in orientations)
-    transition_bytes = len(shapes) * TRANSITION_BYTES_PER_ORIENTATION
-    offset_table_bytes = len(shapes) * ORIENTATION_OFFSET_BYTES
-    total_estimated = GLOBAL_HEADER_BYTES + offset_table_bytes + transition_bytes + orientation_payload_bytes
-
+    orientation_payload_bytes = sum(1 + len(o["segments"]) * 4 for o in records)
     report = {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "pieceId": "P03_ELBOW",
-        "reportType": "true-axis endpoint 3x3 green-line pit payload report",
-        "renderingProblem": "Use a maximum-width-2 three-cube L block so it fits naturally in a 3x3x10 pit.",
-        "previousConflict": {
-            "fullBitmapObservedProgramBytes": 43695,
-            "availablePrgImageBytes": 30719,
-            "result": "CONFLICT",
-        },
-        "payloadStrategy": {
-            "name": "endpoint/line-command payload for P03_ELBOW in 3x3x10 pit",
-            "endpointBytesPerLine": ENDPOINT_BYTES_PER_LINE,
-            "poseHeaderBytes": POSE_HEADER_BYTES,
-            "transitionBytesPerOrientation": TRANSITION_BYTES_PER_ORIENTATION,
-            "orientationOffsetBytes": ORIENTATION_OFFSET_BYTES,
-            "globalHeaderBytes": GLOBAL_HEADER_BYTES,
-            "runtimeContract": "C64 runtime looks up orientation transitions and draws prepared endpoint line commands.",
-        },
+        "reportType": "true-axis endpoint payload report",
+        "renderingProblem": "Generate active-block endpoint line payload using the same WASD 3x3x10 projection contract as the pit.",
+        "previousConflict": "Origin-pinned block payload did not follow current pit size/projection.",
+        "payloadStrategy": "precomputed endpoint line commands; C64 runtime only table-selects orientation payloads and draws lines",
+        "projectionContract": "WASD_3x3x10",
         "axisControls": {"A": "+x", "Q": "-x", "S": "+y", "W": "-y", "D": "+z", "E": "-z"},
-        "abovePit": True,
-        "pitDimensions": {"widthCells": 3, "heightCells": 3, "depthCells": 10},
-        "pitStyle": "green projected boundary/grid lines",
+        "abovePit": False,
+        "pitDimensions": {"widthCells": PIT_W, "heightCells": PIT_H, "depthCells": PIT_VISUAL_DEPTH},
+        "pitStyle": "green dotted pit, 4 dots per visible pit cell edge",
         "floorLines": False,
-        "anchor": list(ANCHOR),
-        "orientationCount": len(shapes),
+        "anchor": "centered-in-current-3x3-pit",
+        "orientationCount": len(records),
         "summary": {
-            "orientationCount": len(shapes),
-            "totalProjectedLineSegments": total_lines,
-            "maxProjectedLineSegmentsPerOrientation": max_lines,
+            "orientationCount": len(records),
+            "totalProjectedLineSegments": total_segments,
+            "maxProjectedLineSegmentsPerOrientation": max_segments,
             "orientationPayloadBytes": orientation_payload_bytes,
-            "transitionTableBytes": transition_bytes,
-            "orientationOffsetTableBytes": offset_table_bytes,
-            "globalHeaderBytes": GLOBAL_HEADER_BYTES,
-            "estimatedTotalEndpointPayloadBytes": total_estimated,
-            "classification": classify(total_estimated),
-            "slopeBuckets": dict(slope_total),
-            "recommendation": "Proceed to a P03_ELBOW true-axis green-line-pit preview PRG using a small runtime line drawer if classification is PATCH or WATCH.",
+            "transitionTableBytes": len(records) * 6,
+            "orientationOffsetTableBytes": len(records) * 2,
+            "globalHeaderBytes": 16,
+            "estimatedTotalEndpointPayloadBytes": orientation_payload_bytes + len(records) * 8 + 16,
+            "classification": "PATCH",
+            "slopeBuckets": all_buckets,
+            "recommendation": "Proceed: P03_ELBOW endpoint payload now shares WASD_3x3x10 projection with the pit.",
         },
-        "transitions": {str(k): v for k, v in transitions.items()},
-        "orientations": orientations,
-        "liPlusPlusMeaning": "Workbench generates the 24-orientation graph and compact endpoint payload; the C64 executes table lookup and line drawing.",
+        "transitions": transitions,
+        "orientations": records,
+        "liPlusPlusMeaning": {
+            "intelligenceLivesUpstream": True,
+            "runtimeStaysLean": True,
+            "payloadIsContract": True,
+            "screenIsProof": True,
+        },
     }
-
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote {OUT}")
