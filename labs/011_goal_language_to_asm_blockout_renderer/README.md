@@ -495,3 +495,18 @@ Build:
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p04_l_dot_pit_rotation_preview_prg.py
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p04_l_dot_pit_rotation_preview_prg.py
 ```
+
+## P04_L green wall-dot pit preview
+
+This preview tests a sparse green pit representation:
+
+- pit: green dots at projected side-wall/opening boundary intersections only;
+- floor: no dots;
+- active block: solid white outline.
+
+Build:
+
+```bash
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p04_l_green_wall_dots_rotation_preview_prg.py
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p04_l_green_wall_dots_rotation_preview_prg.py
+```

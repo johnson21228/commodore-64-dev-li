@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "program": "labs/011_goal_language_to_asm_blockout_renderer/dist/p04_l_green_wall_dots_rotation_preview.prg",
+  "pieceId": "P04_L",
+  "mode": "P04_L green wall-dot pit with white active-block cells",
+  "pitStyle": "green dots at projected side-wall/opening boundary intersections only",
+  "floorDots": false,
+  "colorStrategy": "screen cells default green; active-block touched cells are set to white",
+  "knownArtifact": "Any green pit dot in an active-block touched 8x8 cell will still become white; this preview reduces collisions by using sparse wall dots only.",
+  "controls": {
+    "A/S/D": "advance one visible 90-degree step",
+    "Q/W/E": "reverse one visible 90-degree step"
+  },
+  "cycle": "0 -> 1 -> 2 -> 3 -> 0",
+  "states": {
+    "0": {
+      "rotationDegrees": 0,
+      "occupiedCells": [
+        [
+          1,
+          1,
+          0
+        ],
+        [
+          2,
+          1,
+          0
+        ],
+        [
+          3,
+          1,
+          0
+        ],
+        [
+          1,
+          2,
+          0
+        ]
+      ],
+      "bitmapRecordCount": 941,
+      "whiteScreenCellCount": 97
+    },
+    "1": {
+      "rotationDegrees": 90,
+      "occupiedCells": [
+        [
+          3,
+          1,
+          0
+        ],
+        [
+          3,
+          2,
+          0
+        ],
+        [
+          3,
+          3,
+          0
+        ],
+        [
+          2,
+          1,
+          0
+        ]
+      ],
+      "bitmapRecordCount": 978,
+      "whiteScreenCellCount": 98
+    },
+    "2": {
+      "rotationDegrees": 180,
+      "occupiedCells": [
+        [
+          1,
+          3,
+          0
+        ],
+        [
+          2,
+          3,
+          0
+        ],
+        [
+          3,
+          3,
+          0
+        ],
+        [
+          3,
+          2,
+          0
+        ]
+      ],
+      "bitmapRecordCount": 937,
+      "whiteScreenCellCount": 99
+    },
+    "3": {
+      "rotationDegrees": 270,
+      "occupiedCells": [
+        [
+          1,
+          1,
+          0
+        ],
+        [
+          1,
+          2,
+          0
+        ],
+        [
+          1,
+          3,
+          0
+        ],
+        [
+          2,
+          3,
+          0
+        ]
+      ],
+      "bitmapRecordCount": 987,
+      "whiteScreenCellCount": 100
+    }
+  },
+  "pitTouchedCells": 182,
+  "prgBytes": 30719,
+  "runtimeKeyboard": true,
+  "runtimeStatefulRotation": true,
+  "runtimeLineDrawing": false,
+  "previewOnly": true
+}
