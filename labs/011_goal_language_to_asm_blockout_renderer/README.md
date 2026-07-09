@@ -510,3 +510,22 @@ Build:
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p04_l_green_wall_dots_rotation_preview_prg.py
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p04_l_green_wall_dots_rotation_preview_prg.py
 ```
+
+## P04_L true axis above-pit preview
+
+This preview removes the z-only shortcut.
+
+Controls:
+
+- A/Q rotate about x;
+- S/W rotate about y;
+- D/E rotate about z.
+
+The active block is placed at the pit opening/top plane. The pit uses single-pixel green wall/opening dots only, with no floor dots.
+
+Build:
+
+```bash
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p04_l_true_axis_above_pit_preview_prg.py
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p04_l_true_axis_above_pit_preview_prg.py
+```
