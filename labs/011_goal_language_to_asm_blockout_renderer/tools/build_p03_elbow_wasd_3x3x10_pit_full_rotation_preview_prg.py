@@ -22,6 +22,7 @@ ORIENT = 0x02
 PTR_LO = 0xFB
 PTR_HI = 0xFC
 CNT = 0xFD
+PIT_CNT_HI = 0x02  # high byte for static pit-record count only
 TMP = 0xFE
 MASK_ZP = 0x03
 X0 = 0x04
@@ -297,9 +298,10 @@ def build_code(symbols: dict[str, int], orientation_count: int, pit_record_count
     lda_imm(symbols["pit_records"] & 0xFF); sta_zp(PTR_LO)
     lda_imm((symbols["pit_records"] >> 8) & 0xFF); sta_zp(PTR_HI)
     lda_imm(pit_record_count & 0xFF); sta_zp(CNT)
+    lda_imm((pit_record_count >> 8) & 0xFF); sta_zp(PIT_CNT_HI)
     lda_imm(0); sta_zp(PLOT_WHITE)
     a.label("pit_loop")
-    lda_zp(CNT); beq("pit_done")
+    lda_zp(CNT); a.emit(0x05, PIT_CNT_HI); beq("pit_done")
     ldy_imm(0)
     a.emit(0xB1, PTR_LO); sta_abs(0x0330); sta_abs(0x0333); a.emit(0xC8)
     a.emit(0xB1, PTR_LO); sta_abs(0x0331); sta_abs(0x0334); a.emit(0xC8)
@@ -311,8 +313,12 @@ def build_code(symbols: dict[str, int], orientation_count: int, pit_record_count
     bcc("pit_ptr_no_carry")
     a.emit(0xE6, PTR_HI)
     a.label("pit_ptr_no_carry")
+    # Decrement 16-bit pit-record counter.
+    lda_zp(CNT); bne("pit_dec_low")
+    a.emit(0xC6, PIT_CNT_HI)
+    a.label("pit_dec_low")
     a.emit(0xC6, CNT)
-    bne("pit_loop")
+    lda_zp(CNT); a.emit(0x05, PIT_CNT_HI); bne("pit_loop")
     a.label("pit_done")
     a.emit(0x60)
 

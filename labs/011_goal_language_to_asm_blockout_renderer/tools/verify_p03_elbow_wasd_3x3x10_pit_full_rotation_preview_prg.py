@@ -45,9 +45,15 @@ if not errors:
         errors.append("builder must set WASD pit to 3x3")
     if "PIT_VISUAL_DEPTH = 10" not in builder:
         errors.append("builder must preserve depth 10")
+    if "PIT_CNT_HI = 0x02" not in builder:
+        errors.append("builder must use a separate high byte for pit-record count")
+    if "sta_zp(PIT_CNT_HI)" not in builder or "pit_dec_low" not in builder:
+        errors.append("pit draw routine must use a 16-bit pit-record counter")
     sizes = meta.get("sizes", {})
     if sizes.get("pitRecordBytes", 0) <= 1000:
         errors.append("WASD pit should have substantial compact pit records")
+    if sizes.get("pitRecordBytes", 0) // 3 <= 255:
+        errors.append("test must require more than 255 pit records to exercise 16-bit counter")
     if sizes.get("programUsedBytes", 999999) >= sizes.get("availablePrgImageBytes", 0):
         errors.append("program must fit within available PRG image bytes")
     if report.get("pieceId") != "P03_ELBOW" or report.get("orientationCount") != 12:

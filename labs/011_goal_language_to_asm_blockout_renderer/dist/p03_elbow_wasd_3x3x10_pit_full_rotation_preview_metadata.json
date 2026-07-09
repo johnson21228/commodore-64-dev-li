@@ -31,12 +31,12 @@
   "colorStrategy": "screen cells default green; active line pixels set their 8x8 cells white",
   "knownArtifact": "Pit geometry now comes from the WASD known-good compact pit renderer. Active block may still recolor overlapping 8x8 cells white.",
   "sizes": {
-    "codeBytes": 764,
+    "codeBytes": 780,
     "payloadBytes": 1356,
     "transitionBytes": 72,
     "pitRecordBytes": 6378,
     "lookupTableBytes": 1824,
-    "programUsedBytes": 10439,
+    "programUsedBytes": 10455,
     "availablePrgImageBytes": 30717
   },
   "prgBytes": 30719,
