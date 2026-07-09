@@ -387,3 +387,18 @@ Build:
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p02_domino_top_endpoint_preview_prg.py
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p02_domino_top_endpoint_preview_prg.py
 ```
+
+## P02_DOMINO white dashed pit preview
+
+This preview tests a C64-native line-style distinction:
+
+- pit: white subtle dashed lines;
+- dynamic block: solid white outline;
+- background: black.
+
+Build:
+
+```bash
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p02_domino_white_dashed_pit_preview_prg.py
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p02_domino_white_dashed_pit_preview_prg.py
+```
