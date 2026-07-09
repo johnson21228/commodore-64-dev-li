@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "program": "labs/011_goal_language_to_asm_blockout_renderer/dist/p04_l_true_axis_endpoint_preview.prg",
+  "pieceId": "P04_L",
+  "mode": "true-axis endpoint preview",
+  "shortcutRemoved": true,
+  "abovePit": true,
+  "axisControls": {
+    "A": "+x",
+    "Q": "-x",
+    "S": "+y",
+    "W": "-y",
+    "D": "+z",
+    "E": "-z"
+  },
+  "orientationCount": 24,
+  "payloadSource": "labs/011_goal_language_to_asm_blockout_renderer/dist/pieces/P04_L.true_axis_endpoint_payload_report.json",
+  "endpointPayloadClassification": "PATCH",
+  "estimatedEndpointPayloadBytes": 3736,
+  "runtimeLineDrawing": true,
+  "runtimeTruth": "C64 runtime performs key-driven orientation table lookup and draws endpoint line commands.",
+  "pitStyle": "single-pixel green wall/opening dots only; no floor dots",
+  "floorDots": false,
+  "colorStrategy": "screen cells default green; active line pixels set their 8x8 cells white",
+  "knownArtifact": "Any green pit dot in an active-line 8x8 cell becomes white; sparse wall dots reduce collisions.",
+  "sizes": {
+    "codeBytes": 764,
+    "payloadBytes": 3480,
+    "transitionBytes": 144,
+    "pitRecordBytes": 138,
+    "lookupTableBytes": 1824,
+    "programUsedBytes": 6419,
+    "availablePrgImageBytes": 30717
+  },
+  "prgBytes": 30719,
+  "runtimeKeyboard": true,
+  "runtimeStatefulRotation": true,
+  "previewOnly": true
+}

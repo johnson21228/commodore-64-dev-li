@@ -562,3 +562,26 @@ Build:
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/generate_p04_l_true_axis_endpoint_payload_report.py
 python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p04_l_true_axis_endpoint_payload_report.py
 ```
+
+## P04_L true-axis endpoint preview PRG
+
+This preview uses the compact endpoint payload report to build a runtime line-drawing PRG.
+
+Controls:
+
+- A/Q rotate about x;
+- S/W rotate about y;
+- D/E rotate about z.
+
+Rendering:
+
+- pit: single-pixel green wall/opening dots only;
+- floor: no dots;
+- active block: endpoint-drawn white outline.
+
+Build:
+
+```bash
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/build_p04_l_true_axis_endpoint_preview_prg.py
+python3 labs/011_goal_language_to_asm_blockout_renderer/tools/verify_p04_l_true_axis_endpoint_preview_prg.py
+```
